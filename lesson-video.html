@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Học bài: Thánh Gióng - VieHistory</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-[#f5deb3] min-h-screen">
+  <div class="flex flex-col md:flex-row max-w-6xl mx-auto bg-white rounded-2xl shadow-lg mt-8 overflow-hidden">
+    <!-- Main Video Section -->
+    <div class="flex-1 p-6 flex flex-col">
+      <div class="relative rounded-xl overflow-hidden shadow-lg mb-6 aspect-video bg-[#8B4513] flex items-center justify-center">
+        <video id="mainVideo" class="w-full h-full object-cover" poster="https://images.unsplash.com/photo-1506744038136-46273834b3fb" controls>
+          <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+          Trình duyệt của bạn không hỗ trợ video.
+        </video>
+        <button id="playBtn" class="absolute inset-0 flex items-center justify-center text-white text-6xl bg-black/40 hover:bg-black/60 transition rounded-xl"
+          onclick="document.getElementById('mainVideo').play(); this.style.display='none';">
+          <i class="fas fa-play-circle"></i>
+        </button>
+      </div>
+      <div class="flex justify-between items-center mt-2">
+        <button class="flex items-center gap-2 px-4 py-2 rounded-full bg-[#F5DEB3] text-[#8B4513] font-semibold shadow hover:bg-[#e6cfa3] transition">
+          <i class="fas fa-arrow-left"></i> Bài trước
+        </button>
+        <button class="flex items-center gap-2 px-4 py-2 rounded-full bg-[#8B4513] text-white font-semibold shadow hover:bg-[#5F3111] transition">
+          Bài tiếp theo <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+    <!-- Sidebar -->
+    <aside class="w-full md:w-80 bg-[#fff7e6] border-l border-[#f5deb3] p-4 overflow-y-auto">
+      <h2 class="text-xl font-bold text-[#8B4513] mb-4 flex items-center gap-2">
+        <i class="fas fa-list-ul"></i> Các phần trong bài học
+      </h2>
+      <div id="accordion" class="space-y-2">
+        <!-- Section 1 -->
+        <div>
+          <button class="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-[#f5deb3] text-[#8B4513] font-semibold focus:outline-none"
+            onclick="toggleAccordion(1)">
+            <span class="flex items-center gap-2">
+              <i class="fas fa-child"></i> Phần 1: Giới thiệu nhân vật
+            </span>
+            <span class="flex items-center gap-2">
+              <span class="text-xs bg-green-200 text-green-800 px-2 py-0.5 rounded-full">Đã học</span>
+              <span class="text-xs text-[#8B4513]"><i class="far fa-clock"></i> 2'</span>
+              <i class="fas fa-chevron-down"></i>
+            </span>
+          </button>
+          <div id="panel1" class="pl-8 pr-2 py-2 text-sm text-[#5F3111] hidden">
+            <ul>
+              <li><i class="fas fa-play-circle text-[#8B4513] mr-1"></i> Video: Giới thiệu Thánh Gióng</li>
+              <li><i class="fas fa-question-circle text-[#8B4513] mr-1"></i> Câu hỏi nhanh</li>
+            </ul>
+          </div>
+        </div>
+        <!-- Section 2 -->
+        <div>
+          <button class="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-[#F5DEB3] text-[#8B4513] font-semibold focus:outline-none ring-2 ring-[#8B4513]"
+            onclick="toggleAccordion(2)">
+            <span class="flex items-center gap-2">
+              <i class="fas fa-dragon"></i> Phần 2: Diễn biến câu chuyện
+            </span>
+            <span class="flex items-center gap-2">
+              <span class="text-xs bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded-full">Đang học</span>
+              <span class="text-xs text-[#8B4513]"><i class="far fa-clock"></i> 4'</span>
+              <i class="fas fa-chevron-down"></i>
+            </span>
+          </button>
+          <div id="panel2" class="pl-8 pr-2 py-2 text-sm text-[#5F3111]">
+            <ul>
+              <li><i class="fas fa-play-circle text-[#8B4513] mr-1"></i> Video: Thánh Gióng lớn lên</li>
+              <li><i class="fas fa-play-circle text-[#8B4513] mr-1"></i> Video: Đánh giặc Ân</li>
+              <li><i class="fas fa-question-circle text-[#8B4513] mr-1"></i> Câu hỏi tương tác</li>
+            </ul>
+          </div>
+        </div>
+        <!-- Section 3 -->
+        <div>
+          <button class="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-[#f5deb3] text-[#8B4513] font-semibold focus:outline-none"
+            onclick="toggleAccordion(3)">
+            <span class="flex items-center gap-2">
+              <i class="fas fa-gamepad"></i> Phần 3: Mini-game tương tác
+            </span>
+            <span class="flex items-center gap-2">
+              <span class="text-xs bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full">Khóa</span>
+              <span class="text-xs text-[#8B4513]"><i class="far fa-clock"></i> 3'</span>
+              <i class="fas fa-chevron-down"></i>
+            </span>
+          </button>
+          <div id="panel3" class="pl-8 pr-2 py-2 text-sm text-[#5F3111] hidden">
+            <ul>
+              <li><i class="fas fa-gamepad text-[#8B4513] mr-1"></i> Ghép tranh Thánh Gióng</li>
+              <li><i class="fas fa-trophy text-[#8B4513] mr-1"></i> Đạt huy hiệu</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+  <script>
+    // Accordion logic
+    function toggleAccordion(idx) {
+      for (let i = 1; i <= 3; i++) {
+        const panel = document.getElementById('panel' + i);
+        if (i === idx) {
+          panel.classList.toggle('hidden');
+        } else {
+          panel.classList.add('hidden');
+        }
+      }
+    }
+    // Mặc định mở phần 2 (đang học)
+    window.onload = function() {
+      toggleAccordion(2);
+      document.getElementById('playBtn').onclick = function() {
+        document.getElementById('mainVideo').play();
+        this.style.display = 'none';
+      };
+    };
+  </script>
+</body>
+</html>

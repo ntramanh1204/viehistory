@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Thư viện bài học - VieHistory</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* ...style của home và courses... */
+        .quick-link-card {
+            transition: transform 0.2s;
+        }
+
+        .quick-link-card:hover {
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .welcome-section {
+            background: linear-gradient(rgba(139, 69, 19, 0.85), rgba(245, 222, 179, 0.7)), url('/api/placeholder/1200/600') center/cover no-repeat;
+            color: white;
+            padding: 60px 0 40px 0;
+        }
+
+        /* ...style sidebar, course-card, ... từ courses.html... */
+        .sidebar {
+            background: linear-gradient(135deg, #F5DEB3 0%, #8B4513 100%);
+            min-height: 100vh;
+            border-radius: 20px;
+        }
+
+        .course-card {
+            border: none;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #f5decb 0%, #fff7e6 100%);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+            transition: transform 0.2s;
+        }
+
+        .course-card:hover {
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        .course-badge {
+            font-size: 0.9rem;
+            border-radius: 12px;
+            padding: 0.3em 0.8em;
+        }
+
+        .course-badge.bg-success {
+            background: #8B4513 !important;
+            color: #fff !important;
+        }
+
+        .course-badge.bg-warning {
+            background: #5F3111 !important;
+            color: #fff !important;
+        }
+
+        :root {
+            --primary-color: #8B4513;
+            --secondary-color: #5F3111;
+            --light-color: #F5DEB3;
+        }
+
+        body {
+            background: #f8fafc;
+        }
+
+        .sidebar {
+            background: linear-gradient(135deg, var(--light-color) 0%, var(--primary-color) 100%);
+            min-height: 100vh;
+            border-radius: 20px;
+        }
+
+        .sidebar .nav-link.active,
+        .sidebar .nav-link:hover {
+            background: var(--primary-color);
+            color: #fff !important;
+            border-radius: 10px;
+        }
+
+        .course-card {
+            border: none;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #f5decb 0%, #fff7e6 100%);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+            transition: transform 0.2s;
+        }
+
+        .course-card:hover {
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        .course-badge {
+            font-size: 0.9rem;
+            border-radius: 12px;
+            padding: 0.3em 0.8em;
+        }
+
+        .course-badge.bg-success {
+            background: var(--primary-color) !important;
+            color: #fff !important;
+        }
+
+        .course-badge.bg-warning {
+            background: var(--secondary-color) !important;
+            color: #fff !important;
+        }
+
+        .course-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .search-bar {
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .btn-primary,
+        .btn-primary:focus {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+        @media (max-width: 991px) {
+            .sidebar {
+                min-height: auto;
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg bg-dark navbar-dark sticky-top">
+        <div class="container">
+            <!-- Nút mở sidebar luôn hiện -->
+            <button class="btn btn-outline-light me-2" type="button" data-bs-toggle="offcanvas"
+                data-bs-target="#sidebarOffcanvas">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a class="navbar-brand d-flex align-items-center" href="home.html">
+                <img src="..." alt="Logo" class="hourglass-icon">
+                <span class="logo-text text-white">VIE<span class="text-warning">HISTORY</span></span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <!-- <li class="nav-item">
+                        <a class="nav-link active" href="home.html">Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="lessons.html">Thư viện bài học</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="trial.html">Học thử</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="teacher.html">Quản lý lớp</a>
+                    </li> -->
+                </ul>
+                <!-- Search bar -->
+                <form class="flex-grow-1 me-3" style="max-width: 300px;">
+                    <input type="text" class="form-control search-bar"
+                        placeholder="Tìm kiếm nhân vật, sự kiện, thời kỳ...">
+                </form>
+                <div class="auth-buttons d-flex">
+                    <div class="d-flex align-items-center">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="avatar"
+                            class="rounded-circle me-2" width="40" height="40">
+                        <span class="fw-semibold text-white">Xin chào, Quỳnh</span>
+                        <a href="index.html" class="btn btn-sm btn-outline-light ms-3">Đăng xuất</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar Offcanvas: dùng cho mọi màn hình -->
+    <div class="offcanvas offcanvas-start sidebar" tabindex="-1" id="sidebarOffcanvas">
+        <div class="offcanvas-header">
+            <h4 class="fw-bold text-dark mb-0"><i class="fas fa-hourglass-half me-2"></i>VieHistory</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <ul class="nav flex-column w-100 p-3">
+                <li class="nav-item mb-2">
+                    <a class="nav-link text-dark fw-semibold" href="home.html"><i class="fas fa-home me-2"></i>Trang
+                        chủ</a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a class="nav-link text-dark fw-semibold" href="#"><i class="fas fa-route me-2"></i>Lộ trình
+                        học lịch sử</a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a class="nav-link text-dark fw-semibold" href="#"><i class="fas fa-chalkboard-teacher me-2"></i>Tài
+                        liệu cho giáo viên</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Quick Links Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <a href="#" class="text-decoration-none">
+                        <div class="card quick-link-card h-100 text-center shadow-sm">
+                            <div class="card-body">
+                                <i class="fas fa-book-open fa-3x mb-3 text-primary"></i>
+                                <h5 class="card-title">Thư viện bài học</h5>
+                                <p class="card-text">Khám phá các bài học lịch sử sinh động, phù hợp cho trẻ mầm non.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="#" class="text-decoration-none">
+                        <div class="card quick-link-card h-100 text-center shadow-sm">
+                            <div class="card-body">
+                                <i class="fas fa-play-circle fa-3x mb-3 text-success"></i>
+                                <h5 class="card-title">Học thử</h5>
+                                <p class="card-text">Trải nghiệm bài học mẫu, quiz tương tác và hiệu ứng sinh động.</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="#" class="text-decoration-none">
+                        <div class="card quick-link-card h-100 text-center shadow-sm">
+                            <div class="card-body">
+                                <i class="fas fa-users fa-3x mb-3 text-warning"></i>
+                                <h5 class="card-title">Quản lý lớp</h5>
+                                <p class="card-text">Xem danh sách lớp, tiến độ học sinh và quản lý hoạt động học tập.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="#" class="text-decoration-none">
+                        <div class="card quick-link-card h-100 text-center shadow-sm">
+                            <div class="card-body">
+                                <i class="fas fa-envelope fa-3x mb-3 text-danger"></i>
+                                <h5 class="card-title">Liên hệ hỗ trợ</h5>
+                                <p class="card-text">Gửi phản hồi, góp ý hoặc nhận hỗ trợ từ đội ngũ VieHistory.</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="container-fluid py-4">
+        <div class="row">
+
+<!-- Main Content: Grid of courses -->
+<main>
+    <!-- Bài học nổi bật -->
+    <section class="mb-5">
+        <div class="container">
+            <div class="d-flex align-items-center mb-3">
+                <h3 class="fw-bold mb-0">Bài học nổi bật</h3>
+                <span class="badge bg-primary ms-2">Mới</span>
+            </div>
+            <div class="row g-4">
+                <!-- Card 1 -->
+                <div class="col-sm-6 col-md-4 col-lg-3">
+                    <div class="card course-card p-0 h-100 overflow-hidden" style="background: linear-gradient(135deg,#a8edea 0%,#fed6e3 100%);">
+                        <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80" class="w-100" style="height:120px;object-fit:cover;" alt="Thánh Gióng">
+                        <div class="p-3 d-flex flex-column align-items-center">
+                            <span class="course-icon mb-2"><i class="fas fa-child"></i></span>
+                            <h5 class="fw-bold text-center mb-2">Truyền thuyết Thánh Gióng</h5>
+                            <span class="course-badge bg-success mb-2">Miễn phí</span>
+                            <ul class="list-unstyled mb-2 small text-secondary">
+                                <li><i class="fas fa-users text-primary me-2"></i>1.200 bạn đã học</li>
+                                <li><i class="fas fa-question-circle text-info me-2"></i>3 câu hỏi tương tác</li>
+                                <li><i class="fas fa-clock text-danger me-2"></i>5 phút video</li>
+                            </ul>
+                            <a href="lesson-detail.html" class="btn btn-primary btn-sm rounded-pill px-4">Học thử</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div class="col-sm-6 col-md-4 col-lg-3">
+                    <div class="card course-card p-0 h-100 overflow-hidden" style="background: linear-gradient(135deg,#fbc2eb 0%,#a6c1ee 100%);">
+                        <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="w-100" style="height:120px;object-fit:cover;" alt="Sơn Tinh Thủy Tinh">
+                        <div class="p-3 d-flex flex-column align-items-center">
+                            <span class="course-icon mb-2"><i class="fas fa-dragon"></i></span>
+                            <h5 class="fw-bold text-center mb-2">Sơn Tinh Thủy Tinh</h5>
+                            <span class="course-badge bg-warning mb-2">Học thử</span>
+                            <ul class="list-unstyled mb-2 small text-secondary">
+                                <li><i class="fas fa-users text-primary me-2"></i>950 bạn đã học</li>
+                                <li><i class="fas fa-question-circle text-info me-2"></i>2 câu hỏi tương tác</li>
+                                <li><i class="fas fa-clock text-danger me-2"></i>4 phút video</li>
+                            </ul>
+                            <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- ...thêm các card khác... -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Bài học miễn phí -->
+    <section class="mb-5">
+        <div class="container">
+            <div class="d-flex align-items-center mb-3">
+                <h3 class="fw-bold mb-0">Bài học miễn phí</h3>
+            </div>
+            <div class="row g-4">
+                <!-- Card 1 -->
+                <div class="col-sm-6 col-md-4 col-lg-3">
+                    <div class="card course-card p-0 h-100 overflow-hidden" style="background: linear-gradient(135deg,#a1c4fd 0%,#c2e9fb 100%);">
+                        <img src="https://images.unsplash.com/photo-1503676382389-4809596d5290?auto=format&fit=crop&w=400&q=80" class="w-100" style="height:120px;object-fit:cover;" alt="Hai Bà Trưng">
+                        <div class="p-3 d-flex flex-column align-items-center">
+                            <span class="course-icon mb-2"><i class="fas fa-female"></i></span>
+                            <h5 class="fw-bold text-center mb-2">Hai Bà Trưng</h5>
+                            <span class="course-badge bg-success mb-2">Miễn phí</span>
+                            <ul class="list-unstyled mb-2 small text-secondary">
+                                <li><i class="fas fa-users text-primary me-2"></i>1.050 bạn đã học</li>
+                                <li><i class="fas fa-question-circle text-info me-2"></i>3 câu hỏi tương tác</li>
+                                <li><i class="fas fa-clock text-danger me-2"></i>6 phút video</li>
+                            </ul>
+                            <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div class="col-sm-6 col-md-4 col-lg-3">
+                    <div class="card course-card p-0 h-100 overflow-hidden" style="background: linear-gradient(135deg,#d4fc79 0%,#96e6a1 100%);">
+                        <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80" class="w-100" style="height:120px;object-fit:cover;" alt="Lý Thường Kiệt">
+                        <div class="p-3 d-flex flex-column align-items-center">
+                            <span class="course-icon mb-2"><i class="fas fa-hat-wizard"></i></span>
+                            <h5 class="fw-bold text-center mb-2">Lý Thường Kiệt</h5>
+                            <span class="course-badge bg-warning mb-2">Học thử</span>
+                            <ul class="list-unstyled mb-2 small text-secondary">
+                                <li><i class="fas fa-users text-primary me-2"></i>800 bạn đã học</li>
+                                <li><i class="fas fa-question-circle text-info me-2"></i>2 câu hỏi tương tác</li>
+                                <li><i class="fas fa-clock text-danger me-2"></i>5 phút video</li>
+                            </ul>
+                            <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- ...thêm các card khác... -->
+            </div>
+        </div>
+    </section>
+</main>
+        </div>
+    </div>
+    <!-- Footer -->
+    <footer class="py-5 bg-dark text-light">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <a class="d-flex align-items-center mb-3 link-light text-decoration-none" href="#">
+                        <img src="..." alt="Logo" class="hourglass-icon">
+                        <span class="logo-text text-white">VIE<span class="text-warning">HISTORY</span></span>
+                    </a>
+                    <p class="small">© 2025 VieHistory. All rights reserved.</p>
+                </div>
+                <div class="col-lg-4">
+                    <h5>Liên kết nhanh</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="link-light text-decoration-none">Thư viện bài học</a></li>
+                        <li><a href="#" class="link-light text-decoration-none">Học thử</a></li>
+                        <li><a href="#" class="link-light text-decoration-none">Quản lý lớp</a></li>
+                        <li><a href="#" class="link-light text-decoration-none">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4">
+                    <h5>Kết nối</h5>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="text-light"><i class="fab fa-facebook-f fa-lg"></i></a>
+                        <a href="#" class="text-light"><i class="fab fa-tiktok fa-lg"></i></a>
+                        <a href="#" class="text-light"><i class="fab fa-youtube fa-lg"></i></a>
+                        <a href="#" class="text-light"><i class="fab fa-instagram fa-lg"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
