@@ -5,134 +5,38 @@
     <meta charset="UTF-8">
     <title>Đăng nhập - VieHistory</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="logo.png" type="image/png">
     <!-- Bootstrap 5 CDN -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-    <style>
-        body {
-            min-height: 100vh;
-            background: #f5deb3;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .login-banner {
-            background: #8B4513;
-            color: #fff;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            letter-spacing: 0.01em;
-        }
-
-        .login-logo {
-            width: 48px;
-            height: 48px;
-            background: #fff;
-            color: #8B4513;
-            font-weight: bold;
-            font-size: 1.7rem;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 14px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
-        }
-
-        .brand-row {
-            margin-top: 32px;
-            margin-bottom: 32px;
-        }
-
-        .login-form-wrapper {
-            min-height: 60vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .login-form {
-            background: #fff;
-            border-radius: 18px;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-            padding: 32px 28px;
-            width: 100%;
-            max-width: 370px;
-        }
-
-        .login-form label {
-            font-weight: 500;
-        }
-
-        .login-form input {
-            border-radius: 8px;
-        }
-
-        .login-form .form-title {
-            font-weight: bold;
-            font-size: 1.1rem;
-            margin-bottom: 18px;
-            color: #8B4513;
-        }
-
-        .login-form .forgot-link {
-            font-size: 0.95rem;
-            color: #8B4513;
-            text-decoration: underline;
-            margin-bottom: 18px;
-            display: inline-block;
-        }
-
-        .login-form .btn-primary {
-            background: #8B4513;
-            border-color: #8B4513;
-            font-weight: bold;
-            border-radius: 8px;
-            font-size: 1.1rem;
-        }
-
-        .login-form .btn-primary:hover {
-            background: #5F3111;
-            border-color: #5F3111;
-        }
-
-        @media (max-width: 500px) {
-            .login-form {
-                padding: 20px 8px;
-            }
-
-            .brand-row {
-                margin-top: 18px;
-                margin-bottom: 18px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
     <!-- Banner -->
-    <div class="login-banner">
-        Demo đăng nhập: Email
-        <b class="mx-1" id="demoEmail">test@example.com</b>
-        <i class="ri-file-copy-line" id="copyEmailBtn" title="Copy email" style="cursor:pointer; font-size:1em;"></i>
-        <!-- ...existing code... -->
-        | Password <b class="mx-1" id="demoPassword">123456</b>
-        <i class="ri-file-copy-line" id="copyPasswordBtn" title="Copy password"
-            style="cursor:pointer; font-size:1em;"></i>
-    </div>
-    <!-- Logo & Brand -->
-    <div class="brand-row d-flex justify-content-center align-items-center">
-        <div class="login-logo">VH</div>
-        <span class="fs-2 fw-bold" style="color:#8B4513;">VieHistory</span>
+    <div class="login-banner container-fluid py-2">
+        <div class="row align-items-center text-center text-md-start">
+            <div class="col-12 col-md-auto mb-2 mb-md-0">
+                Demo đăng nhập: Email:
+                <b class="mx-1" id="demoEmail">test@example.com</b>
+                <i class="ri-file-copy-line" id="copyEmailBtn" title="Copy email"
+                    style="cursor:pointer; font-size:1em;"></i>
+            </div>
+            <div class="col-12 col-md-auto">
+                | Password:
+                <b class="mx-1" id="demoPassword">123456</b>
+                <i class="ri-file-copy-line" id="copyPasswordBtn" title="Copy password"
+                    style="cursor:pointer; font-size:1em;"></i>
+            </div>
+        </div>
     </div>
     <!-- Login Form -->
     <div class="login-form-wrapper flex-grow-1">
         <form class="login-form" id="loginForm" autocomplete="off">
-            <h1 class="form-title text-center mb-3">LOGIN</h1>
+            <div class="d-flex justify-content-center align-items-center mb-3">
+                <img src="logo.png" alt="VieHistory Logo" class="login-logo" style="height:48px; width:auto;">
+                <span class="fs-2 fw-bold ms-2" style="color:#8B4513;">VieHistory</span>
+            </div>
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
                 <input type="email" class="form-control" id="email" placeholder="Nhập email" required>
@@ -142,7 +46,7 @@
                 <input type="password" class="form-control" id="password" placeholder="Nhập mật khẩu" required>
             </div>
             <div class="mb-3 text-start">
-                <a href="#" class="forgot-link">Forgotten password?</a>
+                <a href="#" class="forgot-link">Forgotten password?</a> or <a href="#" class="signup-link">Sign up here</a>
             </div>
             <button type="submit" class="btn btn-primary w-100 py-2">Login &rarr;</button>
             <div id="loginResult" class="mt-3 text-center"></div>

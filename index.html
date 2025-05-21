@@ -1,136 +1,46 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VieHistory - Chạm vào quá khứ, xây dựng tương lai</title>
+    <link rel="icon" href="logo.png" type="image/png">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #8B4513;
-            --secondary-color: #5F3111;
-            --light-color: #F5DEB3;
-            --text-color: #333;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: var(--text-color);
-        }
-        
-        .navbar {
-            background-color: var(--primary-color);
-        }
-        
-        .navbar .nav-link {
-            color: white !important;
-            font-weight: 500;
-        }
-        
-        .navbar .nav-link:hover {
-            color: var(--light-color) !important;
-        }
-        
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-        
-        .btn-primary:hover {
-            background-color: var(--secondary-color);
-            border-color: var(--secondary-color);
-        }
-        
-        .hero {
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/api/placeholder/1200/600') center/cover no-repeat;
-            color: white;
-            padding: 100px 0;
-        }
-        
-        .feature-card {
-            border: none;
-            transition: transform 0.3s;
-            height: 100%;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-10px);
-        }
-        
-        .feature-icon {
-            font-size: 3rem;
-            color: var(--primary-color);
-        }
-        
-        .testimonial-card {
-            border-radius: 15px;
-            border: none;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        footer {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .about-section {
-            background-color: #f8f9fa;
-        }
-        
-        .cta-section {
-            background-color: var(--light-color);
-        }
-        
-        .logo-text {
-            font-weight: bold;
-            font-size: 1.5rem;
-        }
-        
-        .hourglass-icon {
-            filter: invert(1);
-            width: 30px;
-            margin-right: 5px;
-        }
-        
-        .auth-buttons .btn {
-            margin-left: 10px;
-        }
-        
-        .feature-img {
-            height: 150px;
-            object-fit: cover;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-    <div class="container">
-        <a class="navbar-brand d-flex align-items-center" href="#">
-            <img src="..." alt="Logo" class="hourglass-icon">
-            <span class="logo-text text-white">VIE<span class="text-warning">HISTORY</span></span>
-        </a>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="logo.png" alt="Logo" class="hourglass-icon"
+                    style="filter: grayscale(1) brightness(0) sepia(1) hue-rotate(200deg) saturate(5);">
+                <span class="logo-text text-white">VIE<span class="text-dark">HISTORY</span></span>
+            </a>
+            <div class="navbar-collapse show" id="navbarNav" style="display: flex !important;"></div>
+                <ul class="navbar-nav me-auto">
+                    <!-- <li class="nav-item">
                     <a class="nav-link" href="#">Trang chủ</a>
-                </li>
-            </ul>
-            <div class="auth-buttons d-flex">
-                <!-- <a href="login.html" class="btn btn-outline-light">Đăng nhập</a> -->
-                <a href="login.html" class="btn btn-warning">Đăng nhập</a>
-                <!-- <a href="home.html" class="btn btn-primary ms-2">Vào trang quản lý</a> -->
+                </li> -->
+                </ul>
+                <div class="auth-buttons d-flex">
+                    <a href="login.html" class="btn btn-outline-light">Đăng nhập</a>
+                    <a href="signup.html" class="btn btn-warning">Đăng ký</a>
+                    <!-- <a href="home.html" class="btn btn-primary ms-2">Vào trang quản lý</a> -->
+                </div>
             </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
     <!-- Hero Section -->
     <section class="hero text-center">
         <div class="container">
             <h1 class="display-4 fw-bold mb-4">Chạm vào quá khứ, xây dựng tương lai</h1>
-            <p class="lead mb-5">Nền tảng giáo dục lịch sử trực tuyến đầu tiên dành cho trẻ mầm non, giúp trẻ tiếp cận lịch sử một cách tự nhiên, dễ hiểu và thú vị.</p>
+            <p class="lead mb-5">Nền tảng giáo dục lịch sử trực tuyến đầu tiên dành cho trẻ mầm non, giúp trẻ tiếp cận
+                lịch sử một cách tự nhiên, dễ hiểu và thú vị.</p>
             <div class="d-flex justify-content-center gap-3">
                 <a href="/login.html" class="btn btn-warning btn-lg px-4">Trải nghiệm ngay</a>
                 <!-- <a href="#demo" class="btn btn-outline-light btn-lg px-4">Xem demo</a> -->
@@ -146,37 +56,42 @@
             <div class="row g-4">
                 <div class="col-md-4">
                     <div class="card feature-card h-100">
-                        <img src="/api/placeholder/400/200" class="card-img-top feature-img" alt="Video lịch sử hấp dẫn">
+                        <img src="video-lich-su-hap-dan.png" class="card-img-top feature-img"
+                            alt="Video lịch sử hấp dẫn">
                         <div class="card-body text-center">
                             <div class="mb-3">
                                 <i class="fas fa-film feature-icon"></i>
                             </div>
                             <h5 class="card-title">Video lịch sử hấp dẫn</h5>
-                            <p class="card-text">Truyền tải kiến thức lịch sử qua những câu chuyện sinh động, hình ảnh đẹp mắt giúp trẻ dễ dàng tiếp thu.</p>
+                            <p class="card-text">Truyền tải kiến thức lịch sử qua những câu chuyện sinh động, hình ảnh
+                                đẹp mắt giúp trẻ dễ dàng tiếp thu.</p>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="card feature-card h-100">
-                        <img src="/api/placeholder/400/200" class="card-img-top feature-img" alt="Trò chơi tương tác">
+                        <img src="game-hap-dan.jpg" class="card-img-top feature-img" alt="Trò chơi tương tác">
                         <div class="card-body text-center">
                             <div class="mb-3">
                                 <i class="fas fa-gamepad feature-icon"></i>
                             </div>
                             <h5 class="card-title">Trò chơi tương tác</h5>
-                            <p class="card-text">Hệ thống trò chơi giáo dục giúp trẻ vừa học vừa chơi, ghi nhớ kiến thức lịch sử một cách tự nhiên.</p>
+                            <p class="card-text">Hệ thống trò chơi giáo dục giúp trẻ vừa học vừa chơi, ghi nhớ kiến thức
+                                lịch sử một cách tự nhiên.</p>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="card feature-card h-100">
-                        <img src="/api/placeholder/400/200" class="card-img-top feature-img" alt="Tài liệu giảng dạy chất lượng cao">
+                        <img src="online-learning.jpg" class="card-img-top feature-img"
+                            alt="Tài liệu giảng dạy chất lượng cao">
                         <div class="card-body text-center">
                             <div class="mb-3">
                                 <i class="fas fa-book feature-icon"></i>
                             </div>
                             <h5 class="card-title">Tài liệu giảng dạy chất lượng cao</h5>
-                            <p class="card-text">Cung cấp các bài giảng được biên soạn bởi chuyên gia lịch sử và giáo dục mầm non hàng đầu.</p>
+                            <p class="card-text">Cung cấp các bài giảng được biên soạn bởi chuyên gia lịch sử và giáo
+                                dục mầm non hàng đầu.</p>
                         </div>
                     </div>
                 </div>
@@ -184,56 +99,49 @@
         </div>
     </section>
 
-    <!-- Demo Video Section -->
-    <section id="demo" class="bg-light py-5">
+    <!-- Demo Video & About Section -->
+    <section id="demo-about" class="bg-light py-5">
         <div class="container">
-            <h2 class="text-center mb-5">Trải nghiệm VieHistory</h2>
             <div class="row align-items-center">
+                <!-- Demo Video Column -->
                 <div class="col-lg-6 mb-4 mb-lg-0">
                     <div class="ratio ratio-16x9 shadow">
-                        <iframe class="rounded" src="https://www.youtube.com/embed/PjC8qsPHbkc" title="Demo video" allowfullscreen></iframe>
+                        <iframe class="rounded" src="https://www.youtube.com/embed/PjC8qsPHbkc" title="Demo video"
+                            allowfullscreen></iframe>
                     </div>
                 </div>
+                <!-- About Content Column -->
                 <div class="col-lg-6">
-                    <h3>Khám phá lịch sử Việt Nam qua câu chuyện hấp dẫn</h3>
-                    <p class="lead">VieHistory mang đến phương pháp tiếp cận lịch sử mới mẻ, tạo sự hứng thú cho trẻ mầm non thông qua:</p>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item bg-transparent"><i class="fas fa-check-circle text-success me-2"></i> Video hoạt hình sinh động</li>
-                        <li class="list-group-item bg-transparent"><i class="fas fa-check-circle text-success me-2"></i> Trò chơi tương tác phát triển tư duy</li>
-                        <li class="list-group-item bg-transparent"><i class="fas fa-check-circle text-success me-2"></i> Hình ảnh minh họa chất lượng cao</li>
-                        <li class="list-group-item bg-transparent"><i class="fas fa-check-circle text-success me-2"></i> Nội dung được kiểm duyệt bởi chuyên gia</li>
-                    </ul>
-                    <div class="mt-4">
-                        <a href="/login.html" class="btn btn-primary px-4">Dùng thử ngay</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- About Section -->
-    <section id="about" class="about-section py-5">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6 order-lg-2 mb-4 mb-lg-0">
-                    <img src="/api/placeholder/600/400" alt="Về VieHistory" class="img-fluid rounded shadow">
-                </div>
-                <div class="col-lg-6 order-lg-1">
                     <h2 class="mb-4">Về VieHistory</h2>
                     <p class="lead">VieHistory là nền tảng giáo dục lịch sử đầu tiên dành riêng cho trẻ mầm non tại Việt Nam.</p>
                     <p>Chúng tôi tin rằng việc tiếp cận lịch sử từ sớm sẽ giúp trẻ phát triển tình yêu đất nước, niềm tự hào dân tộc và hiểu biết về cội nguồn.</p>
-                    <p>Với đội ngũ chuyên gia giáo dục và lịch sử hàng đầu, VieHistory cam kết mang đến các nội dung học tập chính xác, phù hợp lứa tuổi và hấp dẫn.</p>
+                    <p>Tất cả nội dung tại VieHistory được chọn lọc kỹ lưỡng và biên soạn cẩn thận, giúp đảm bảo tính chính xác và phù hợp với từng độ tuổi.</p>
                     <div class="mt-4">
                         <h5>Sứ mệnh của chúng tôi</h5>
                         <p><em>"Trở thành nền tảng giáo dục lịch sử, đặt nền móng phát triển lịch sử cho trẻ mầm non tại Việt Nam."</em></p>
                     </div>
+                    <!-- <div class="mt-4">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item bg-transparent"><i class="fas fa-check-circle text-success me-2"></i>
+                                Video hoạt hình sinh động</li>
+                            <li class="list-group-item bg-transparent"><i class="fas fa-check-circle text-success me-2"></i>
+                                Trò chơi tương tác phát triển tư duy</li>
+                            <li class="list-group-item bg-transparent"><i class="fas fa-check-circle text-success me-2"></i>
+                                Hình ảnh minh họa chất lượng cao</li>
+                            <li class="list-group-item bg-transparent"><i class="fas fa-check-circle text-success me-2"></i>
+                                Nội dung được kiểm duyệt bởi chuyên gia</li>
+                        </ul>
+                        <div class="mt-4">
+                            <a href="/login.html" class="btn btn-primary px-4">Dùng thử ngay</a>
+                        </div>
+                    </div> -->
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Testimonials -->
-    <section class="py-5">
+    <!-- <section class="py-5">
         <div class="container">
             <h2 class="text-center mb-5">Giáo viên nói gì về VieHistory?</h2>
             <div class="row g-4">
@@ -302,7 +210,7 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> -->
 
     <!-- Pricing Section -->
     <section id="pricing" class="py-5 bg-light">
@@ -313,17 +221,23 @@
                     <div class="card h-100 shadow">
                         <div class="card-header text-center py-4 bg-white">
                             <h4>Gói Cơ Bản</h4>
-                            <h3 class="card-title pricing-card-title">199.000đ<small class="text-muted fw-light">/tháng</small></h3>
+                            <h3 class="card-title pricing-card-title">199.000đ<small
+                                    class="text-muted fw-light">/tháng</small></h3>
                         </div>
                         <div class="card-body">
                             <ul class="list-unstyled mt-3 mb-4">
-                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Truy cập video và hình ảnh cơ bản</li>
-                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> 5 giáo án mẫu mỗi tháng</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Truy cập video và hình
+                                    ảnh cơ bản</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> 5 giáo án mẫu mỗi tháng
+                                </li>
                                 <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Hỗ trợ qua email</li>
-                                <li class="mb-2"><i class="fas fa-times text-danger me-2"></i> Không có trò chơi tương tác</li>
-                                <li class="mb-2"><i class="fas fa-times text-danger me-2"></i> Không có tài liệu nâng cao</li>
+                                <li class="mb-2"><i class="fas fa-times text-danger me-2"></i> Không có trò chơi tương
+                                    tác</li>
+                                <li class="mb-2"><i class="fas fa-times text-danger me-2"></i> Không có tài liệu nâng
+                                    cao</li>
                             </ul>
-                            <button type="button" class="w-100 btn btn-lg btn-outline-primary mt-3">Đăng ký ngay</button>
+                            <button type="button" class="w-100 btn btn-lg btn-outline-primary mt-3">Đăng ký
+                                ngay</button>
                         </div>
                     </div>
                 </div>
@@ -331,16 +245,21 @@
                     <div class="card h-100 shadow border-primary">
                         <div class="card-header text-center py-4" style="background-color: #8B4513; color: #fff;">
                             <h4>Gói Tiêu Chuẩn</h4>
-                            <h3 class="card-title pricing-card-title">499.000đ<small class="text-muted fw-light"><b>/tháng</b></small></h3>
+                            <h3 class="card-title pricing-card-title">499.000đ<small
+                                    class="text-muted fw-light"><b>/tháng</b></small></h3>
                             <span class="badge bg-warning">Phổ biến nhất</span>
                         </div>
                         <div class="card-body">
                             <ul class="list-unstyled mt-3 mb-4">
-                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Tất cả video và hình ảnh</li>
-                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> 15 giáo án mẫu mỗi tháng</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Tất cả video và hình ảnh
+                                </li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> 15 giáo án mẫu mỗi tháng
+                                </li>
                                 <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Trò chơi tương tác</li>
-                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Hỗ trợ qua email và điện thoại</li>
-                                <li class="mb-2"><i class="fas fa-times text-danger me-2"></i> Không có tài liệu nâng cao</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Hỗ trợ qua email và điện
+                                    thoại</li>
+                                <li class="mb-2"><i class="fas fa-times text-danger me-2"></i> Không có tài liệu nâng
+                                    cao</li>
                             </ul>
                             <button type="button" class="w-100 btn btn-lg btn-primary mt-3">Đăng ký ngay</button>
                         </div>
@@ -350,17 +269,23 @@
                     <div class="card h-100 shadow">
                         <div class="card-header text-center py-4 bg-white">
                             <h4>Gói Cao Cấp</h4>
-                            <h3 class="card-title pricing-card-title">899.000đ<small class="text-muted fw-light">/tháng</small></h3>
+                            <h3 class="card-title pricing-card-title">899.000đ<small
+                                    class="text-muted fw-light">/tháng</small></h3>
                         </div>
                         <div class="card-body">
                             <ul class="list-unstyled mt-3 mb-4">
-                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Tất cả nội dung không giới hạn</li>
-                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> 30 giáo án mẫu mỗi tháng</li>
-                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Toàn bộ trò chơi tương tác</li>
-                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Tài liệu chuyên sâu và nâng cao</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Tất cả nội dung không
+                                    giới hạn</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> 30 giáo án mẫu mỗi tháng
+                                </li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Toàn bộ trò chơi tương
+                                    tác</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Tài liệu chuyên sâu và
+                                    nâng cao</li>
                                 <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Hỗ trợ 24/7 ưu tiên</li>
                             </ul>
-                            <button type="button" class="w-100 btn btn-lg btn-outline-primary mt-3">Đăng ký ngay</button>
+                            <button type="button" class="w-100 btn btn-lg btn-outline-primary mt-3">Đăng ký
+                                ngay</button>
                         </div>
                     </div>
                 </div>
@@ -373,7 +298,7 @@
     </section>
 
     <!-- CTA Section -->
-    <section class="cta-section py-5">
+    <!-- <section class="cta-section py-5">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-8 text-center text-lg-start">
@@ -385,66 +310,41 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> -->
 
-    <!-- Contact Section -->
-    <section id="contact" class="py-5">
+    <!-- Footer -->
+    <footer class="py-5 bg-dark text-light">
         <div class="container">
-            <h2 class="text-center mb-5">Liên hệ với chúng tôi</h2>
             <div class="row g-4">
-                <div class="col-md-6">
-                    <div class="bg-light p-4 h-100 rounded">
-                        <h4 class="mb-4">Thông tin liên hệ</h4>
-                        <ul class="list-unstyled">
-                            <li class="mb-3"><i class="fas fa-map-marker-alt text-primary me-2"></i> 420 street, Thai Binh village, Binh Yen commune, Thach That district, Hanoi</li>
-                            <li class="mb-3"><i class="fas fa-phone text-primary me-2"></i> +84 123 456 789</li>
-                            <li class="mb-3"><i class="fas fa-envelope text-primary me-2"></i> contact@viehistory.vn</li>
-                        </ul>
-                        <div class="mt-4">
-                            <h5>Theo dõi chúng tôi</h5>
-                            <div class="d-flex gap-3 mt-3">
-                                <a href="#" class="text-dark"><i class="fab fa-facebook-f fa-lg"></i></a>
-                                <a href="#" class="text-dark"><i class="fab fa-tiktok fa-lg"></i></a>
-                                <a href="#" class="text-dark"><i class="fab fa-youtube fa-lg"></i></a>
-                                <a href="#" class="text-dark"><i class="fab fa-instagram fa-lg"></i></a>
-                            </div>
-                        </div>
-                    </div>
+                <div class="col-lg-4 mb-4 mb-lg-0">
+                    <a class="d-flex align-items-center mb-3 text-light text-decoration-none" href="#">
+                        <img src="logo.png" alt="VieHistory Logo" width="40" class="me-2">
+                        <span class="fs-5 fw-bold">VIE<span class="text-warning">HISTORY</span></span>
+                    </a>
+                    <p class="small mb-0">Chạm vào quá khứ, xây dựng tương lai.<br>
+                        Nền tảng giáo dục lịch sử trực tuyến đầu tiên dành cho trẻ mầm non tại Việt Nam.</p>
                 </div>
-                <div class="col-md-6">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-body p-4">
-                            <h4 class="mb-4">Gửi tin nhắn cho chúng tôi</h4>
-                            <form>
-                                <div class="mb-3">
-                                    <label for="name" class="form-label">Họ tên</label>
-                                    <input type="text" class="form-control" id="name" placeholder="Nhập họ tên">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="email" class="form-label">Email</label>
-                                    <input type="email" class="form-control" id="email" placeholder="Nhập email">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="subject" class="form-label">Chủ đề</label>
-                                    <input type="text" class="form-control" id="subject" placeholder="Nhập chủ đề">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="message" class="form-label">Nội dung</label>
-                                    <textarea class="form-control" id="message" rows="4" placeholder="Nhập nội dung tin nhắn"></textarea>
-                                </div>
-                                <button type="submit" class="btn btn-primary w-100">Gửi tin nhắn</button>
-                            </form>
-                        </div>
+                <div class="col-lg-4 mb-4 mb-lg-0">
+                    <h5 class="mb-3">Liên hệ</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="fas fa-map-marker-alt text-warning me-2"></i> Đại học FPT, Km29 Đại lộ Thăng Long, Thạch Thất, Hà Nội</li>
+                        <li class="mb-2"><i class="fas fa-phone text-warning me-2"></i> +84 123 456 789</li>
+                        <li class="mb-2"><i class="fas fa-envelope text-warning me-2"></i> contact@viehistory.vn</li>
+                    </ul>
+                </div>
+                <div class="col-lg-4">
+                    <h5 class="mb-3">Theo dõi chúng tôi</h5>
+                    <div class="d-flex gap-3">
+                        <a href="https://www.facebook.com/profile.php?id=61559645019722" class="text-light"><i class="fab fa-facebook-f fa-lg"></i></a>
+                        <a href="https://www.tiktok.com/@viehistory7" class="text-light"><i class="fab fa-tiktok fa-lg"></i></a>
+                        <!-- <a href="#" class="text-light"><i class="fab fa-youtube fa-lg"></i></a>
+                        <a href="#" class="text-light"><i class="fab fa-instagram fa-lg"></i></a> -->
                     </div>
                 </div>
             </div>
+            <hr class="my-4 border-light">
+            <div class="text-center small">
+                &copy; 2025 VieHistory. Thiết kế bởi đội ngũ VieHistory.
+            </div>
         </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="py-5">
-        <div class="container">
-            <div class="row g-4">
-                <div class="col-lg-4">
-                    <a class="d-flex align-items-center mb-3 link-light text-decoration-none" href="#">
-                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgM
+    </footer>

@@ -1,4 +1,38 @@
 document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('searchInput');
+    const mainGrid = document.querySelector('.col-lg-9');
+    const allSections = Array.from(mainGrid.querySelectorAll('section'));
+
+    function normalize(str) {
+        return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+
+    searchInput.addEventListener('input', function () {
+        const keyword = normalize(this.value.trim());
+        if (!keyword) {
+            allSections.forEach(section => section.style.display = '');
+            allSections.forEach(section => {
+                section.querySelectorAll('.card').forEach(card => card.parentElement.style.display = '');
+            });
+            return;
+        }
+        allSections.forEach(section => {
+            let hasMatch = false;
+            section.querySelectorAll('.card').forEach(card => {
+                const text = normalize(card.innerText);
+                if (text.includes(keyword)) {
+                    card.parentElement.style.display = '';
+                    hasMatch = true;
+                } else {
+                    card.parentElement.style.display = 'none';
+                }
+            });
+            section.style.display = hasMatch ? '' : 'none';
+        });
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
     const quizForm = document.getElementById('quizForm');
     if (quizForm) {
         quizForm.onsubmit = function (e) {
@@ -106,3 +140,4 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
