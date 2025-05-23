@@ -1,0 +1,60 @@
+<header class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <!-- Nút mở sidebar luôn hiện -->
+        <button class="btn btn-outline-light me-2" type="button" data-bs-toggle="offcanvas"
+            data-bs-target="#sidebarOffcanvas">
+            <i class="fas fa-bars"></i>
+        </button>
+        <a class="navbar-brand d-flex align-items-center" href="/home.html">
+            <img src="/public/icons/logo.png" alt="Logo" class="hourglass-icon"
+                style="filter: grayscale(1) brightness(0) sepia(1) hue-rotate(200deg) saturate(5);">
+            <span class="logo-text text-white">VIE<span class="text-dark">HISTORY</span></span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <!-- Có thể thêm các nav-link nếu muốn -->
+            </ul>
+            <!-- Search bar giữ nguyên như home -->
+            <form class="flex-grow-1 me-3" style="max-width: 300px;" id="searchForm" autocomplete="off">
+                <input type="text" class="form-control search-bar" id="searchInput"
+                    placeholder="Tìm kiếm nhân vật, sự kiện, thời kỳ...">
+            </form>
+            <!-- User info + Đăng xuất -->
+            <div class="auth-buttons d-flex">
+                <div class="d-flex align-items-center">
+                    <img src="/public/icons/profile-circle.svg" alt="avatar" class="rounded-circle me-2" width="40"
+                        height="40" style="filter: brightness(0) invert(1);">
+                    <span class="fw-semibold text-white" id="userName">Xin chào, ...</span>
+                    <a id="logoutBtn" href="/index.html" class="btn btn-sm btn-outline-light ms-3">Đăng xuất</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Sidebar Offcanvas: dùng cho mọi màn hình -->
+<div class="offcanvas offcanvas-start sidebar" tabindex="-1" id="sidebarOffcanvas">
+    <div class="offcanvas-header">
+        <h4 class="fw-bold text-dark mb-0"><i class="fas fa-hourglass-half me-2"></i>VieHistory</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        <ul class="nav flex-column w-100 p-3">
+            <li class="nav-item mb-2">
+                <a class="nav-link text-dark fw-semibold" href="/home.html"><i class="fas fa-home me-2"></i>Trang
+                    chủ</a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link text-dark fw-semibold" href="#"><i class="fas fa-route me-2"></i>Lộ trình
+                    học lịch sử</a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link text-dark fw-semibold" href="#"><i class="fas fa-chalkboard-teacher me-2"></i>Tài
+                    liệu cho giáo viên</a>
+            </li>
+        </ul>
+    </div>
+</div>

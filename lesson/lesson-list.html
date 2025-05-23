@@ -4,127 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <title>Chuyện Hai Bà Trưng - VieHistory</title>
-    <link rel="icon" href="logo.png" type="image/png">
+    <link rel="icon" href="public/icons/logo.png" type="image/png">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Bootstrap 5 CDN -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="../assets/css/styles.css">
 </head>
 
 <body>
 
-     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-        <div class="container">
-            <!-- Nút mở sidebar luôn hiện -->
-            <button class="btn btn-outline-light me-2" type="button" data-bs-toggle="offcanvas"
-                data-bs-target="#sidebarOffcanvas">
-                <i class="fas fa-bars"></i>
-            </button>
-            <a class="navbar-brand d-flex align-items-center" href="home.html">
-                <img src="logo.png" alt="Logo" class="hourglass-icon"
-                    style="filter: grayscale(1) brightness(0) sepia(1) hue-rotate(200deg) saturate(5);">
-                <span class="logo-text text-white">VIE<span class="text-dark">HISTORY</span></span>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <!-- Có thể thêm các nav-link nếu muốn -->
-                </ul>
-                <!-- Search bar giữ nguyên như home -->
-                <!-- <form class="flex-grow-1 me-3" style="max-width: 300px;">
-                    <input type="text" class="form-control search-bar"
-                        placeholder="Tìm kiếm nhân vật, sự kiện, thời kỳ...">
-                </form> -->
-                <!-- User info + Đăng xuất -->
-                <div class="auth-buttons d-flex">
-                    <div class="d-flex align-items-center">
-                        <img src="profile-circle.svg" alt="avatar" class="rounded-circle me-2" width="40" height="40"
-                            style="filter: brightness(0) invert(1);">
-                        <span class="fw-semibold text-white">Xin chào, Quỳnh</span>
-                        <a href="index.html" class="btn btn-sm btn-outline-light ms-3">Đăng xuất</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
+    <!-- Header -->
+    <div w3-include-html="../components/header.html"></div>
 
-    <!-- Thanh định hướng dưới navbar -->
-    <nav class="main-nav-bar py-0" style="background: #ffc107; box-shadow: 0 2px 8px rgba(0,0,0,0.04); z-index: 1020;">
-        <div class="container">
-            <ul class="nav justify-content-center fw-bold">
-                <li class="nav-item">
-                    <a class="nav-link text-dark px-3" href="home.html">TRANG CHỦ</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark px-3" href="#">DÒNG LỊCH SỬ</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link text-dark px-3 dropdown-toggle" href="#" id="tuLieuDropdown" role="button"
-                        data-bs-toggle="dropdown" aria-expanded="false">
-                        TƯ LIỆU
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="tuLieuDropdown">
-                        <li><a class="dropdown-item" href="#">Tư liệu 1</a></li>
-                        <li><a class="dropdown-item" href="#">Tư liệu 2</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark px-3" href="#">NHÂN VẬT</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark px-3" href="#">DI TÍCH</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark px-3" href="#">NGÀY NAY</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark px-3" href="#">SÁCH</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark px-3" href="#">VIDEO</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link text-dark px-3 dropdown-toggle" href="#" id="qaDropdown" role="button"
-                        data-bs-toggle="dropdown" aria-expanded="false">
-                        Q&A
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="qaDropdown">
-                        <li><a class="dropdown-item" href="#">Hỏi đáp 1</a></li>
-                        <li><a class="dropdown-item" href="#">Hỏi đáp 2</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-    </nav>
+    <!-- Navbar -->
+    <div w3-include-html="../components/navbar.html"></div>
 
-    <!-- Sidebar Offcanvas: dùng cho mọi màn hình -->
-    <div class="offcanvas offcanvas-start sidebar" tabindex="-1" id="sidebarOffcanvas">
-        <div class="offcanvas-header">
-            <h4 class="fw-bold text-dark mb-0"><i class="fas fa-hourglass-half me-2"></i>VieHistory</h4>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-        </div>
-        <div class="offcanvas-body p-0">
-            <ul class="nav flex-column w-100 p-3">
-                <li class="nav-item mb-2">
-                    <a class="nav-link text-dark fw-semibold" href="home.html"><i class="fas fa-home me-2"></i>Trang
-                        chủ</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link text-dark fw-semibold" href="#"><i class="fas fa-route me-2"></i>Lộ trình
-                        học lịch sử</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link text-dark fw-semibold" href="#"><i class="fas fa-chalkboard-teacher me-2"></i>Tài
-                        liệu cho giáo viên</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-    
     <div class="container py-5">
         <div class="row g-5">
             <!-- Cột trái -->
@@ -255,47 +150,19 @@
             </div>
         </div>
     </div>
-        <!-- Footer -->
-    <footer class="py-5 bg-dark text-light">
-        <div class="container">
-            <div class="row g-4">
-                <div class="col-lg-4 mb-4 mb-lg-0">
-                    <a class="d-flex align-items-center mb-3 text-light text-decoration-none" href="#">
-                        <img src="logo.png" alt="VieHistory Logo" width="40" class="me-2">
-                        <span class="fs-5 fw-bold">VIE<span class="text-warning">HISTORY</span></span>
-                    </a>
-                    <p class="small mb-0">Chạm vào quá khứ, xây dựng tương lai.<br>
-                        Nền tảng giáo dục lịch sử trực tuyến đầu tiên dành cho trẻ mầm non tại Việt Nam.</p>
-                </div>
-                <div class="col-lg-4 mb-4 mb-lg-0">
-                    <h5 class="mb-3">Liên hệ</h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><i class="fas fa-map-marker-alt text-warning me-2"></i> Đại học FPT, Km29 Đại
-                            lộ Thăng Long, Thạch Thất, Hà Nội</li>
-                        <li class="mb-2"><i class="fas fa-phone text-warning me-2"></i> +84 123 456 789</li>
-                        <li class="mb-2"><i class="fas fa-envelope text-warning me-2"></i> contact@viehistory.vn</li>
-                    </ul>
-                </div>
-                <div class="col-lg-4">
-                    <h5 class="mb-3">Theo dõi chúng tôi</h5>
-                    <div class="d-flex gap-3">
-                        <a href="https://www.facebook.com/profile.php?id=61559645019722" class="text-light"><i
-                                class="fab fa-facebook-f fa-lg"></i></a>
-                        <a href="https://www.tiktok.com/@viehistory7" class="text-light"><i
-                                class="fab fa-tiktok fa-lg"></i></a>
-                        <!-- <a href="#" class="text-light"><i class="fab fa-youtube fa-lg"></i></a>
-                        <a href="#" class="text-light"><i class="fab fa-instagram fa-lg"></i></a> -->
-                    </div>
-                </div>
-            </div>
-            <hr class="my-4 border-light">
-            <div class="text-center small">
-                &copy; 2025 VieHistory. Thiết kế bởi đội ngũ VieHistory.
-            </div>
-        </div>
-    </footer>
+    <!-- Footer -->
+    <div w3-include-html="../components/footer.html"></div>
+
     <!-- Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore-compat.js"></script>
+    <script src="../assets/js/firebase-config.js"></script>
+    
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/include-html.js"></script>
 </body>
 
 </html>

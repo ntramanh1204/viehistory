@@ -4,126 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Trang chủ - VieHistory</title>
-    <link rel="icon" href="logo.png" type="image/png">
+    <link rel="icon" href="public/icons/logo.png" type="image/png">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Bootstrap 5 CDN -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 
 <body>
 
+    <!-- Header -->
+    <div w3-include-html="components/header.html"></div>
+
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-        <div class="container">
-            <!-- Nút mở sidebar luôn hiện -->
-            <button class="btn btn-outline-light me-2" type="button" data-bs-toggle="offcanvas"
-                data-bs-target="#sidebarOffcanvas">
-                <i class="fas fa-bars"></i>
-            </button>
-            <a class="navbar-brand d-flex align-items-center" href="home.html">
-                <img src="logo.png" alt="Logo" class="hourglass-icon"
-                    style="filter: grayscale(1) brightness(0) sepia(1) hue-rotate(200deg) saturate(5);">
-                <span class="logo-text text-white">VIE<span class="text-dark">HISTORY</span></span>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <!-- Có thể thêm các nav-link nếu muốn -->
-                </ul>
-                <!-- Search bar giữ nguyên như home -->
-                <form class="flex-grow-1 me-3" style="max-width: 300px;" id="searchForm" autocomplete="off">
-                    <input type="text" class="form-control search-bar" id="searchInput"
-                        placeholder="Tìm kiếm nhân vật, sự kiện, thời kỳ...">
-                </form>
-                <!-- User info + Đăng xuất -->
-                <div class="auth-buttons d-flex">
-                    <div class="d-flex align-items-center">
-                        <img src="profile-circle.svg" alt="avatar" class="rounded-circle me-2" width="40" height="40"
-                            style="filter: brightness(0) invert(1);">
-                        <span class="fw-semibold text-white">Xin chào, Quỳnh</span>
-                        <a href="index.html" class="btn btn-sm btn-outline-light ms-3">Đăng xuất</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Thanh định hướng dưới navbar -->
-    <nav class="main-nav-bar py-0" style="background: #ffc107; box-shadow: 0 2px 8px rgba(0,0,0,0.04); z-index: 1020;">
-        <div class="container">
-            <ul class="nav justify-content-center fw-bold">
-                <li class="nav-item">
-                    <a class="nav-link text-dark px-3" href="home.html">TRANG CHỦ</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark px-3" href="#">DÒNG LỊCH SỬ</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link text-dark px-3 dropdown-toggle" href="#" id="tuLieuDropdown" role="button"
-                        data-bs-toggle="dropdown" aria-expanded="false">
-                        TƯ LIỆU
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="tuLieuDropdown">
-                        <li><a class="dropdown-item" href="#">Tư liệu 1</a></li>
-                        <li><a class="dropdown-item" href="#">Tư liệu 2</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark px-3" href="#">NHÂN VẬT</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark px-3" href="#">DI TÍCH</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark px-3" href="#">NGÀY NAY</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark px-3" href="#">SÁCH</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark px-3" href="#">VIDEO</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link text-dark px-3 dropdown-toggle" href="#" id="qaDropdown" role="button"
-                        data-bs-toggle="dropdown" aria-expanded="false">
-                        Q&A
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="qaDropdown">
-                        <li><a class="dropdown-item" href="#">Hỏi đáp 1</a></li>
-                        <li><a class="dropdown-item" href="#">Hỏi đáp 2</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-    </nav>
-
-    <!-- Sidebar Offcanvas: dùng cho mọi màn hình -->
-    <div class="offcanvas offcanvas-start sidebar" tabindex="-1" id="sidebarOffcanvas">
-        <div class="offcanvas-header">
-            <h4 class="fw-bold text-dark mb-0"><i class="fas fa-hourglass-half me-2"></i>VieHistory</h4>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-        </div>
-        <div class="offcanvas-body p-0">
-            <ul class="nav flex-column w-100 p-3">
-                <li class="nav-item mb-2">
-                    <a class="nav-link text-dark fw-semibold" href="home.html"><i class="fas fa-home me-2"></i>Trang
-                        chủ</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link text-dark fw-semibold" href="#"><i class="fas fa-route me-2"></i>Lộ trình
-                        học lịch sử</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link text-dark fw-semibold" href="#"><i class="fas fa-chalkboard-teacher me-2"></i>Tài
-                        liệu cho giáo viên</a>
-                </li>
-            </ul>
-        </div>
-    </div>
+    <div w3-include-html="components/navbar.html"></div>
 
     <!-- Banner nổi bật -->
     <div class="container mt-4">
@@ -135,7 +30,7 @@
                         <div class="carousel-item active">
                             <div class="row align-items-center">
                                 <div class="col-md-5">
-                                    <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80"
+                                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTv5JGMMGGgOEkM6fjt41LZDxfpOuljMqjKIQ&s"
                                         class="d-block w-100 rounded" alt="Thánh Gióng">
                                 </div>
                                 <div class="col-md-7">
@@ -143,7 +38,7 @@
                                         <h4 class="fw-bold mb-2">Truyền thuyết Thánh Gióng</h4>
                                         <p class="mb-3 text-secondary">Khám phá câu chuyện anh hùng Thánh Gióng qua
                                             video và hoạt động tương tác.</p>
-                                        <a href="#" class="btn btn-primary">Xem chi tiết</a>
+                                        <a href="/lesson/lesson-list.html" class="btn btn-primary">Xem chi tiết</a>
                                     </div>
                                 </div>
                             </div>
@@ -152,7 +47,7 @@
                         <div class="carousel-item">
                             <div class="row align-items-center">
                                 <div class="col-md-5">
-                                    <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=600&q=80"
+                                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ2ybOj2j9k0B7CkFbn5TflDVZy43y7Gz_7tA&s"
                                         class="d-block w-100 rounded" alt="Sơn Tinh Thủy Tinh">
                                 </div>
                                 <div class="col-md-7">
@@ -160,7 +55,7 @@
                                         <h4 class="fw-bold mb-2">Sơn Tinh Thủy Tinh</h4>
                                         <p class="mb-3 text-secondary">Trải nghiệm bài học tương tác về truyền thuyết
                                             nổi tiếng.</p>
-                                        <a href="#" class="btn btn-primary">Xem chi tiết</a>
+                                        <a href="/lesson/lesson-list.html" class="btn btn-primary">Xem chi tiết</a>
                                     </div>
                                 </div>
                             </div>
@@ -169,7 +64,7 @@
                         <div class="carousel-item">
                             <div class="row align-items-center">
                                 <div class="col-md-5">
-                                    <img src="https://images.unsplash.com/photo-1503676382389-4809596d5290?auto=format&fit=crop&w=600&q=80"
+                                    <img src="https://hoangthanhthanglong.vn/wp-content/uploads/2023/05/haibatrung1.jpg"
                                         class="d-block w-100 rounded" alt="Hai Bà Trưng">
                                 </div>
                                 <div class="col-md-7">
@@ -177,7 +72,7 @@
                                         <h4 class="fw-bold mb-2">Hai Bà Trưng</h4>
                                         <p class="mb-3 text-secondary">Khám phá lịch sử qua câu chuyện về Hai Bà Trưng.
                                         </p>
-                                        <a href="lesson-detail.html" class="btn btn-primary">Xem chi tiết</a>
+                                        <a href="lesson/lesson-list.html" class="btn btn-primary">Xem chi tiết</a>
                                     </div>
                                 </div>
                             </div>
@@ -186,14 +81,14 @@
                         <div class="carousel-item">
                             <div class="row align-items-center">
                                 <div class="col-md-5">
-                                    <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=600&q=80"
+                                    <img src="https://vandieuhay.net/wp-vdh/uploads/2022/02/kiet.png"
                                         class="d-block w-100 rounded" alt="Lý Thường Kiệt">
                                 </div>
                                 <div class="col-md-7">
                                     <div class="p-4">
                                         <h4 class="fw-bold mb-2">Lý Thường Kiệt</h4>
                                         <p class="mb-3 text-secondary">Tìm hiểu về vị tướng tài ba của dân tộc.</p>
-                                        <a href="#" class="btn btn-primary">Xem chi tiết</a>
+                                        <a href="/lesson/lesson-list.html" class="btn btn-primary">Xem chi tiết</a>
                                     </div>
                                 </div>
                             </div>
@@ -221,13 +116,13 @@
                 <!-- Giai đoạn Văn Lang – Âu Lạc -->
                 <section class="mb-5">
                     <div class="d-flex align-items-center mb-3">
-                        <h3 class="fw-bold mb-0 text-primary">Văn Lang – Âu Lạc</h3>
+                        <h3 class="fw-bold mb-0 text-primary">Văn Lang - Âu Lạc</h3>
                     </div>
                     <div class="row g-4">
                         <div class="col-sm-6 col-md-4 col-lg-4">
                             <div class="card course-card p-0 h-100 overflow-hidden"
                                 style="background: linear-gradient(135deg,#a1c4fd 0%,#c2e9fb 100%);">
-                                <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80"
+                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTv5JGMMGGgOEkM6fjt41LZDxfpOuljMqjKIQ&s"
                                     class="w-100" style="height:120px;object-fit:cover;" alt="Thánh Gióng">
                                 <div class="p-3 d-flex flex-column align-items-center">
                                     <span class="course-icon mb-2"><i class="fas fa-child"></i></span>
@@ -239,7 +134,7 @@
                                         </li>
                                         <li><i class="fas fa-clock text-danger me-2"></i>5 phút video</li>
                                     </ul>
-                                    <a href="#" class="btn btn-primary btn-sm rounded-pill px-4">Xem
+                                    <a href="/lesson/lesson-list.html" class="btn btn-primary btn-sm rounded-pill px-4">Xem
                                         chi tiết</a>
                                 </div>
                             </div>
@@ -247,7 +142,7 @@
                         <div class="col-sm-6 col-md-4 col-lg-4">
                             <div class="card course-card p-0 h-100 overflow-hidden"
                                 style="background: linear-gradient(135deg,#f7971e 0%,#ffd200 100%);">
-                                <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80"
+                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ2ybOj2j9k0B7CkFbn5TflDVZy43y7Gz_7tA&s"
                                     class="w-100" style="height:120px;object-fit:cover;" alt="Sơn Tinh Thủy Tinh">
                                 <div class="p-3 d-flex flex-column align-items-center">
                                     <span class="course-icon mb-2"><i class="fas fa-dragon"></i></span>
@@ -259,7 +154,7 @@
                                         </li>
                                         <li><i class="fas fa-clock text-danger me-2"></i>4 phút video</li>
                                     </ul>
-                                    <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
+                                    <a href="/lesson/lesson-list.html" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
                                         tiết</a>
                                 </div>
                             </div>
@@ -267,7 +162,7 @@
                         <div class="col-sm-6 col-md-4 col-lg-4">
                             <div class="card course-card p-0 h-100 overflow-hidden"
                                 style="background: linear-gradient(135deg,#a8edea 0%,#fed6e3 100%);">
-                                <img src="https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=400&q=80"
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/AnDuongVuong%2C_crop.jpg/1200px-AnDuongVuong%2C_crop.jpg"
                                     class="w-100" style="height:120px;object-fit:cover;" alt="An Dương Vương">
                                 <div class="p-3 d-flex flex-column align-items-center">
                                     <span class="course-icon mb-2"><i class="fas fa-crown"></i></span>
@@ -279,7 +174,7 @@
                                         </li>
                                         <li><i class="fas fa-clock text-danger me-2"></i>4 phút video</li>
                                     </ul>
-                                    <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
+                                    <a href="/lesson/lesson-list.html" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
                                         tiết</a>
                                 </div>
                             </div>
@@ -296,7 +191,7 @@
                         <div class="col-sm-6 col-md-4 col-lg-4">
                             <div class="card course-card p-0 h-100 overflow-hidden"
                                 style="background: linear-gradient(135deg,#e0c3fc 0%,#8ec5fc 100%);">
-                                <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80"
+                                <img src="https://hoangthanhthanglong.vn/wp-content/uploads/2023/05/haibatrung1.jpg"
                                     class="w-100" style="height:120px;object-fit:cover;" alt="Hai Bà Trưng">
                                 <div class="p-3 d-flex flex-column align-items-center">
                                     <span class="course-icon mb-2"><i class="fas fa-female"></i></span>
@@ -308,7 +203,8 @@
                                         </li>
                                         <li><i class="fas fa-clock text-danger me-2"></i>6 phút video</li>
                                     </ul>
-                                    <a href="lesson-detail.html" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
+                                    <a href="lesson/lesson-list.html"
+                                        class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
                                         tiết</a>
                                 </div>
                             </div>
@@ -316,7 +212,7 @@
                         <div class="col-sm-6 col-md-4 col-lg-4">
                             <div class="card course-card p-0 h-100 overflow-hidden"
                                 style="background: linear-gradient(135deg,#f7971e 0%,#ffd200 100%);">
-                                <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80"
+                                <img src="https://luocsutocviet.com/wp-content/uploads/2018/09/ba_trieu1-2.jpg"
                                     class="w-100" style="height:120px;object-fit:cover;" alt="Bà Triệu">
                                 <div class="p-3 d-flex flex-column align-items-center">
                                     <span class="course-icon mb-2"><i class="fas fa-female"></i></span>
@@ -328,7 +224,7 @@
                                         </li>
                                         <li><i class="fas fa-clock text-danger me-2"></i>4 phút video</li>
                                     </ul>
-                                    <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
+                                    <a href="/lesson/lesson-list.html" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
                                         tiết</a>
                                 </div>
                             </div>
@@ -336,7 +232,7 @@
                         <div class="col-sm-6 col-md-4 col-lg-4">
                             <div class="card course-card p-0 h-100 overflow-hidden"
                                 style="background: linear-gradient(135deg,#43cea2 0%,#185a9d 100%);">
-                                <img src="https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=400&q=80"
+                                <img src="https://nhn.1cdn.vn/thumbs/1200x630/2023/10/18/ly-bi.jpg"
                                     class="w-100" style="height:120px;object-fit:cover;" alt="Lý Bí">
                                 <div class="p-3 d-flex flex-column align-items-center">
                                     <span class="course-icon mb-2"><i class="fas fa-user-shield"></i></span>
@@ -348,7 +244,7 @@
                                         </li>
                                         <li><i class="fas fa-clock text-danger me-2"></i>4 phút video</li>
                                     </ul>
-                                    <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
+                                    <a href="/lesson/lesson-list.html" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
                                         tiết</a>
                                 </div>
                             </div>
@@ -365,7 +261,7 @@
                         <div class="col-sm-6 col-md-4 col-lg-4">
                             <div class="card course-card p-0 h-100 overflow-hidden"
                                 style="background: linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);">
-                                <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80"
+                                <img src="https://image.baophapluat.vn/460x306/Uploaded/2025/qxcqdcqdh/2016_07_20/ds_KWJJ.jpg"
                                     class="w-100" style="height:120px;object-fit:cover;" alt="Ngô Quyền">
                                 <div class="p-3 d-flex flex-column align-items-center">
                                     <span class="course-icon mb-2"><i class="fas fa-chess-king"></i></span>
@@ -377,7 +273,7 @@
                                         </li>
                                         <li><i class="fas fa-clock text-danger me-2"></i>4 phút video</li>
                                     </ul>
-                                    <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
+                                    <a href="/lesson/lesson-list.html" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
                                         tiết</a>
                                 </div>
                             </div>
@@ -385,7 +281,7 @@
                         <div class="col-sm-6 col-md-4 col-lg-4">
                             <div class="card course-card p-0 h-100 overflow-hidden"
                                 style="background: linear-gradient(135deg,#e0c3fc 0%,#8ec5fc 100%);">
-                                <img src="https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=400&q=80"
+                                <img src="https://chamevidai.com/wp-content/uploads/2024/03/Hung-Dao-Vuong-Tran-Quoc-Tuan-1.jpg"
                                     class="w-100" style="height:120px;object-fit:cover;" alt="Trần Hưng Đạo">
                                 <div class="p-3 d-flex flex-column align-items-center">
                                     <span class="course-icon mb-2"><i class="fas fa-shield-alt"></i></span>
@@ -398,7 +294,7 @@
                                         </li>
                                         <li><i class="fas fa-clock text-danger me-2"></i>5 phút video</li>
                                     </ul>
-                                    <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
+                                    <a href="/lesson/lesson-list.html" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
                                         tiết</a>
                                 </div>
                             </div>
@@ -406,7 +302,7 @@
                         <div class="col-sm-6 col-md-4 col-lg-4">
                             <div class="card course-card p-0 h-100 overflow-hidden"
                                 style="background: linear-gradient(135deg,#f7971e 0%,#ffd200 100%);">
-                                <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80"
+                                <img src="https://vandieuhay.net/wp-vdh/uploads/2022/02/kiet.png"
                                     class="w-100" style="height:120px;object-fit:cover;" alt="Lý Thường Kiệt">
                                 <div class="p-3 d-flex flex-column align-items-center">
                                     <span class="course-icon mb-2"><i class="fas fa-hat-wizard"></i></span>
@@ -419,16 +315,16 @@
                                         </li>
                                         <li><i class="fas fa-clock text-danger me-2"></i>5 phút video</li>
                                     </ul>
-                                    <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
+                                    <a href="/lesson/lesson-list.html" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
                                         tiết</a>
                                 </div>
                             </div>
                         </div>
-                        <!-- Phong kiến độc lập: bổ sung các card -->
+                        
                         <div class="col-sm-6 col-md-4 col-lg-4">
                             <div class="card course-card p-0 h-100 overflow-hidden"
                                 style="background: linear-gradient(135deg,#f9d423 0%,#ff4e50 100%);">
-                                <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80"
+                                <img src="https://thoxuan.thanhhoa.gov.vn/file/download/636033661.html?b=0"
                                     class="w-100" style="height:120px;object-fit:cover;" alt="Lê Lợi">
                                 <div class="p-3 d-flex flex-column align-items-center">
                                     <span class="course-icon mb-2"><i class="fas fa-flag"></i></span>
@@ -440,7 +336,7 @@
                                         </li>
                                         <li><i class="fas fa-clock text-danger me-2"></i>5 phút video</li>
                                     </ul>
-                                    <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
+                                    <a href="/lesson/lesson-list.html" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
                                         tiết</a>
                                 </div>
                             </div>
@@ -448,7 +344,7 @@
                         <div class="col-sm-6 col-md-4 col-lg-4">
                             <div class="card course-card p-0 h-100 overflow-hidden"
                                 style="background: linear-gradient(135deg,#43cea2 0%,#185a9d 100%);">
-                                <img src="https://images.unsplash.com/photo-1503676382389-4809596d5290?auto=format&fit=crop&w=400&q=80"
+                                <img src="https://848603edf5.vws.vegacdn.vn/UploadImages%2Fhaiphong%2Fthnguyenhue%2F2021_10%2Ftieu_su_vua_nguyen_hue%2Fquang-trung-1_1110202116.jpg?w=1130"
                                     class="w-100" style="height:120px;object-fit:cover;" alt="Quang Trung">
                                 <div class="p-3 d-flex flex-column align-items-center">
                                     <span class="course-icon mb-2"><i class="fas fa-bolt"></i></span>
@@ -462,293 +358,317 @@
                                         </li>
                                         <li><i class="fas fa-clock text-danger me-2"></i>6 phút video</li>
                                     </ul>
-                                    <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
+                                    <a href="/lesson/lesson-list.html" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
                                         tiết</a>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    </section>
+                </section>
 
 
-                    <!-- Thời kỳ Pháp thuộc (1858 – 1945) -->
-                    <section class="mb-5">
-                        <div class="d-flex align-items-center mb-3">
-                            <h3 class="fw-bold mb-0 text-primary">Thời kỳ Pháp thuộc (1858 – 1945)</h3>
-                        </div>
-                        <div class="row g-4">
-                            <div class="col-sm-6 col-md-4 col-lg-4">
-                                <div class="card course-card p-0 h-100 overflow-hidden"
-                                    style="background: linear-gradient(135deg,#f7971e 0%,#ffd200 100%);">
-                                    <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80"
-                                        class="w-100" style="height:120px;object-fit:cover;" alt="Phan Bội Châu">
-                                    <div class="p-3 d-flex flex-column align-items-center">
-                                        <span class="course-icon mb-2"><i class="fas fa-plane-departure"></i></span>
-                                        <h5 class="fw-bold text-center mb-2">Phan Bội Châu và phong trào Đông Du</h5>
-                                        <span class="course-badge bg-success mb-2">Miễn phí</span>
-                                        <ul class="list-unstyled mb-2 small text-secondary">
-                                            <li><i class="fas fa-users text-primary me-2"></i>500 bạn đã học</li>
-                                            <li><i class="fas fa-question-circle text-info me-2"></i>2 câu hỏi tương tác
-                                            </li>
-                                            <li><i class="fas fa-clock text-danger me-2"></i>4 phút video</li>
-                                        </ul>
-                                        <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
-                                            tiết</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-6 col-md-4 col-lg-4">
-                                <div class="card course-card p-0 h-100 overflow-hidden"
-                                    style="background: linear-gradient(135deg,#e0c3fc 0%,#8ec5fc 100%);">
-                                    <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80"
-                                        class="w-100" style="height:120px;object-fit:cover;" alt="Phan Chu Trinh">
-                                    <div class="p-3 d-flex flex-column align-items-center">
-                                        <span class="course-icon mb-2"><i class="fas fa-lightbulb"></i></span>
-                                        <h5 class="fw-bold text-center mb-2">Phan Chu Trinh và phong trào Duy Tân</h5>
-                                        <span class="course-badge bg-warning mb-2">Học thử</span>
-                                        <ul class="list-unstyled mb-2 small text-secondary">
-                                            <li><i class="fas fa-users text-primary me-2"></i>480 bạn đã học</li>
-                                            <li><i class="fas fa-question-circle text-info me-2"></i>2 câu hỏi tương tác
-                                            </li>
-                                            <li><i class="fas fa-clock text-danger me-2"></i>4 phút video</li>
-                                        </ul>
-                                        <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
-                                            tiết</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-6 col-md-4 col-lg-4">
-                                <div class="card course-card p-0 h-100 overflow-hidden"
-                                    style="background: linear-gradient(135deg,#a8edea 0%,#fed6e3 100%);">
-                                    <img src="https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=400&q=80"
-                                        class="w-100" style="height:120px;object-fit:cover;" alt="Khởi nghĩa Yên Thế">
-                                    <div class="p-3 d-flex flex-column align-items-center">
-                                        <span class="course-icon mb-2"><i class="fas fa-tree"></i></span>
-                                        <h5 class="fw-bold text-center mb-2">Khởi nghĩa Yên Thế</h5>
-                                        <span class="course-badge bg-success mb-2">Miễn phí</span>
-                                        <ul class="list-unstyled mb-2 small text-secondary">
-                                            <li><i class="fas fa-users text-primary me-2"></i>420 bạn đã học</li>
-                                            <li><i class="fas fa-question-circle text-info me-2"></i>2 câu hỏi tương tác
-                                            </li>
-                                            <li><i class="fas fa-clock text-danger me-2"></i>4 phút video</li>
-                                        </ul>
-                                        <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
-                                            tiết</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-6 col-md-4 col-lg-4">
-                                <div class="card course-card p-0 h-100 overflow-hidden"
-                                    style="background: linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);">
-                                    <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80"
-                                        class="w-100" style="height:120px;object-fit:cover;" alt="Cách mạng tháng Tám">
-                                    <div class="p-3 d-flex flex-column align-items-center">
-                                        <span class="course-icon mb-2"><i class="fas fa-flag-checkered"></i></span>
-                                        <h5 class="fw-bold text-center mb-2">Cách mạng tháng Tám 1945</h5>
-                                        <span class="course-badge bg-success mb-2">Miễn phí</span>
-                                        <ul class="list-unstyled mb-2 small text-secondary">
-                                            <li><i class="fas fa-users text-primary me-2"></i>900 bạn đã học</li>
-                                            <li><i class="fas fa-question-circle text-info me-2"></i>3 câu hỏi tương tác
-                                            </li>
-                                            <li><i class="fas fa-clock text-danger me-2"></i>5 phút video</li>
-                                        </ul>
-                                        <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
-                                            tiết</a>
-                                    </div>
+                <!-- Thời kỳ Pháp thuộc (1858 – 1945) -->
+                <section class="mb-5">
+                    <div class="d-flex align-items-center mb-3">
+                        <h3 class="fw-bold mb-0 text-primary">Thời kỳ Pháp thuộc (1858 - 1945)</h3>
+                    </div>
+                    <div class="row g-4">
+                        <div class="col-sm-6 col-md-4 col-lg-4">
+                            <div class="card course-card p-0 h-100 overflow-hidden"
+                                style="background: linear-gradient(135deg,#f7971e 0%,#ffd200 100%);">
+                                <img src="https://hnm.1cdn.vn/2023/02/18/hanoimoi.com.vn-uploads-images-tuandiep-2023-02-14-_220px-phanboichau_memory.jpg"
+                                    class="w-100" style="height:120px;object-fit:cover;" alt="Phan Bội Châu">
+                                <div class="p-3 d-flex flex-column align-items-center">
+                                    <span class="course-icon mb-2"><i class="fas fa-plane-departure"></i></span>
+                                    <h5 class="fw-bold text-center mb-2">Phan Bội Châu và phong trào Đông Du</h5>
+                                    <span class="course-badge bg-success mb-2">Miễn phí</span>
+                                    <ul class="list-unstyled mb-2 small text-secondary">
+                                        <li><i class="fas fa-users text-primary me-2"></i>500 bạn đã học</li>
+                                        <li><i class="fas fa-question-circle text-info me-2"></i>2 câu hỏi tương tác
+                                        </li>
+                                        <li><i class="fas fa-clock text-danger me-2"></i>4 phút video</li>
+                                    </ul>
+                                    <a href="/lesson/lesson-list.html" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
+                                        tiết</a>
                                 </div>
                             </div>
                         </div>
-                    </section>
-                    
-                    <!-- Thời kỳ kháng chiến chống Pháp (1945 – 1954) -->
-<section class="mb-5">
-    <div class="d-flex align-items-center mb-3">
-        <h3 class="fw-bold mb-0 text-primary">Kháng chiến chống Pháp (1945 – 1954)</h3>
-    </div>
-    <div class="row g-4">
-        <div class="col-sm-6 col-md-4 col-lg-4">
-            <div class="card course-card p-0 h-100 overflow-hidden"
-                style="background: linear-gradient(135deg,#f7971e 0%,#ffd200 100%);">
-                <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80"
-                    class="w-100" style="height:120px;object-fit:cover;" alt="Hồ Chí Minh đọc Tuyên ngôn Độc lập">
-                <div class="p-3 d-flex flex-column align-items-center">
-                    <span class="course-icon mb-2"><i class="fas fa-scroll"></i></span>
-                    <h5 class="fw-bold text-center mb-2">Hồ Chí Minh đọc Tuyên ngôn Độc lập</h5>
-                    <span class="course-badge bg-success mb-2">Miễn phí</span>
-                    <ul class="list-unstyled mb-2 small text-secondary">
-                        <li><i class="fas fa-users text-primary me-2"></i>1.000 bạn đã học</li>
-                        <li><i class="fas fa-question-circle text-info me-2"></i>2 câu hỏi tương tác</li>
-                        <li><i class="fas fa-clock text-danger me-2"></i>5 phút video</li>
-                    </ul>
-                    <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi tiết</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-md-4 col-lg-4">
-            <div class="card course-card p-0 h-100 overflow-hidden"
-                style="background: linear-gradient(135deg,#e0c3fc 0%,#8ec5fc 100%);">
-                <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80"
-                    class="w-100" style="height:120px;object-fit:cover;" alt="Chiến dịch Điện Biên Phủ">
-                <div class="p-3 d-flex flex-column align-items-center">
-                    <span class="course-icon mb-2"><i class="fas fa-mountain"></i></span>
-                    <h5 class="fw-bold text-center mb-2">Chiến dịch Điện Biên Phủ</h5>
-                    <span class="course-badge bg-warning mb-2">Học thử</span>
-                    <ul class="list-unstyled mb-2 small text-secondary">
-                        <li><i class="fas fa-users text-primary me-2"></i>950 bạn đã học</li>
-                        <li><i class="fas fa-question-circle text-info me-2"></i>3 câu hỏi tương tác</li>
-                        <li><i class="fas fa-clock text-danger me-2"></i>6 phút video</li>
-                    </ul>
-                    <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi tiết</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-md-4 col-lg-4">
-            <div class="card course-card p-0 h-100 overflow-hidden"
-                style="background: linear-gradient(135deg,#a8edea 0%,#fed6e3 100%);">
-                <img src="https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=400&q=80"
-                    class="w-100" style="height:120px;object-fit:cover;" alt="Toàn quốc kháng chiến">
-                <div class="p-3 d-flex flex-column align-items-center">
-                    <span class="course-icon mb-2"><i class="fas fa-flag"></i></span>
-                    <h5 class="fw-bold text-center mb-2">Toàn quốc kháng chiến</h5>
-                    <span class="course-badge bg-success mb-2">Miễn phí</span>
-                    <ul class="list-unstyled mb-2 small text-secondary">
-                        <li><i class="fas fa-users text-primary me-2"></i>800 bạn đã học</li>
-                        <li><i class="fas fa-question-circle text-info me-2"></i>2 câu hỏi tương tác</li>
-                        <li><i class="fas fa-clock text-danger me-2"></i>5 phút video</li>
-                    </ul>
-                    <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi tiết</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+                        <div class="col-sm-6 col-md-4 col-lg-4">
+                            <div class="card course-card p-0 h-100 overflow-hidden"
+                                style="background: linear-gradient(135deg,#e0c3fc 0%,#8ec5fc 100%);">
+                                <img src="https://thegioivanhoc.com/wp-content/uploads/2023/12/tieu-su-phan-chau-trinh.jpg"
+                                    class="w-100" style="height:120px;object-fit:cover;" alt="Phan Chu Trinh">
+                                <div class="p-3 d-flex flex-column align-items-center">
+                                    <span class="course-icon mb-2"><i class="fas fa-lightbulb"></i></span>
+                                    <h5 class="fw-bold text-center mb-2">Phan Chu Trinh và phong trào Duy Tân</h5>
+                                    <span class="course-badge bg-warning mb-2">Học thử</span>
+                                    <ul class="list-unstyled mb-2 small text-secondary">
+                                        <li><i class="fas fa-users text-primary me-2"></i>480 bạn đã học</li>
+                                        <li><i class="fas fa-question-circle text-info me-2"></i>2 câu hỏi tương tác
+                                        </li>
+                                        <li><i class="fas fa-clock text-danger me-2"></i>4 phút video</li>
+                                    </ul>
+                                    <a href="/lesson/lesson-list.html" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
+                                        tiết</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4 col-lg-4">
+                            <div class="card course-card p-0 h-100 overflow-hidden"
+                                style="background: linear-gradient(135deg,#a8edea 0%,#fed6e3 100%);">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/3/33/Ban_De_Tham.jpg"
+                                    class="w-100" style="height:120px;object-fit:cover;" alt="Khởi nghĩa Yên Thế">
+                                <div class="p-3 d-flex flex-column align-items-center">
+                                    <span class="course-icon mb-2"><i class="fas fa-tree"></i></span>
+                                    <h5 class="fw-bold text-center mb-2">Khởi nghĩa Yên Thế</h5>
+                                    <span class="course-badge bg-success mb-2">Miễn phí</span>
+                                    <ul class="list-unstyled mb-2 small text-secondary">
+                                        <li><i class="fas fa-users text-primary me-2"></i>420 bạn đã học</li>
+                                        <li><i class="fas fa-question-circle text-info me-2"></i>2 câu hỏi tương tác
+                                        </li>
+                                        <li><i class="fas fa-clock text-danger me-2"></i>4 phút video</li>
+                                    </ul>
+                                    <a href="/lesson/lesson-list.html" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
+                                        tiết</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4 col-lg-4">
+                            <div class="card course-card p-0 h-100 overflow-hidden"
+                                style="background: linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7b/C%C3%A1ch_m%E1%BA%A1ng_th%C3%A1ng_8_b.jpg"
+                                    class="w-100" style="height:120px;object-fit:cover;" alt="Cách mạng tháng Tám">
+                                <div class="p-3 d-flex flex-column align-items-center">
+                                    <span class="course-icon mb-2"><i class="fas fa-flag-checkered"></i></span>
+                                    <h5 class="fw-bold text-center mb-2">Cách mạng tháng Tám 1945</h5>
+                                    <span class="course-badge bg-success mb-2">Miễn phí</span>
+                                    <ul class="list-unstyled mb-2 small text-secondary">
+                                        <li><i class="fas fa-users text-primary me-2"></i>900 bạn đã học</li>
+                                        <li><i class="fas fa-question-circle text-info me-2"></i>3 câu hỏi tương tác
+                                        </li>
+                                        <li><i class="fas fa-clock text-danger me-2"></i>5 phút video</li>
+                                    </ul>
+                                    <a href="/lesson/lesson-list.html" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
+                                        tiết</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-<!-- Thời kỳ kháng chiến chống Mỹ (1954 – 1975) -->
-<section class="mb-5">
-    <div class="d-flex align-items-center mb-3">
-        <h3 class="fw-bold mb-0 text-primary">Kháng chiến chống Mỹ (1954 – 1975)</h3>
-    </div>
-    <div class="row g-4">
-        <div class="col-sm-6 col-md-4 col-lg-4">
-            <div class="card course-card p-0 h-100 overflow-hidden"
-                style="background: linear-gradient(135deg,#f7971e 0%,#ffd200 100%);">
-                <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80"
-                    class="w-100" style="height:120px;object-fit:cover;" alt="Phong trào Đồng Khởi">
-                <div class="p-3 d-flex flex-column align-items-center">
-                    <span class="course-icon mb-2"><i class="fas fa-users"></i></span>
-                    <h5 class="fw-bold text-center mb-2">Phong trào Đồng Khởi</h5>
-                    <span class="course-badge bg-success mb-2">Miễn phí</span>
-                    <ul class="list-unstyled mb-2 small text-secondary">
-                        <li><i class="fas fa-users text-primary me-2"></i>900 bạn đã học</li>
-                        <li><i class="fas fa-question-circle text-info me-2"></i>2 câu hỏi tương tác</li>
-                        <li><i class="fas fa-clock text-danger me-2"></i>5 phút video</li>
-                    </ul>
-                    <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi tiết</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-md-4 col-lg-4">
-            <div class="card course-card p-0 h-100 overflow-hidden"
-                style="background: linear-gradient(135deg,#e0c3fc 0%,#8ec5fc 100%);">
-                <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80"
-                    class="w-100" style="height:120px;object-fit:cover;" alt="Chiến dịch Mậu Thân 1968">
-                <div class="p-3 d-flex flex-column align-items-center">
-                    <span class="course-icon mb-2"><i class="fas fa-bomb"></i></span>
-                    <h5 class="fw-bold text-center mb-2">Chiến dịch Mậu Thân 1968</h5>
-                    <span class="course-badge bg-warning mb-2">Học thử</span>
-                    <ul class="list-unstyled mb-2 small text-secondary">
-                        <li><i class="fas fa-users text-primary me-2"></i>850 bạn đã học</li>
-                        <li><i class="fas fa-question-circle text-info me-2"></i>3 câu hỏi tương tác</li>
-                        <li><i class="fas fa-clock text-danger me-2"></i>6 phút video</li>
-                    </ul>
-                    <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi tiết</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-md-4 col-lg-4">
-            <div class="card course-card p-0 h-100 overflow-hidden"
-                style="background: linear-gradient(135deg,#a8edea 0%,#fed6e3 100%);">
-                <img src="https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=400&q=80"
-                    class="w-100" style="height:120px;object-fit:cover;" alt="Chiến dịch Hồ Chí Minh 1975">
-                <div class="p-3 d-flex flex-column align-items-center">
-                    <span class="course-icon mb-2"><i class="fas fa-flag-checkered"></i></span>
-                    <h5 class="fw-bold text-center mb-2">Chiến dịch Hồ Chí Minh 1975 – Giải phóng miền Nam</h5>
-                    <span class="course-badge bg-success mb-2">Miễn phí</span>
-                    <ul class="list-unstyled mb-2 small text-secondary">
-                        <li><i class="fas fa-users text-primary me-2"></i>1.100 bạn đã học</li>
-                        <li><i class="fas fa-question-circle text-info me-2"></i>3 câu hỏi tương tác</li>
-                        <li><i class="fas fa-clock text-danger me-2"></i>7 phút video</li>
-                    </ul>
-                    <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi tiết</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+                <!-- Thời kỳ kháng chiến chống Pháp (1945 – 1954) -->
+                <section class="mb-5">
+                    <div class="d-flex align-items-center mb-3">
+                        <h3 class="fw-bold mb-0 text-primary">Kháng chiến chống Pháp (1945 – 1954)</h3>
+                    </div>
+                    <div class="row g-4">
+                        <div class="col-sm-6 col-md-4 col-lg-4">
+                            <div class="card course-card p-0 h-100 overflow-hidden"
+                                style="background: linear-gradient(135deg,#f7971e 0%,#ffd200 100%);">
+                                <img src="https://congan.soctrang.gov.vn/SiteFolders/congantinhst/5060/2024/TIN%20H%C4%90%20C%E1%BB%A6A%20NG%C3%80NH/THANG%209/01.09.2024%20anh%202.jpg"
+                                    class="w-100" style="height:120px;object-fit:cover;"
+                                    alt="Hồ Chí Minh đọc Tuyên ngôn Độc lập">
+                                <div class="p-3 d-flex flex-column align-items-center">
+                                    <span class="course-icon mb-2"><i class="fas fa-scroll"></i></span>
+                                    <h5 class="fw-bold text-center mb-2">Hồ Chí Minh đọc Tuyên ngôn Độc lập</h5>
+                                    <span class="course-badge bg-success mb-2">Miễn phí</span>
+                                    <ul class="list-unstyled mb-2 small text-secondary">
+                                        <li><i class="fas fa-users text-primary me-2"></i>1.000 bạn đã học</li>
+                                        <li><i class="fas fa-question-circle text-info me-2"></i>2 câu hỏi tương tác
+                                        </li>
+                                        <li><i class="fas fa-clock text-danger me-2"></i>5 phút video</li>
+                                    </ul>
+                                    <a href="/lesson/lesson-list.html" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
+                                        tiết</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4 col-lg-4">
+                            <div class="card course-card p-0 h-100 overflow-hidden"
+                                style="background: linear-gradient(135deg,#e0c3fc 0%,#8ec5fc 100%);">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Victory_in_Battle_of_Dien_Bien_Phu.jpg/1200px-Victory_in_Battle_of_Dien_Bien_Phu.jpg"
+                                    class="w-100" style="height:120px;object-fit:cover;" alt="Chiến dịch Điện Biên Phủ">
+                                <div class="p-3 d-flex flex-column align-items-center">
+                                    <span class="course-icon mb-2"><i class="fas fa-mountain"></i></span>
+                                    <h5 class="fw-bold text-center mb-2">Chiến dịch Điện Biên Phủ</h5>
+                                    <span class="course-badge bg-warning mb-2">Học thử</span>
+                                    <ul class="list-unstyled mb-2 small text-secondary">
+                                        <li><i class="fas fa-users text-primary me-2"></i>950 bạn đã học</li>
+                                        <li><i class="fas fa-question-circle text-info me-2"></i>3 câu hỏi tương tác
+                                        </li>
+                                        <li><i class="fas fa-clock text-danger me-2"></i>6 phút video</li>
+                                    </ul>
+                                    <a href="/lesson/lesson-list.html" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
+                                        tiết</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4 col-lg-4">
+                            <div class="card course-card p-0 h-100 overflow-hidden"
+                                style="background: linear-gradient(135deg,#a8edea 0%,#fed6e3 100%);">
+                                <img src="https://baolamdong.vn/file/e7837c02845ffd04018473e6df282e92/dataimages/201612/original/images1776649___i__o_n_qu_n_ta_t__c_c_c_a___ti_n_v_o_gi_i_ph_ng_Th____.jpg"
+                                    class="w-100" style="height:120px;object-fit:cover;" alt="Toàn quốc kháng chiến">
+                                <div class="p-3 d-flex flex-column align-items-center">
+                                    <span class="course-icon mb-2"><i class="fas fa-flag"></i></span>
+                                    <h5 class="fw-bold text-center mb-2">Toàn quốc kháng chiến</h5>
+                                    <span class="course-badge bg-success mb-2">Miễn phí</span>
+                                    <ul class="list-unstyled mb-2 small text-secondary">
+                                        <li><i class="fas fa-users text-primary me-2"></i>800 bạn đã học</li>
+                                        <li><i class="fas fa-question-circle text-info me-2"></i>2 câu hỏi tương tác
+                                        </li>
+                                        <li><i class="fas fa-clock text-danger me-2"></i>5 phút video</li>
+                                    </ul>
+                                    <a href="/lesson/lesson-list.html" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
+                                        tiết</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-<!-- Thời kỳ hiện đại (1975 – nay) -->
-<section class="mb-5">
-    <div class="d-flex align-items-center mb-3">
-        <h3 class="fw-bold mb-0 text-primary">Việt Nam hiện đại (1975 – nay)</h3>
-    </div>
-    <div class="row g-4">
-        <div class="col-sm-6 col-md-4 col-lg-4">
-            <div class="card course-card p-0 h-100 overflow-hidden"
-                style="background: linear-gradient(135deg,#f7971e 0%,#ffd200 100%);">
-                <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80"
-                    class="w-100" style="height:120px;object-fit:cover;" alt="Công cuộc đổi mới 1986">
-                <div class="p-3 d-flex flex-column align-items-center">
-                    <span class="course-icon mb-2"><i class="fas fa-sync-alt"></i></span>
-                    <h5 class="fw-bold text-center mb-2">Công cuộc đổi mới 1986</h5>
-                    <span class="course-badge bg-success mb-2">Miễn phí</span>
-                    <ul class="list-unstyled mb-2 small text-secondary">
-                        <li><i class="fas fa-users text-primary me-2"></i>950 bạn đã học</li>
-                        <li><i class="fas fa-question-circle text-info me-2"></i>2 câu hỏi tương tác</li>
-                        <li><i class="fas fa-clock text-danger me-2"></i>5 phút video</li>
-                    </ul>
-                    <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi tiết</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-md-4 col-lg-4">
-            <div class="card course-card p-0 h-100 overflow-hidden"
-                style="background: linear-gradient(135deg,#e0c3fc 0%,#8ec5fc 100%);">
-                <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80"
-                    class="w-100" style="height:120px;object-fit:cover;" alt="Việt Nam hội nhập quốc tế">
-                <div class="p-3 d-flex flex-column align-items-center">
-                    <span class="course-icon mb-2"><i class="fas fa-globe-asia"></i></span>
-                    <h5 class="fw-bold text-center mb-2">Việt Nam hội nhập quốc tế</h5>
-                    <span class="course-badge bg-warning mb-2">Học thử</span>
-                    <ul class="list-unstyled mb-2 small text-secondary">
-                        <li><i class="fas fa-users text-primary me-2"></i>800 bạn đã học</li>
-                        <li><i class="fas fa-question-circle text-info me-2"></i>2 câu hỏi tương tác</li>
-                        <li><i class="fas fa-clock text-danger me-2"></i>4 phút video</li>
-                    </ul>
-                    <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi tiết</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-md-4 col-lg-4">
-            <div class="card course-card p-0 h-100 overflow-hidden"
-                style="background: linear-gradient(135deg,#a8edea 0%,#fed6e3 100%);">
-                <img src="https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=400&q=80"
-                    class="w-100" style="height:120px;object-fit:cover;" alt="Thành tựu Việt Nam hiện đại">
-                <div class="p-3 d-flex flex-column align-items-center">
-                    <span class="course-icon mb-2"><i class="fas fa-trophy"></i></span>
-                    <h5 class="fw-bold text-center mb-2">Những thành tựu nổi bật của Việt Nam hiện đại</h5>
-                    <span class="course-badge bg-success mb-2">Miễn phí</span>
-                    <ul class="list-unstyled mb-2 small text-secondary">
-                        <li><i class="fas fa-users text-primary me-2"></i>700 bạn đã học</li>
-                        <li><i class="fas fa-question-circle text-info me-2"></i>2 câu hỏi tương tác</li>
-                        <li><i class="fas fa-clock text-danger me-2"></i>5 phút video</li>
-                    </ul>
-                    <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi tiết</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-                    
+                <!-- Thời kỳ kháng chiến chống Mỹ (1954 – 1975) -->
+                <section class="mb-5">
+                    <div class="d-flex align-items-center mb-3">
+                        <h3 class="fw-bold mb-0 text-primary">Kháng chiến chống Mỹ (1954 - 1975)</h3>
+                    </div>
+                    <div class="row g-4">
+                        <div class="col-sm-6 col-md-4 col-lg-4">
+                            <div class="card course-card p-0 h-100 overflow-hidden"
+                                style="background: linear-gradient(135deg,#f7971e 0%,#ffd200 100%);">
+                                <img src="https://media.vov.vn/sites/default/files/styles/large/public/2025-01/Dong%20Khoi%202.jpg"
+                                    class="w-100" style="height:120px;object-fit:cover;" alt="Phong trào Đồng Khởi">
+                                <div class="p-3 d-flex flex-column align-items-center">
+                                    <span class="course-icon mb-2"><i class="fas fa-users"></i></span>
+                                    <h5 class="fw-bold text-center mb-2">Phong trào Đồng Khởi</h5>
+                                    <span class="course-badge bg-success mb-2">Miễn phí</span>
+                                    <ul class="list-unstyled mb-2 small text-secondary">
+                                        <li><i class="fas fa-users text-primary me-2"></i>900 bạn đã học</li>
+                                        <li><i class="fas fa-question-circle text-info me-2"></i>2 câu hỏi tương tác
+                                        </li>
+                                        <li><i class="fas fa-clock text-danger me-2"></i>5 phút video</li>
+                                    </ul>
+                                    <a href="/lesson/lesson-list.html" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
+                                        tiết</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4 col-lg-4">
+                            <div class="card course-card p-0 h-100 overflow-hidden"
+                                style="background: linear-gradient(135deg,#e0c3fc 0%,#8ec5fc 100%);">
+                                <img src="https://nghiavuquansu.vn/wp-content/uploads/2024/12/tom-tat-chien-dich-tet-mau-than-1968.jpg"
+                                    class="w-100" style="height:120px;object-fit:cover;" alt="Chiến dịch Mậu Thân 1968">
+                                <div class="p-3 d-flex flex-column align-items-center">
+                                    <span class="course-icon mb-2"><i class="fas fa-bomb"></i></span>
+                                    <h5 class="fw-bold text-center mb-2">Chiến dịch Mậu Thân 1968</h5>
+                                    <span class="course-badge bg-warning mb-2">Học thử</span>
+                                    <ul class="list-unstyled mb-2 small text-secondary">
+                                        <li><i class="fas fa-users text-primary me-2"></i>850 bạn đã học</li>
+                                        <li><i class="fas fa-question-circle text-info me-2"></i>3 câu hỏi tương tác
+                                        </li>
+                                        <li><i class="fas fa-clock text-danger me-2"></i>6 phút video</li>
+                                    </ul>
+                                    <a href="/lesson/lesson-list.html" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
+                                        tiết</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4 col-lg-4">
+                            <div class="card course-card p-0 h-100 overflow-hidden"
+                                style="background: linear-gradient(135deg,#a8edea 0%,#fed6e3 100%);">
+                                <img src="https://tulieuvankien.dangcongsan.vn/Uploads/2018/8/5/3/3_57192.jpg"
+                                    class="w-100" style="height:120px;object-fit:cover;"
+                                    alt="Chiến dịch Hồ Chí Minh 1975">
+                                <div class="p-3 d-flex flex-column align-items-center">
+                                    <span class="course-icon mb-2"><i class="fas fa-flag-checkered"></i></span>
+                                    <h5 class="fw-bold text-center mb-2">Chiến dịch Hồ Chí Minh 1975 – Giải phóng miền
+                                        Nam</h5>
+                                    <span class="course-badge bg-success mb-2">Miễn phí</span>
+                                    <ul class="list-unstyled mb-2 small text-secondary">
+                                        <li><i class="fas fa-users text-primary me-2"></i>1.100 bạn đã học</li>
+                                        <li><i class="fas fa-question-circle text-info me-2"></i>3 câu hỏi tương tác
+                                        </li>
+                                        <li><i class="fas fa-clock text-danger me-2"></i>7 phút video</li>
+                                    </ul>
+                                    <a href="/lesson/lesson-list.html" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
+                                        tiết</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Thời kỳ hiện đại (1975 – nay) -->
+                <section class="mb-5">
+                    <div class="d-flex align-items-center mb-3">
+                        <h3 class="fw-bold mb-0 text-primary">Việt Nam hiện đại (1975 – nay)</h3>
+                    </div>
+                    <div class="row g-4">
+                        <div class="col-sm-6 col-md-4 col-lg-4">
+                            <div class="card course-card p-0 h-100 overflow-hidden"
+                                style="background: linear-gradient(135deg,#f7971e 0%,#ffd200 100%);">
+                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiuCcfnUxDZqngDq-F88s6WG4U4N9Zs2itrQ&s"
+                                    class="w-100" style="height:120px;object-fit:cover;" alt="Công cuộc đổi mới 1986">
+                                <div class="p-3 d-flex flex-column align-items-center">
+                                    <span class="course-icon mb-2"><i class="fas fa-sync-alt"></i></span>
+                                    <h5 class="fw-bold text-center mb-2">Công cuộc đổi mới 1986</h5>
+                                    <span class="course-badge bg-success mb-2">Miễn phí</span>
+                                    <ul class="list-unstyled mb-2 small text-secondary">
+                                        <li><i class="fas fa-users text-primary me-2"></i>950 bạn đã học</li>
+                                        <li><i class="fas fa-question-circle text-info me-2"></i>2 câu hỏi tương tác
+                                        </li>
+                                        <li><i class="fas fa-clock text-danger me-2"></i>5 phút video</li>
+                                    </ul>
+                                    <a href="/lesson/lesson-list.html" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
+                                        tiết</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4 col-lg-4">
+                            <div class="card course-card p-0 h-100 overflow-hidden"
+                                style="background: linear-gradient(135deg,#e0c3fc 0%,#8ec5fc 100%);">
+                                <img src="https://congthuong.vn/stores/news_dataimages/nguyenly/052021/10/10/3953_dau-moc.jpg?rt=20210510103953"
+                                    class="w-100" style="height:120px;object-fit:cover;"
+                                    alt="Việt Nam hội nhập quốc tế">
+                                <div class="p-3 d-flex flex-column align-items-center">
+                                    <span class="course-icon mb-2"><i class="fas fa-globe-asia"></i></span>
+                                    <h5 class="fw-bold text-center mb-2">Việt Nam hội nhập quốc tế</h5>
+                                    <span class="course-badge bg-warning mb-2">Học thử</span>
+                                    <ul class="list-unstyled mb-2 small text-secondary">
+                                        <li><i class="fas fa-users text-primary me-2"></i>800 bạn đã học</li>
+                                        <li><i class="fas fa-question-circle text-info me-2"></i>2 câu hỏi tương tác
+                                        </li>
+                                        <li><i class="fas fa-clock text-danger me-2"></i>4 phút video</li>
+                                    </ul>
+                                    <a href="/lesson/lesson-list.html" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
+                                        tiết</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4 col-lg-4">
+                            <div class="card course-card p-0 h-100 overflow-hidden"
+                                style="background: linear-gradient(135deg,#a8edea 0%,#fed6e3 100%);">
+                                <img src="https://special.vietnamplus.vn/wp-content/uploads/2021/03/ttxvnhanoi-1611203686-47-1568x882.jpg"
+                                    class="w-100" style="height:120px;object-fit:cover;"
+                                    alt="Thành tựu Việt Nam hiện đại">
+                                <div class="p-3 d-flex flex-column align-items-center">
+                                    <span class="course-icon mb-2"><i class="fas fa-trophy"></i></span>
+                                    <h5 class="fw-bold text-center mb-2">Những thành tựu nổi bật của Việt Nam hiện đại
+                                    </h5>
+                                    <span class="course-badge bg-success mb-2">Miễn phí</span>
+                                    <ul class="list-unstyled mb-2 small text-secondary">
+                                        <li><i class="fas fa-users text-primary me-2"></i>700 bạn đã học</li>
+                                        <li><i class="fas fa-question-circle text-info me-2"></i>2 câu hỏi tương tác
+                                        </li>
+                                        <li><i class="fas fa-clock text-danger me-2"></i>5 phút video</li>
+                                    </ul>
+                                    <a href="/lesson/lesson-list.html" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi
+                                        tiết</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
             </div>
             <!-- Bên phải: Top view -->
             <div class="col-lg-3">
@@ -759,7 +679,7 @@
                     <ul class="list-group list-group-flush">
                         <!-- Top 1 -->
                         <li class="list-group-item d-flex align-items-center">
-                            <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=80&q=80"
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTv5JGMMGGgOEkM6fjt41LZDxfpOuljMqjKIQ&s"
                                 alt="Thánh Gióng" class="rounded me-3" width="48" height="64" style="object-fit:cover;">
                             <div>
                                 <div class="fw-semibold">Truyền thuyết Thánh Gióng</div>
@@ -769,7 +689,7 @@
                         </li>
                         <!-- Top 2 -->
                         <li class="list-group-item d-flex align-items-center">
-                            <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=80&q=80"
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ2ybOj2j9k0B7CkFbn5TflDVZy43y7Gz_7tA&s"
                                 alt="Sơn Tinh Thủy Tinh" class="rounded me-3" width="48" height="64"
                                 style="object-fit:cover;">
                             <div>
@@ -780,7 +700,7 @@
                         </li>
                         <!-- Top 3 -->
                         <li class="list-group-item d-flex align-items-center">
-                            <img src="https://images.unsplash.com/photo-1503676382389-4809596d5290?auto=format&fit=crop&w=80&q=80"
+                            <img src="https://hoangthanhthanglong.vn/wp-content/uploads/2023/05/haibatrung1.jpg"
                                 alt="Hai Bà Trưng" class="rounded me-3" width="48" height="64"
                                 style="object-fit:cover;">
                             <div>
@@ -854,47 +774,16 @@
 
 
     <!-- Footer -->
-    <footer class="py-5 bg-dark text-light">
-        <div class="container">
-            <div class="row g-4">
-                <div class="col-lg-4 mb-4 mb-lg-0">
-                    <a class="d-flex align-items-center mb-3 text-light text-decoration-none" href="#">
-                        <img src="logo.png" alt="VieHistory Logo" width="40" class="me-2">
-                        <span class="fs-5 fw-bold">VIE<span class="text-warning">HISTORY</span></span>
-                    </a>
-                    <p class="small mb-0">Chạm vào quá khứ, xây dựng tương lai.<br>
-                        Nền tảng giáo dục lịch sử trực tuyến đầu tiên dành cho trẻ mầm non tại Việt Nam.</p>
-                </div>
-                <div class="col-lg-4 mb-4 mb-lg-0">
-                    <h5 class="mb-3">Liên hệ</h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><i class="fas fa-map-marker-alt text-warning me-2"></i> Đại học FPT, Km29 Đại
-                            lộ Thăng Long, Thạch Thất, Hà Nội</li>
-                        <li class="mb-2"><i class="fas fa-phone text-warning me-2"></i> +84 123 456 789</li>
-                        <li class="mb-2"><i class="fas fa-envelope text-warning me-2"></i> contact@viehistory.vn</li>
-                    </ul>
-                </div>
-                <div class="col-lg-4">
-                    <h5 class="mb-3">Theo dõi chúng tôi</h5>
-                    <div class="d-flex gap-3">
-                        <a href="https://www.facebook.com/profile.php?id=61559645019722" class="text-light"><i
-                                class="fab fa-facebook-f fa-lg"></i></a>
-                        <a href="https://www.tiktok.com/@viehistory7" class="text-light"><i
-                                class="fab fa-tiktok fa-lg"></i></a>
-                        <!-- <a href="#" class="text-light"><i class="fab fa-youtube fa-lg"></i></a>
-                        <a href="#" class="text-light"><i class="fab fa-instagram fa-lg"></i></a> -->
-                    </div>
-                </div>
-            </div>
-            <hr class="my-4 border-light">
-            <div class="text-center small">
-                &copy; 2025 VieHistory. Thiết kế bởi đội ngũ VieHistory.
-            </div>
-        </div>
-    </footer>
+    <div w3-include-html="components/footer.html"></div>
+
     <!-- Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script src="script.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore-compat.js"></script>
+    <script src="/assets/js/firebase-config.js"></script>
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/include-html.js"></script>
 </body>
 
 </html>

@@ -5,33 +5,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VieHistory - Chạm vào quá khứ, xây dựng tương lai</title>
-    <link rel="icon" href="logo.png" type="image/png">
+    <link rel="icon" href="public/icons/logo.png" type="image/png">
+    <link rel="stylesheet" href="assets/css/styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
+
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="#">
-                <img src="logo.png" alt="Logo" class="hourglass-icon"
+                <img src="public/icons/logo.png" alt="Logo" class="hourglass-icon"
                     style="filter: grayscale(1) brightness(0) sepia(1) hue-rotate(200deg) saturate(5);">
                 <span class="logo-text text-white">VIE<span class="text-dark">HISTORY</span></span>
             </a>
             <div class="navbar-collapse show" id="navbarNav" style="display: flex !important;"></div>
-                <ul class="navbar-nav me-auto">
-                    <!-- <li class="nav-item">
+            <ul class="navbar-nav me-auto">
+                <!-- <li class="nav-item">
                     <a class="nav-link" href="#">Trang chủ</a>
                 </li> -->
-                </ul>
-                <div class="auth-buttons d-flex">
-                    <a href="login.html" class="btn btn-outline-light">Đăng nhập</a>
-                    <a href="signup.html" class="btn btn-warning">Đăng ký</a>
-                    <!-- <a href="home.html" class="btn btn-primary ms-2">Vào trang quản lý</a> -->
-                </div>
+            </ul>
+            <div class="auth-buttons d-flex">
+                <a href="login.html" class="btn btn-outline-light">Đăng nhập</a>
+                <a href="signup.html" class="btn btn-warning">Đăng ký</a>
+                <!-- <a href="home.html" class="btn btn-primary ms-2">Vào trang quản lý</a> -->
             </div>
+        </div>
         </div>
     </nav>
 
@@ -42,7 +43,7 @@
             <p class="lead mb-5">Nền tảng giáo dục lịch sử trực tuyến đầu tiên dành cho trẻ mầm non, giúp trẻ tiếp cận
                 lịch sử một cách tự nhiên, dễ hiểu và thú vị.</p>
             <div class="d-flex justify-content-center gap-3">
-                <a href="/login.html" class="btn btn-warning btn-lg px-4">Trải nghiệm ngay</a>
+                <a href="login.html" class="btn btn-warning btn-lg px-4">Trải nghiệm ngay</a>
                 <!-- <a href="#demo" class="btn btn-outline-light btn-lg px-4">Xem demo</a> -->
                 <!-- <a href="#trial" class="btn btn-primary btn-lg px-4">Trải nghiệm miễn phí</a> -->
             </div>
@@ -56,7 +57,7 @@
             <div class="row g-4">
                 <div class="col-md-4">
                     <div class="card feature-card h-100">
-                        <img src="video-lich-su-hap-dan.png" class="card-img-top feature-img"
+                        <img src="/public/images/video-lich-su-hap-dan.png" class="card-img-top feature-img"
                             alt="Video lịch sử hấp dẫn">
                         <div class="card-body text-center">
                             <div class="mb-3">
@@ -70,7 +71,8 @@
                 </div>
                 <div class="col-md-4">
                     <div class="card feature-card h-100">
-                        <img src="game-hap-dan.jpg" class="card-img-top feature-img" alt="Trò chơi tương tác">
+                        <img src="/public/images/game-hap-dan.jpg" class="card-img-top feature-img"
+                            alt="Trò chơi tương tác">
                         <div class="card-body text-center">
                             <div class="mb-3">
                                 <i class="fas fa-gamepad feature-icon"></i>
@@ -83,7 +85,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="card feature-card h-100">
-                        <img src="online-learning.jpg" class="card-img-top feature-img"
+                        <img src="/public/images/online-learning.jpg" class="card-img-top feature-img"
                             alt="Tài liệu giảng dạy chất lượng cao">
                         <div class="card-body text-center">
                             <div class="mb-3">
@@ -113,12 +115,16 @@
                 <!-- About Content Column -->
                 <div class="col-lg-6">
                     <h2 class="mb-4">Về VieHistory</h2>
-                    <p class="lead">VieHistory là nền tảng giáo dục lịch sử đầu tiên dành riêng cho trẻ mầm non tại Việt Nam.</p>
-                    <p>Chúng tôi tin rằng việc tiếp cận lịch sử từ sớm sẽ giúp trẻ phát triển tình yêu đất nước, niềm tự hào dân tộc và hiểu biết về cội nguồn.</p>
-                    <p>Tất cả nội dung tại VieHistory được chọn lọc kỹ lưỡng và biên soạn cẩn thận, giúp đảm bảo tính chính xác và phù hợp với từng độ tuổi.</p>
+                    <p class="lead">VieHistory là nền tảng giáo dục lịch sử đầu tiên dành riêng cho trẻ mầm non tại Việt
+                        Nam.</p>
+                    <p>Chúng tôi tin rằng việc tiếp cận lịch sử từ sớm sẽ giúp trẻ phát triển tình yêu đất nước, niềm tự
+                        hào dân tộc và hiểu biết về cội nguồn.</p>
+                    <p>Tất cả nội dung tại VieHistory được chọn lọc kỹ lưỡng và biên soạn cẩn thận, giúp đảm bảo tính
+                        chính xác và phù hợp với từng độ tuổi.</p>
                     <div class="mt-4">
                         <h5>Sứ mệnh của chúng tôi</h5>
-                        <p><em>"Trở thành nền tảng giáo dục lịch sử, đặt nền móng phát triển lịch sử cho trẻ mầm non tại Việt Nam."</em></p>
+                        <p><em>"Trở thành nền tảng giáo dục lịch sử, đặt nền móng phát triển lịch sử cho trẻ mầm non tại
+                                Việt Nam."</em></p>
                     </div>
                     <!-- <div class="mt-4">
                         <ul class="list-group list-group-flush">
@@ -313,38 +319,14 @@
     </section> -->
 
     <!-- Footer -->
-    <footer class="py-5 bg-dark text-light">
-        <div class="container">
-            <div class="row g-4">
-                <div class="col-lg-4 mb-4 mb-lg-0">
-                    <a class="d-flex align-items-center mb-3 text-light text-decoration-none" href="#">
-                        <img src="logo.png" alt="VieHistory Logo" width="40" class="me-2">
-                        <span class="fs-5 fw-bold">VIE<span class="text-warning">HISTORY</span></span>
-                    </a>
-                    <p class="small mb-0">Chạm vào quá khứ, xây dựng tương lai.<br>
-                        Nền tảng giáo dục lịch sử trực tuyến đầu tiên dành cho trẻ mầm non tại Việt Nam.</p>
-                </div>
-                <div class="col-lg-4 mb-4 mb-lg-0">
-                    <h5 class="mb-3">Liên hệ</h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><i class="fas fa-map-marker-alt text-warning me-2"></i> Đại học FPT, Km29 Đại lộ Thăng Long, Thạch Thất, Hà Nội</li>
-                        <li class="mb-2"><i class="fas fa-phone text-warning me-2"></i> +84 123 456 789</li>
-                        <li class="mb-2"><i class="fas fa-envelope text-warning me-2"></i> contact@viehistory.vn</li>
-                    </ul>
-                </div>
-                <div class="col-lg-4">
-                    <h5 class="mb-3">Theo dõi chúng tôi</h5>
-                    <div class="d-flex gap-3">
-                        <a href="https://www.facebook.com/profile.php?id=61559645019722" class="text-light"><i class="fab fa-facebook-f fa-lg"></i></a>
-                        <a href="https://www.tiktok.com/@viehistory7" class="text-light"><i class="fab fa-tiktok fa-lg"></i></a>
-                        <!-- <a href="#" class="text-light"><i class="fab fa-youtube fa-lg"></i></a>
-                        <a href="#" class="text-light"><i class="fab fa-instagram fa-lg"></i></a> -->
-                    </div>
-                </div>
-            </div>
-            <hr class="my-4 border-light">
-            <div class="text-center small">
-                &copy; 2025 VieHistory. Thiết kế bởi đội ngũ VieHistory.
-            </div>
-        </div>
-    </footer>
+    <div w3-include-html="components/footer.html"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore-compat.js"></script>
+    <script src="/assets/js/firebase-config.js"></script>
+    <script src="/assets/js/main.js"></script>
+    <script src="assets/js/include-html.js"></script>
+</body>
+
+</html>

@@ -49,7 +49,7 @@ body {
 
 /* Hero section */
 .hero {
-    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('trong-dong.jpeg') center/cover no-repeat;
+    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('/public/images/trong-dong.jpeg') center/cover no-repeat;
     color: white;
     padding: 100px 0;
 }
@@ -313,4 +313,20 @@ footer, .footer {
     background: #ffc107 !important;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     z-index: 1020;
+}
+
+.login-form .login-link {
+        font-size: 0.95rem;
+    color: #8B4513;
+    text-decoration: underline;
+    margin-bottom: 18px;
+    display: inline-block;
+}
+
+/* Đảm bảo mọi ảnh trong carousel có cùng kích thước */
+.carousel-inner .carousel-item img {
+    height: 260px;         /* hoặc giá trị bạn muốn */
+    object-fit: cover;
+    width: 100%;
+    border-radius: 8px;
 }
