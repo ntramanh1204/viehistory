@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>VieHistory - Cửa hàng</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Favicon -->
+    <link rel="icon" href="/public/icons/logo.png" type="image/png">
+    <!-- CSS -->
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="/src/assets/js/utils/url-protection.js"></script>
+    <style>
+        .shop-hero {
+            background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
+            color: white;
+            padding: 40px 0;
+            margin-bottom: 30px;
+        }
+        .category-filter {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .category-btn {
+            background: white;
+            border: 2px solid #e9ecef;
+            color: #495057;
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin: 5px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .category-btn:hover, .category-btn.active {
+            background: #007bff;
+            border-color: #007bff;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+        .product-card {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        .product-image {
+            height: 250px;
+            object-fit: cover;
+            width: 100%;
+        }
+        .product-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .product-card:hover .product-overlay {
+            opacity: 1;
+        }
+        .price-tag {
+            background: #28a745;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .old-price {
+            text-decoration: line-through;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        .discount-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #dc3545;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .cart-btn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        .cart-btn:hover {
+            background: linear-gradient(135deg, #20c997, #28a745);
+            transform: translateY(-2px);
+            color: white;
+        }
+        .wishlist-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            color: #dc3545;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+        .wishlist-btn:hover {
+            background: #dc3545;
+            color: white;
+        }
+        .filter-sidebar {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .filter-section {
+            margin-bottom: 25px;
+        }
+        .filter-section h6 {
+            color: #495057;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .price-range {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .price-input {
+            width: 80px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        @media (max-width: 768px) {
+            .filter-sidebar {
+                margin-bottom: 20px;
+            }
+            .category-btn {
+                display: block;
+                text-align: center;
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div w3-include-html="/components/header.html"></div>
+    
+    <!-- Navbar -->
+    <div w3-include-html="/components/navbar.html"></div>
+
+    <!-- Shop Hero -->
+    <section class="shop-hero">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h1 class="display-5 fw-bold mb-3">Cửa hàng Văn hóa Lịch sử</h1>
+                    <p class="lead mb-4">Khám phá và sở hữu những sản phẩm độc đáo về văn hóa, lịch sử Việt Nam</p>
+                </div>
+                <div class="col-lg-4 text-center">
+                    <i class="fas fa-shopping-bag" style="font-size: 80px; opacity: 0.3;"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Category Filter -->
+    <div class="container">
+        <div class="category-filter">
+            <h5 class="mb-3"><i class="fas fa-filter me-2"></i>Danh mục sản phẩm</h5>
+            <div class="text-center">
+                <a href="#" class="category-btn active" onclick="filterCategory('all')">
+                    <i class="fas fa-th-large me-2"></i>Tất cả
+                </a>
+                <a href="#" class="category-btn" onclick="filterCategory('characters')">
+                    <i class="fas fa-user-tie me-2"></i>Nhân vật lịch sử
+                </a>
+                <a href="#" class="category-btn" onclick="filterCategory('symbols')">
+                    <i class="fas fa-yin-yang me-2"></i>Biểu tượng văn hóa
+                </a>
+                <a href="#" class="category-btn" onclick="filterCategory('books')">
+                    <i class="fas fa-book me-2"></i>Sách & Tài liệu
+                </a>
+                <a href="#" class="category-btn" onclick="filterCategory('tours')">
+                    <i class="fas fa-map-marked-alt me-2"></i>Tour du lịch
+                </a>
+                <a href="#" class="category-btn" onclick="filterCategory('tickets')">
+                    <i class="fas fa-ticket-alt me-2"></i>Vé biểu diễn
+                </a>
+                <a href="#" class="category-btn" onclick="filterCategory('crafts')">
+                    <i class="fas fa-palette me-2"></i>Đồ thủ công
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container my-4">
+        <div class="row">
+            <!-- Filter Sidebar -->
+            <div class="col-lg-3">
+                <div class="filter-sidebar">
+                    <h5 class="mb-4"><i class="fas fa-sliders-h me-2"></i>Bộ lọc</h5>
+                    
+                    <!-- Price Filter -->
+                    <div class="filter-section">
+                        <h6><i class="fas fa-money-bill-wave me-2"></i>Khoảng giá</h6>
+                        <div class="price-range">
+                            <input type="number" class="price-input" placeholder="Từ" min="0">
+                            <span>-</span>
+                            <input type="number" class="price-input" placeholder="Đến" min="0">
+                            <button class="btn btn-sm btn-primary">Lọc</button>
+                        </div>
+                        <div class="mt-2">
+                            <label class="form-check-label">
+                                <input type="checkbox" class="form-check-input"> Dưới 100k
+                            </label><br>
+                            <label class="form-check-label">
+                                <input type="checkbox" class="form-check-input"> 100k - 500k
+                            </label><br>
+                            <label class="form-check-label">
+                                <input type="checkbox" class="form-check-input"> 500k - 1tr
+                            </label><br>
+                            <label class="form-check-label">
+                                <input type="checkbox" class="form-check-input"> Trên 1tr
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Rating Filter -->
+                    <div class="filter-section">
+                        <h6><i class="fas fa-star me-2"></i>Đánh giá</h6>
+                        <div>
+                            <label class="form-check-label">
+                                <input type="checkbox" class="form-check-input">
+                                <span class="text-warning">★★★★★</span> (5 sao)
+                            </label><br>
+                            <label class="form-check-label">
+                                <input type="checkbox" class="form-check-input">
+                                <span class="text-warning">★★★★☆</span> (4 sao trở lên)
+                            </label><br>
+                            <label class="form-check-label">
+                                <input type="checkbox" class="form-check-input">
+                                <span class="text-warning">★★★☆☆</span> (3 sao trở lên)
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Availability Filter -->
+                    <div class="filter-section">
+                        <h6><i class="fas fa-box me-2"></i>Tình trạng</h6>
+                        <div>
+                            <label class="form-check-label">
+                                <input type="checkbox" class="form-check-input"> Còn hàng
+                            </label><br>
+                            <label class="form-check-label">
+                                <input type="checkbox" class="form-check-input"> Đang sale
+                            </label><br>
+                            <label class="form-check-label">
+                                <input type="checkbox" class="form-check-input"> Sản phẩm mới
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Grid -->
+            <div class="col-lg-9">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>Sản phẩm <span class="text-muted">(24 sản phẩm)</span></h4>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-sort me-2"></i>Sắp xếp
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Mới nhất</a></li>
+                            <li><a class="dropdown-item" href="#">Giá thấp đến cao</a></li>
+                            <li><a class="dropdown-item" href="#">Giá cao đến thấp</a></li>
+                            <li><a class="dropdown-item" href="#">Bán chạy nhất</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="row" id="productGrid">
+                    <!-- Product 1 - Nhân vật -->
+                    <div class="col-md-6 col-lg-4 product-item" data-category="characters">
+                        <div class="card product-card">
+                            <div class="position-relative">
+                                <img src="https://via.placeholder.com/300x250?text=Tượng+Trần+Hưng+Đạo" class="product-image" alt="Tượng Trần Hưng Đạo">
+                                <button class="wishlist-btn" onclick="toggleWishlist(this)">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                                <div class="discount-badge">-15%</div>
+                                <div class="product-overlay">
+                                    <button class="btn btn-light btn-sm me-2" onclick="quickView(1)">
+                                        <i class="fas fa-eye me-1"></i>Xem nhanh
+                                    </button>
+                                    <button class="btn btn-primary btn-sm" onclick="addToCart(1)">
+                                        <i class="fas fa-cart-plus me-1"></i>Thêm vào giỏ
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title">Tượng Trần Hưng Đạo Mini</h6>
+                                <p class="card-text text-muted small">Tượng đài danh tướng Trần Hưng Đạo, chất liệu đồng thau cao cấp</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="price-tag">255.000₫</span>
+                                        <span class="old-price ms-2">300.000₫</span>
+                                    </div>
+                                    <div class="text-warning">
+                                        ★★★★★ <small class="text-muted">(24)</small>
+                                    </div>
+                                </div>
+                                <button class="cart-btn w-100 mt-3" onclick="addToCart(1)">
+                                    <i class="fas fa-cart-plus me-2"></i>Thêm vào giỏ hàng
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product 2 - Sách -->
+                    <div class="col-md-6 col-lg-4 product-item" data-category="books">
+                        <div class="card product-card">
+                            <div class="position-relative">
+                                <img src="https://via.placeholder.com/300x250?text=Sách+Lịch+sử+VN" class="product-image" alt="Sách Lịch sử">
+                                <button class="wishlist-btn" onclick="toggleWishlist(this)">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                                <div class="product-overlay">
+                                    <button class="btn btn-light btn-sm me-2" onclick="quickView(2)">
+                                        <i class="fas fa-eye me-1"></i>Xem nhanh
+                                    </button>
+                                    <button class="btn btn-primary btn-sm" onclick="addToCart(2)">
+                                        <i class="fas fa-cart-plus me-1"></i>Thêm vào giỏ
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title">Lịch sử Việt Nam Toàn tập</h6>
+                                <p class="card-text text-muted small">Bộ sách lịch sử Việt Nam đầy đủ và chi tiết nhất</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="price-tag">450.000₫</span>
+                                    </div>
+                                    <div class="text-warning">
+                                        ★★★★☆ <small class="text-muted">(18)</small>
+                                    </div>
+                                </div>
+                                <button class="cart-btn w-100 mt-3" onclick="addToCart(2)">
+                                    <i class="fas fa-cart-plus me-2"></i>Thêm vào giỏ hàng
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product 3 - Tour -->
+                    <div class="col-md-6 col-lg-4 product-item" data-category="tours">
+                        <div class="card product-card">
+                            <div class="position-relative">
+                                <img src="https://via.placeholder.com/300x250?text=Tour+Huế" class="product-image" alt="Tour Huế">
+                                <button class="wishlist-btn" onclick="toggleWishlist(this)">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                                <div class="discount-badge">HOT</div>
+                                <div class="product-overlay">
+                                    <button class="btn btn-light btn-sm me-2" onclick="quickView(3)">
+                                        <i class="fas fa-eye me-1"></i>Xem nhanh
+                                    </button>
+                                    <button class="btn btn-primary btn-sm" onclick="addToCart(3)">
+                                        <i class="fas fa-cart-plus me-1"></i>Đặt tour
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title">Tour Huế - Khám phá Cố đô</h6>
+                                <p class="card-text text-muted small">Tour 2N1Đ khám phá di sản văn hóa thế giới tại Huế</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="price-tag">1.200.000₫</span>
+                                    </div>
+                                    <div class="text-warning">
+                                        ★★★★★ <small class="text-muted">(45)</small>
+                                    </div>
+                                </div>
+                                                                <button class="cart-btn w-100 mt-3" onclick="addToCart(3)">
+                                    <i class="fas fa-calendar-plus me-2"></i>Đặt tour
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product 4 - Vé biểu diễn -->
+                    <div class="col-md-6 col-lg-4 product-item" data-category="tickets">
+                        <div class="card product-card">
+                            <div class="position-relative">
+                                <img src="https://via.placeholder.com/300x250?text=Vé+Biểu+diễn" class="product-image" alt="Vé biểu diễn">
+                                <button class="wishlist-btn" onclick="toggleWishlist(this)">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                                <div class="discount-badge">NEW</div>
+                                <div class="product-overlay">
+                                    <button class="btn btn-light btn-sm me-2" onclick="quickView(4)">
+                                        <i class="fas fa-eye me-1"></i>Xem nhanh
+                                    </button>
+                                    <button class="btn btn-primary btn-sm" onclick="addToCart(4)">
+                                        <i class="fas fa-ticket-alt me-1"></i>Mua vé
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title">Vé xem Múa rối nước</h6>
+                                <p class="card-text text-muted small">Biểu diễn múa rối nước truyền thống tại Nhà hát Lớn</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="price-tag">150.000₫</span>
+                                    </div>
+                                    <div class="text-warning">
+                                        ★★★★☆ <small class="text-muted">(32)</small>
+                                    </div>
+                                </div>
+                                <button class="cart-btn w-100 mt-3" onclick="addToCart(4)">
+                                    <i class="fas fa-ticket-alt me-2"></i>Mua vé ngay
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product 5 - Đồ thủ công -->
+                    <div class="col-md-6 col-lg-4 product-item" data-category="crafts">
+                        <div class="card product-card">
+                            <div class="position-relative">
+                                <img src="https://via.placeholder.com/300x250?text=Tranh+Đông+Hồ" class="product-image" alt="Tranh Đông Hồ">
+                                <button class="wishlist-btn" onclick="toggleWishlist(this)">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                                <div class="product-overlay">
+                                    <button class="btn btn-light btn-sm me-2" onclick="quickView(5)">
+                                        <i class="fas fa-eye me-1"></i>Xem nhanh
+                                    </button>
+                                    <button class="btn btn-primary btn-sm" onclick="addToCart(5)">
+                                        <i class="fas fa-cart-plus me-1"></i>Thêm vào giỏ
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title">Tranh Đông Hồ truyền thống</h6>
+                                <p class="card-text text-muted small">Tranh dân gian Đông Hồ thủ công, họa tiết truyền thống</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="price-tag">180.000₫</span>
+                                    </div>
+                                    <div class="text-warning">
+                                        ★★★★★ <small class="text-muted">(15)</small>
+                                    </div>
+                                </div>
+                                <button class="cart-btn w-100 mt-3" onclick="addToCart(5)">
+                                    <i class="fas fa-cart-plus me-2"></i>Thêm vào giỏ hàng
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product 6 - Biểu tượng văn hóa -->
+                    <div class="col-md-6 col-lg-4 product-item" data-category="symbols">
+                        <div class="card product-card">
+                            <div class="position-relative">
+                                <img src="https://via.placeholder.com/300x250?text=Lọ+hoa+Bát+Tràng" class="product-image" alt="Lọ hoa Bát Tràng">
+                                <button class="wishlist-btn" onclick="toggleWishlist(this)">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                                <div class="discount-badge">-20%</div>
+                                <div class="product-overlay">
+                                    <button class="btn btn-light btn-sm me-2" onclick="quickView(6)">
+                                        <i class="fas fa-eye me-1"></i>Xem nhanh
+                                    </button>
+                                    <button class="btn btn-primary btn-sm" onclick="addToCart(6)">
+                                        <i class="fas fa-cart-plus me-1"></i>Thêm vào giỏ
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title">Lọ hoa gốm sứ Bát Tràng</h6>
+                                <p class="card-text text-muted small">Lọ hoa gốm sứ truyền thống làng nghề Bát Tràng</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="price-tag">320.000₫</span>
+                                        <span class="old-price ms-2">400.000₫</span>
+                                    </div>
+                                    <div class="text-warning">
+                                        ★★★★☆ <small class="text-muted">(28)</small>
+                                    </div>
+                                </div>
+                                <button class="cart-btn w-100 mt-3" onclick="addToCart(6)">
+                                    <i class="fas fa-cart-plus me-2"></i>Thêm vào giỏ hàng
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <nav aria-label="Product pagination" class="mt-5">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div w3-include-html="/components/footer.html"></div>
+
+    <!-- Shopping Cart Modal -->
+    <div class="modal fade" id="cartModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-shopping-cart me-2"></i>Giỏ hàng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="cartItems">
+                        <p class="text-center text-muted">Giỏ hàng trống</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tiếp tục mua sắm</button>
+                    <button type="button" class="btn btn-primary">Thanh toán</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick View Modal -->
+    <div class="modal fade" id="quickViewModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xem nhanh sản phẩm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="quickViewContent">
+                    <!-- Quick view content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore-compat.js"></script>
+    <script src="/assets/js/firebase-config.js"></script>
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/include-html.js"></script>
+
+    <script>
+        // Shopping cart functionality
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        // Filter products by category
+        function filterCategory(category) {
+            // Remove active class from all buttons
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+
+            // Show/hide products
+            const products = document.querySelectorAll('.product-item');
+            products.forEach(product => {
+                if (category === 'all' || product.dataset.category === category) {
+                    product.style.display = 'block';
+                } else {
+                    product.style.display = 'none';
+                }
+            });
+        }
+
+        // Add to cart
+        function addToCart(productId) {
+            // Add product to cart logic
+            console.log('Added product ' + productId + ' to cart');
+            
+            // Show success message
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check me-2"></i>Đã thêm!';
+            btn.classList.add('btn-success');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('btn-success');
+            }, 2000);
+        }
+
+        // Toggle wishlist
+        function toggleWishlist(btn) {
+            const icon = btn.querySelector('i');
+            if (icon.classList.contains('far')) {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                btn.style.background = '#dc3545';
+                btn.style.color = 'white';
+            } else {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                btn.style.background = 'rgba(255,255,255,0.9)';
+                btn.style.color = '#dc3545';
+            }
+        }
+
+        // Quick view
+        function quickView(productId) {
+            // Load quick view content
+            const modal = new bootstrap.Modal(document.getElementById('quickViewModal'));
+            modal.show();
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load include HTML
+            includeHTML();
+        });
+    </script>
+</body>
+</html>

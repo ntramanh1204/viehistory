@@ -1,0 +1,138 @@
+<!-- admin/dashboard.html -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>VieHistory - Admin Dashboard</title>
+    <!-- CSS imports -->
+     <script src="/src/assets/js/utils/url-protection.js"></script>
+</head>
+<body>
+    <!-- Header admin -->
+    <header class="navbar navbar-expand-lg navbar-dark sticky-top bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/admin/dashboard.html">
+                <i class="fas fa-cog me-2"></i>VieHistory Admin
+            </a>
+            <div class="auth-buttons">
+                <span class="text-white me-3">Admin: <strong id="adminName">Đang tải...</strong></span>
+                <a href="/home.html" class="btn btn-outline-light btn-sm">Về trang chính</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+                <div class="position-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="dashboard.html">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="posts.html">
+                                <i class="fas fa-comments me-2"></i>Bài viết diễn đàn
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="products.html">
+                                <i class="fas fa-shopping-cart me-2"></i>Sản phẩm
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="users.html">
+                                <i class="fas fa-users me-2"></i>Người dùng
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Dashboard</h1>
+                </div>
+
+                <!-- Stats cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card text-white bg-primary">
+                            <div class="card-body">
+                                <h5><i class="fas fa-comments me-2"></i>Bài viết</h5>
+                                <h3 id="totalPosts">156</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-white bg-success">
+                            <div class="card-body">
+                                <h5><i class="fas fa-shopping-cart me-2"></i>Sản phẩm</h5>
+                                <h3 id="totalProducts">42</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-white bg-warning">
+                            <div class="card-body">
+                                <h5><i class="fas fa-users me-2"></i>Người dùng</h5>
+                                <h3 id="totalUsers">1,234</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-white bg-info">
+                            <div class="card-body">
+                                <h5><i class="fas fa-eye me-2"></i>Lượt xem</h5>
+                                <h3 id="totalViews">12,567</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+        <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore-compat.js"></script>
+    <script src="../assets/js/firebase-config.js"></script>
+    <script src="../assets/js/auth-middleware.js"></script>
+    
+    <script>
+    // Kiểm tra quyền admin khi load trang
+    document.addEventListener('DOMContentLoaded', async function() {
+        // Đợi Firebase Auth ready
+        firebase.auth().onAuthStateChanged(async function(user) {
+            if (!user) {
+                alert('Vui lòng đăng nhập!');
+                window.location.href = '/login.html';
+                return;
+            }
+            
+            // Kiểm tra role admin
+            const hasAccess = await requireAdmin();
+            if (hasAccess) {
+                // Load dữ liệu admin
+                loadAdminData();
+            }
+        });
+    });
+
+    async function loadAdminData() {
+        const user = firebase.auth().currentUser;
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        const userData = userDoc.data();
+        
+        document.getElementById('adminName').textContent = userData.name;
+        
+        // Load các thống kê
+        loadDashboardStats();
+    }
+    </script>
+</body>
+</html>

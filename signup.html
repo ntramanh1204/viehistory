@@ -10,6 +10,7 @@
     <!-- Bootstrap 5 CDN -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="/src/assets/js/utils/url-protection.js"></script>
 </head>
 
 <body>
@@ -34,7 +35,8 @@
             </div>
             <div class="mb-3">
                 <label for="confirmPassword" class="form-label">Nhập lại mật khẩu</label>
-                <input type="password" class="form-control" id="confirmPassword" placeholder="Nhập lại mật khẩu" required>
+                <input type="password" class="form-control" id="confirmPassword" placeholder="Nhập lại mật khẩu"
+                    required>
             </div>
             <!-- <div class="mb-3">
                 <label for="role" class="form-label">Bạn là</label>
@@ -56,6 +58,33 @@
     <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore-compat.js"></script>
     <script src="/assets/js/firebase-config.js"></script>
     <script src="/assets/js/main.js"></script>
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const resultDiv = document.getElementById('signupResult');
+
+            if (password !== confirmPassword) {
+                resultDiv.textContent = "Mật khẩu không khớp!";
+                resultDiv.className = "text-danger";
+                return;
+            }
+
+            try {
+                const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+                await createUserProfile(userCredential.user.uid, { name, email, role: 'user' });
+                resultDiv.textContent = "Đăng ký thành công! Vui lòng kiểm tra email.";
+                resultDiv.className = "text-success";
+                // window.location.href = "login.html"; // hoặc chuyển hướng nếu muốn
+            } catch (error) {
+                resultDiv.textContent = error.message;
+                resultDiv.className = "text-danger";
+            }
+        });
+    </script>
 
 </body>
 

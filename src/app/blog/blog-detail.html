@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết bài viết - VieHistory</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Favicon -->
+    <link rel="icon" href="src/assets/icons/logo.png" type="image/png">
+    <!-- CSS -->
+    <link rel="stylesheet" href="/src/assets/css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .blog-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        .blog-content h2 {
+            color: #2c3e50;
+            margin: 2rem 0 1rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #3498db;
+        }
+        .blog-content h3 {
+            color: #34495e;
+            margin: 1.5rem 0 1rem 0;
+        }
+        .blog-content p {
+            margin-bottom: 1.2rem;
+            text-align: justify;
+        }
+        .blog-content ul, .blog-content ol {
+            margin-bottom: 1.2rem;
+            padding-left: 2rem;
+        }
+        .blog-content li {
+            margin-bottom: 0.5rem;
+        }
+        .author-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+        }
+        .share-buttons .btn {
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .related-posts .card {
+            transition: transform 0.3s ease;
+        }
+        .related-posts .card:hover {
+            transform: translateY(-5px);
+        }
+        .blog-meta {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+        .tag-list .badge {
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div w3-include-html="/src/components/header.html"></div>
+    
+    <!-- Navbar -->
+    <div w3-include-html="/src/components/navbar.html"></div>
+
+    <!-- Main Content -->
+    <main class="container my-4">
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Loading Spinner -->
+                <div id="loading" class="loading-spinner">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Đang tải...</span>
+                    </div>
+                </div>
+
+                <!-- Blog Content -->
+                <article id="blog-article" class="d-none">
+                    <!-- Blog Header -->
+                    <div class="blog-header mb-4">
+                        <div class="blog-meta">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <img id="author-avatar" src="" alt="Author" class="rounded-circle me-3" width="50" height="50">
+                                        <div>
+                                            <div class="fw-bold" id="author-name"></div>
+                                            <small class="text-muted" id="publish-date"></small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-md-end">
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i><span id="read-time"></span> phút đọc
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h1 id="blog-title" class="display-5 fw-bold mb-3"></h1>
+                        
+                        <div class="tag-list mb-3" id="tag-list"></div>
+                        
+                        <div class="row text-center mb-4">
+                            <div class="col-4">
+                                <i class="fas fa-eye text-primary"></i>
+                                <div><span id="view-count">0</span> lượt xem</div>
+                            </div>
+                            <div class="col-4">
+                                <i class="fas fa-heart text-danger"></i>
+                                <div><span id="like-count">0</span> lượt thích</div>
+                            </div>
+                            <div class="col-4">
+                                <i class="fas fa-comments text-success"></i>
+                                <div><span id="comment-count">0</span> bình luận</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Featured Image -->
+                    <div class="mb-4">
+                        <img id="featured-image" src="" alt="" class="img-fluid rounded">
+                    </div>
+
+                    <!-- Blog Content -->
+                    <div class="blog-content" id="blog-content"></div>
+
+                    <!-- Share Buttons -->
+                    <div class="share-buttons my-4">
+                        <h5 class="mb-3">Chia sẻ bài viết:</h5>
+                        <button class="btn btn-primary" onclick="shareOnFacebook()">
+                            <i class="fab fa-facebook-f me-1"></i> Facebook
+                        </button>
+                        <button class="btn btn-info" onclick="shareOnTwitter()">
+                            <i class="fab fa-twitter me-1"></i> Twitter
+                        </button>
+                        <button class="btn btn-success" onclick="copyLink()">
+                            <i class="fas fa-link me-1"></i> Sao chép link
+                        </button>
+                    </div>
+
+                    <!-- Author Info -->
+                    <div class="author-info">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <img id="author-avatar-large" src="" alt="Author" class="rounded-circle" width="80" height="80">
+                            </div>
+                            <div class="col">
+                                <h5 id="author-name-large" class="mb-1"></h5>
+                                <p class="text-muted mb-0">Tác giả chuyên viết về lịch sử Việt Nam</p>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Error Message -->
+                <div id="error-message" class="d-none">
+                    <div class="alert alert-danger text-center">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Không thể tải bài viết. <a href="/index.html">Quay về trang chủ</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <!-- Related Posts -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <i class="fas fa-newspaper me-2"></i>Bài viết liên quan
+                    </div>
+                    <div class="card-body">
+                        <div id="related-posts"></div>
+                    </div>
+                </div>
+
+                <!-- Popular Tags -->
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <i class="fas fa-tags me-2"></i>Thẻ phổ biến
+                    </div>
+                    <div class="card-body">
+                        <span class="badge bg-secondary me-1 mb-2">Triều Nguyễn</span>
+                        <span class="badge bg-secondary me-1 mb-2">Nhân vật lịch sử</span>
+                        <span class="badge bg-secondary me-1 mb-2">Di tích cổ</span>
+                        <span class="badge bg-secondary me-1 mb-2">Văn hóa</span>
+                        <span class="badge bg-secondary me-1 mb-2">Kháng chiến</span>
+                        <span class="badge bg-secondary me-1 mb-2">Giáo dục</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div w3-include-html="/src/components/footer.html"></div>
+
+    <!-- JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore-compat.js"></script>
+    <script src="/src/assets/js/firebase-config.js"></script>
+    <script>
+        // Get post ID from URL parameters
+        function getPostId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+
+        // Time ago function
+        function timeAgo(timestamp) {
+            if (!timestamp) return '';
+            const now = new Date();
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            const diff = Math.floor((now - date) / 1000);
+            if (diff < 60) return `${diff} giây trước`;
+            if (diff < 3600) return `${Math.floor(diff/60)} phút trước`;
+            if (diff < 86400) return `${Math.floor(diff/3600)} giờ trước`;
+            return `${Math.floor(diff/86400)} ngày trước`;
+        }
+
+        // Load blog post
+        function loadBlogPost() {
+            const postId = getPostId();
+            if (!postId) {
+                showError();
+                return;
+            }
+
+            db.collection('posts').doc(postId).get()
+                .then(doc => {
+                    if (doc.exists) {
+                        const post = doc.data();
+                        renderBlogPost(post);
+                        updateViewCount(postId);
+                        loadRelatedPosts(post.category, postId);
+                    } else {
+                        showError();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading post:', error);
+                    showError();
+                });
+        }
+
+        // Render blog post
+        function renderBlogPost(post) {
+            // Update page title
+            document.title = `${post.title} - VieHistory`;
+
+            // Fill in the content
+            document.getElementById('blog-title').textContent = post.title;
+            document.getElementById('blog-content').innerHTML = post.content || post.summary;
+            document.getElementById('featured-image').src = post.image;
+            document.getElementById('featured-image').alt = post.title;
+            
+            // Author info
+            document.getElementById('author-name').textContent = post.author || 'Tác giả';
+            document.getElementById('author-name-large').textContent = post.author || 'Tác giả';
+            document.getElementById('author-avatar').src = post.authorAvatar || 'https://via.placeholder.com/50x50?text=A';
+            document.getElementById('author-avatar-large').src = post.authorAvatar || 'https://via.placeholder.com/80x80?text=A';
+            
+            // Meta info
+            document.getElementById('publish-date').textContent = timeAgo(post.createdAt);
+            document.getElementById('read-time').textContent = post.readTime || 5;
+            document.getElementById('view-count').textContent = post.views || 0;
+            document.getElementById('like-count').textContent = post.likes || 0;
+            document.getElementById('comment-count').textContent = post.comments || 0;
+            
+            // Tags
+            if (post.tags && post.tags.length > 0) {
+                document.getElementById('tag-list').innerHTML = post.tags
+                    .map(tag => `<span class="badge bg-primary">${tag}</span>`)
+                    .join('');
+            }
+
+            // Show article and hide loading
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('blog-article').classList.remove('d-none');
+        }
+
+        // Show error
+        function showError() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error-message').classList.remove('d-none');
+        }
+
+        // Update view count
+        function updateViewCount(postId) {
+            db.collection('posts').doc(postId).update({
+                views: firebase.firestore.FieldValue.increment(1)
+            }).catch(error => {
+                console.log('Error updating view count:', error);
+            });
+        }
+
+        // Load related posts
+        function loadRelatedPosts(category, currentPostId) {
+            db.collection('posts')
+                .where('category', '==', category)
+                .limit(5)
+                .get()
+                .then(snapshot => {
+                    const relatedPosts = [];
+                    snapshot.forEach(doc => {
+                        if (doc.id !== currentPostId) {
+                            const data = doc.data();
+                            relatedPosts.push({
+                                id: doc.id,
+                                title: data.title,
+                                image: data.image,
+                                timeAgo: timeAgo(data.createdAt),
+                                views: data.views || 0
+                            });
+                        }
+                    });
+                    renderRelatedPosts(relatedPosts.slice(0, 3));
+                })
+                .catch(error => {
+                    console.error('Error loading related posts:', error);
+                });
+        }
+
+        // Render related posts
+        function renderRelatedPosts(posts) {
+            const relatedPostsContainer = document.getElementById('related-posts');
+            if (posts.length === 0) {
+                relatedPostsContainer.innerHTML = '<p class="text-muted">Không có bài viết liên quan.</p>';
+                return;
+            }
+
+            relatedPostsContainer.innerHTML = posts.map(post => `
+                <div class="d-flex mb-3">
+                    <img src="${post.image}" alt="${post.title}" class="rounded me-3" width="60" height="60" style="object-fit: cover;">
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">
+                            <a href="/blog-detail.html?id=${post.id}" class="text-decoration-none">${post.title}</a>
+                        </h6>
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>${post.timeAgo}
+                            <i class="fas fa-eye ms-2 me-1"></i>${post.views}
+                        </small>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Share functions
+        function shareOnFacebook() {
+            const url = encodeURIComponent(window.location.href);
+            const title = encodeURIComponent(document.getElementById('blog-title').textContent);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&t=${title}`, '_blank', 'width=600,height=400');
+        }
+
+        function shareOnTwitter() {
+            const url = encodeURIComponent(window.location.href);
+            const title = encodeURIComponent(document.getElementById('blog-title').textContent);
+            window.open(`https://twitter.com/intent/tweet?url=${url}&text=${title}`, '_blank', 'width=600,height=400');
+        }
+
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('Đã sao chép link bài viết!');
+            }).catch(err => {
+                console.error('Error copying link:', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = window.location.href;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Đã sao chép link bài viết!');
+            });
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadBlogPost();
+        });
+    </script>
+    <script src="/src/assets/js/bundle.js"></script>
+</body>
+</html>

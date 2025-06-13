@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>VieHistory - Custom Áo Lịch Sử</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/public/icons/logo.png" type="image/png">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        .custom-container {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .shirt-canvas {
+            width: 300px;
+            height: 400px;
+            background: white;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            position: relative;
+            margin: 0 auto;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400"><path d="M50 80 L50 50 L100 50 L100 30 L200 30 L200 50 L250 50 L250 80 L280 120 L280 400 L20 400 L20 120 Z" fill="%23ffffff" stroke="%23cccccc" stroke-width="2"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        
+        .design-item {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+            border: 2px solid transparent;
+            border-radius: 5px;
+            z-index: 10;
+        }
+        
+        .design-item:hover {
+            border-color: #007bff;
+        }
+        
+        .design-item.selected {
+            border-color: #dc3545;
+        }
+        
+        .items-panel {
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 15px;
+            background: white;
+        }
+        
+        .draggable-item {
+            width: 60px;
+            height: 60px;
+            margin: 5px;
+            cursor: grab;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            transition: all 0.3s ease;
+        }
+        
+        .draggable-item:hover {
+            border-color: #007bff;
+            transform: scale(1.05);
+        }
+        
+        .draggable-item img {
+            max-width: 50px;
+            max-height: 50px;
+            object-fit: contain;
+        }
+        
+        .control-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .price-display {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .btn-custom {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+            color: white;
+        }
+        
+        .historical-theme {
+            border-left: 4px solid #dc3545;
+            padding-left: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .category-btn {
+            margin: 2px;
+            border-radius: 20px;
+        }
+        
+        .category-btn.active {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div w3-include-html="/components/header.html"></div>
+    
+    <!-- Navbar -->
+    <div w3-include-html="/components/navbar.html"></div>
+    
+    <!-- Main Content -->
+    <main class="container my-4">
+        <div class="row">
+            <div class="col-lg-9">
+                <!-- Tiêu đề -->
+                <div class="historical-theme">
+                    <h2><i class="fas fa-tshirt text-primary"></i> Thiết Kế Áo Lịch Sử Việt Nam</h2>
+                    <p class="text-muted">Tạo ra chiếc áo độc đáo với các biểu tượng lịch sử dân tộc</p>
+                </div>
+                
+                <div class="row">
+                    <!-- Khu vực thiết kế -->
+                    <div class="col-md-6">
+                        <div class="custom-container">
+                            <h5 class="text-center mb-3">
+                                <i class="fas fa-palette"></i> Khu Vực Thiết Kế
+                            </h5>
+                            <div class="shirt-canvas" id="shirtCanvas">
+                                <!-- Các items được thả vào đây -->
+                            </div>
+                            
+                            <!-- Controls -->
+                            <div class="text-center mt-3">
+                                <button class="btn btn-outline-danger btn-sm" onclick="clearCanvas()">
+                                    <i class="fas fa-trash"></i> Xóa Tất Cả
+                                </button>
+                                <button class="btn btn-outline-warning btn-sm" onclick="deleteSelected()">
+                                    <i class="fas fa-times"></i> Xóa Đã Chọn
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Panel items -->
+                    <div class="col-md-6">
+                        <div class="custom-container">
+                            <h5><i class="fas fa-images"></i> Thư Viện Biểu Tượng Lịch Sử</h5>
+                            
+                            <!-- Category buttons -->
+                            <div class="mb-3">
+                                <button class="btn btn-sm btn-outline-primary category-btn active" onclick="showCategory('all')">Tất Cả</button>
+                                <button class="btn btn-sm btn-outline-primary category-btn" onclick="showCategory('symbols')">Biểu Tượng</button>
+                                <button class="btn btn-sm btn-outline-primary category-btn" onclick="showCategory('dragons')">Rồng Việt</button>
+                                <button class="btn btn-sm btn-outline-primary category-btn" onclick="showCategory('text')">Chữ Cái</button>
+                                <button class="btn btn-sm btn-outline-primary category-btn" onclick="showCategory('flowers')">Hoa Văn</button>
+                            </div>
+                            
+                            <div class="items-panel" id="itemsPanel">
+                                <!-- Biểu tượng lịch sử -->
+                                <div class="draggable-item" data-category="symbols" data-item="flag" draggable="true">
+                                    <i class="fas fa-flag text-danger" style="font-size: 30px;"></i>
+                                </div>
+                                <div class="draggable-item" data-category="symbols" data-item="star" draggable="true">
+                                    <i class="fas fa-star text-warning" style="font-size: 30px;"></i>
+                                </div>
+                                <div class="draggable-item" data-category="dragons" data-item="dragon1" draggable="true">
+                                    <i class="fas fa-dragon text-success" style="font-size: 30px;"></i>
+                                </div>
+                                <div class="draggable-item" data-category="symbols" data-item="temple" draggable="true">
+                                    <i class="fas fa-torii-gate text-primary" style="font-size: 30px;"></i>
+                                </div>
+                                
+                                <!-- Chữ cái -->
+                                <div class="draggable-item" data-category="text" data-item="viet" draggable="true">
+                                    <strong style="font-size: 20px; color: #dc3545;">VIỆT</strong>
+                                </div>
+                                <div class="draggable-item" data-category="text" data-item="nam" draggable="true">
+                                    <strong style="font-size: 20px; color: #dc3545;">NAM</strong>
+                                </div>
+                                
+                                <!-- Hoa văn -->
+                                <div class="draggable-item" data-category="flowers" data-item="lotus" draggable="true">
+                                    <i class="fas fa-spa text-success" style="font-size: 30px;"></i>
+                                </div>
+                                <div class="draggable-item" data-category="flowers" data-item="leaf" draggable="true">
+                                    <i class="fas fa-leaf text-success" style="font-size: 30px;"></i>
+                                </div>
+                                <div class="draggable-item" data-category="dragons" data-item="dragon2" draggable="true">
+                                    <i class="fab fa-asymmetrik text-warning" style="font-size: 30px;"></i>
+                                </div>
+                                <div class="draggable-item" data-category="symbols" data-item="pagoda" draggable="true">
+                                    <i class="fas fa-mountain text-primary" style="font-size: 30px;"></i>
+                                </div>
+                                
+                                <!-- Thêm items khác -->
+                                <div class="draggable-item" data-category="text" data-item="heritage" draggable="true">
+                                    <strong style="font-size: 16px; color: #007bff;">DI SẢN</strong>
+                                </div>
+                                <div class="draggable-item" data-category="symbols" data-item="sword" draggable="true">
+                                    <i class="fas fa-sword text-dark" style="font-size: 30px;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Thông tin sản phẩm -->
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <div class="control-panel">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h5><i class="fas fa-cog"></i> Thông Tin Sản Phẩm</h5>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Kích Thước:</label>
+                                            <select class="form-select" id="sizeSelect" onchange="updatePrice()">
+                                                <option value="S">S - 199,000đ</option>
+                                                <option value="M" selected>M - 219,000đ</option>
+                                                <option value="L">L - 239,000đ</option>
+                                                <option value="XL">XL - 259,000đ</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Màu Áo:</label>
+                                            <select class="form-select" id="colorSelect">
+                                                <option value="white" selected>Trắng</option>
+                                                <option value="black">Đen</option>
+                                                <option value="navy">Xanh Navy</option>
+                                                <option value="red">Đỏ</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <label class="form-label">Số Lượng:</label>
+                                        <input type="number" class="form-control" id="quantityInput" min="1" max="10" value="1" style="width: 100px; display: inline-block;" onchange="updatePrice()">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-center">
+                                    <div class="price-display">
+                                        <h6>Tổng Tiền</h6>
+                                        <h4 id="totalPrice">219,000đ</h4>
+                                        <small>Đã bao gồm VAT</small>
+                                    </div>
+                                    <button class="btn btn-custom w-100" onclick="addToCart()">
+                                        <i class="fas fa-shopping-cart"></i> Thêm Vào Giỏ Hàng
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3">
+                <!-- Sidebar: tips, sản phẩm liên quan -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h6><i class="fas fa-lightbulb"></i> Mẹo Thiết Kế</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success"></i> Kéo thả các biểu tượng lên áo</li>
+                            <li><i class="fas fa-check text-success"></i> Click để chọn và di chuyển</li>
+                            <li><i class="fas fa-check text-success"></i> Kết hợp nhiều elements</li>
+                            <li><i class="fas fa-check text-success"></i> Thể hiện tinh thần dân tộc</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h6><i class="fas fa-history"></i> Ý Nghĩa Lịch Sử</h6>
+                    </div>
+                    <div class="card-body">
+                        <small>
+                            <strong>Rồng:</strong> Biểu tượng quyền lực, may mắn<br>
+                            <strong>Sen:</strong> Tinh khiết, thanh cao<br>
+                            <strong>Chữ Việt:</strong> Tự hào dân tộc<br>
+                            <strong>Ngôi sao:</strong> Hy vọng, tương lai
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <div w3-include-html="/components/footer.html"></div>
+    
+    <!-- JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore-compat.js"></script>
+    <script src="/assets/js/firebase-config.js"></script>
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/include-html.js"></script>
+    
+    <script>
+        let selectedItem = null;
+        let itemCounter = 0;
+        let designItems = [];
+        
+        // Drag and drop functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const draggableItems = document.querySelectorAll('.draggable-item');
+            const canvas = document.getElementById('shirtCanvas');
+            
+            // Add drag event listeners
+            draggableItems.forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+            });
+            
+            canvas.addEventListener('dragover', handleDragOver);
+            canvas.addEventListener('drop', handleDrop);
+            
+            // Update price initially
+            updatePrice();
+        });
+        
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.dataset.item);
+            e.dataTransfer.setData('text/html', e.target.outerHTML);
+        }
+        
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+        
+        function handleDrop(e) {
+            e.preventDefault();
+            const canvas = document.getElementById('shirtCanvas');
+            const rect = canvas.getBoundingClientRect();
+            
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const itemHtml = e.dataTransfer.getData('text/html');
+            const itemData = e.dataTransfer.getData('text/plain');
+            
+            // Create new design item
+            const designItem = document.createElement('div');
+            designItem.className = 'design-item';
+            designItem.innerHTML = new DOMParser().parseFromString(itemHtml, 'text/html').body.firstChild.innerHTML;
+            designItem.style.left = Math.max(0, Math.min(x - 30, 240)) + 'px';
+            designItem.style.top = Math.max(0, Math.min(y - 30, 340)) + 'px';
+            designItem.dataset.itemId = 'item-' + (++itemCounter);
+            
+            // Add click event for selection
+            designItem.addEventListener('click', function() {
+                selectItem(this);
+            });
+            
+            // Add to canvas
+            canvas.appendChild(designItem);
+            designItems.push(designItem);
+            
+            // Make it draggable within canvas
+            makeDraggableInCanvas(designItem);
+        }
+        
+        function makeDraggableInCanvas(item) {
+            let isDragging = false;
+            let startX, startY, initialX, initialY;
+            
+            item.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                initialX = parseInt(item.style.left) || 0;
+                initialY = parseInt(item.style.top) || 0;
+                e.preventDefault();
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                
+                const newX = Math.max(0, Math.min(initialX + dx, 240));
+                const newY = Math.max(0, Math.min(initialY + dy, 340));
+                
+                item.style.left = newX + 'px';
+                item.style.top = newY + 'px';
+            });
+            
+            document.addEventListener('mouseup', function() {
+                isDragging = false;
+            });
+        }
+        
+        function selectItem(item) {
+            // Remove previous selection
+            if (selectedItem) {
+                selectedItem.classList.remove('selected');
+            }
+            
+            // Select new item
+            selectedItem = item;
+            item.classList.add('selected');
+        }
+        
+        function deleteSelected() {
+            if (selectedItem) {
+                selectedItem.remove();
+                designItems = designItems.filter(item => item !== selectedItem);
+                selectedItem = null;
+            } else {
+                alert('Vui lòng chọn một item để xóa!');
+            }
+        }
+        
+        function clearCanvas() {
+            if (confirm('Bạn có chắc muốn xóa tất cả thiết kế?')) {
+                const canvas = document.getElementById('shirtCanvas');
+                canvas.innerHTML = '';
+                designItems = [];
+                selectedItem = null;
+            }
+        }
+        
+        function showCategory(category) {
+            const items = document.querySelectorAll('.draggable-item');
+            const buttons = document.querySelectorAll('.category-btn');
+            
+            // Update button states
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show/hide items
+            items.forEach(item => {
+                if (category === 'all' || item.dataset.category === category) {
+                    item.style.display = 'inline-flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+        
+        function updatePrice() {
+            const sizeSelect = document.getElementById('sizeSelect');
+            const quantityInput = document.getElementById('quantityInput');
+            const totalPriceEl = document.getElementById('totalPrice');
+            
+            const basePrices = {
+                'S': 199000,
+                'M': 219000,
+                'L': 239000,
+                'XL': 259000
+            };
+            
+            const basePrice = basePrices[sizeSelect.value];
+            const quantity = parseInt(quantityInput.value);
+            const total = basePrice * quantity;
+            
+            totalPriceEl.textContent = total.toLocaleString('vi-VN') + 'đ';
+        }
+        
+        function addToCart() {
+            if (designItems.length === 0) {
+                alert('Vui lòng thêm ít nhất một thiết kế lên áo!');
+                return;
+            }
+            
+            const size = document.getElementById('sizeSelect').value;
+            const color = document.getElementById('colorSelect').value;
+            const quantity = parseInt(document.getElementById('quantityInput').value);
+            const totalPrice = document.getElementById('totalPrice').textContent;
+            
+            // Prepare cart item data
+            const cartItem = {
+                type: 'custom-shirt',
+                size: size,
+                color: color,
+                quantity: quantity,
+                price: totalPrice,
+                design: designItems.map(item => ({
+                    html: item.innerHTML,
+                    x: item.style.left,
+                    y: item.style.top
+                })),
+                timestamp: new Date().toISOString()
+            };
+            
+            // Save to cart (you can implement your cart logic here)
+            let cart = JSON.parse(localStorage.getItem('viehistory_cart') || '[]');
+            cart.push(cartItem);
+            localStorage.setItem('viehistory_cart', JSON.stringify(cart));
+            
+            // Show success message
+            alert(`Đã thêm áo custom vào giỏ hàng!\nKích thước: ${size}\nMàu: ${color}\nSố lượng: ${quantity}\nTổng tiền: ${totalPrice}`);
+            
+            // Optionally redirect to cart page
+            if (confirm('Bạn có muốn đi đến giỏ hàng không?')) {
+                window.location.href = '/cart.html';
+            }
+        }
+        
+        // Prevent default drag behavior on canvas
+        document.getElementById('shirtCanvas').addEventListener('dragstart', function(e) {
+            if (e.target.classList.contains('design-item')) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>

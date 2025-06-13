@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>VieHistory - Diễn đàn</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Favicon -->
+    <link rel="icon" href="/public/icons/logo.png" type="image/png">
+    <!-- CSS -->
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="/src/assets/js/utils/url-protection.js"></script>
+    <style>
+        .forum-sidebar {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .thread-item {
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        .thread-item:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .vote-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-right: 15px;
+        }
+        .vote-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #6c757d;
+            transition: color 0.3s ease;
+        }
+        .vote-btn:hover {
+            color: #007bff;
+        }
+        .vote-btn.active {
+            color: #007bff;
+        }
+        .thread-content {
+            flex: 1;
+        }
+        .thread-meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .tag {
+            background: linear-gradient(135deg, #8B4513, #D2691E);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            text-decoration: none;
+        }
+        .tag:hover {
+            color: white;
+            opacity: 0.8;
+        }
+        .category-nav {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .category-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+            color: #495057;
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s ease;
+        }
+        .category-item:hover, .category-item.active {
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+        }
+        .category-item:last-child {
+            border-bottom: none;
+        }
+        .new-thread-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .search-forum {
+            margin-bottom: 20px;
+        }
+        @media (max-width: 768px) {
+            .forum-sidebar {
+                position: fixed;
+                top: 0;
+                left: -100%;
+                width: 80%;
+                height: 100vh;
+                z-index: 1050;
+                transition: left 0.3s ease;
+                overflow-y: auto;
+            }
+            .forum-sidebar.show {
+                left: 0;
+            }
+            .sidebar-toggle {
+                display: block !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div w3-include-html="/components/header.html"></div>
+    
+    <!-- Navbar -->
+    <div w3-include-html="/components/navbar.html"></div>
+
+    <!-- Main Content -->
+    <main class="container-fluid my-4">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-3">
+                <button class="btn btn-primary d-lg-none sidebar-toggle mb-3" onclick="toggleSidebar()">
+                    <i class="fas fa-bars me-2"></i>Danh mục
+                </button>
+                
+                <div class="forum-sidebar" id="forumSidebar">
+                    <!-- Nút tạo bài mới -->
+                    <button class="new-thread-btn" onclick="createNewThread()">
+                        <i class="fas fa-plus me-2"></i>Tạo bài viết mới
+                    </button>
+
+                    <!-- Tìm kiếm -->
+                    <div class="search-forum">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Tìm kiếm diễn đàn...">
+                            <button class="btn btn-outline-secondary">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Danh mục -->
+                    <div class="category-nav">
+                        <a href="#" class="category-item active">
+                            <i class="fas fa-home me-2"></i>Tất cả bài viết
+                            <span class="badge bg-secondary float-end">234</span>
+                        </a>
+                        <a href="#" class="category-item">
+                            <i class="fas fa-crown me-2"></i>Triều đại
+                            <span class="badge bg-secondary float-end">89</span>
+                        </a>
+                        <a href="#" class="category-item">
+                            <i class="fas fa-user-tie me-2"></i>Nhân vật lịch sử
+                            <span class="badge bg-secondary float-end">67</span>
+                        </a>
+                        <a href="#" class="category-item">
+                            <i class="fas fa-landmark me-2"></i>Di tích - Danh lam
+                            <span class="badge bg-secondary float-end">45</span>
+                        </a>
+                        <a href="#" class="category-item">
+                            <i class="fas fa-scroll me-2"></i>Văn hóa - Truyền thống
+                            <span class="badge bg-secondary float-end">78</span>
+                        </a>
+                        <a href="#" class="category-item">
+                            <i class="fas fa-sword me-2"></i>Chiến tranh - Thắng lợi
+                            <span class="badge bg-secondary float-end">56</span>
+                        </a>
+                        <a href="#" class="category-item">
+                            <i class="fas fa-question-circle me-2"></i>Thảo luận - Hỏi đáp
+                            <span class="badge bg-secondary float-end">123</span>
+                        </a>
+                    </div>
+
+                    <!-- Thẻ phổ biến -->
+                    <div class="mt-4">
+                        <h6 class="fw-bold mb-3">Thẻ phổ biến</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="#" class="tag">#TriềuNguyễn</a>
+                            <a href="#" class="tag">#HồChíMinh</a>
+                            <a href="#" class="tag">#TrầnHưngĐạo</a>
+                            <a href="#" class="tag">#ĐiệnBiênPhủ</a>
+                            <a href="#" class="tag">#VănHóa</a>
+                            <a href="#" class="tag">#LịchSửVN</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Forum Content -->
+            <div class="col-lg-9">
+                <!-- Forum Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="text-primary">
+                        <i class="fas fa-comments me-2"></i>Diễn đàn Lịch sử Việt Nam
+                    </h2>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-sort me-2"></i>Sắp xếp theo
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-clock me-2"></i>Mới nhất</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-fire me-2"></i>Phổ biến</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-thumbs-up me-2"></i>Nhiều vote nhất</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Thread List -->
+                <div class="thread-list">
+                    <!-- Thread 1 -->
+                    <div class="thread-item">
+                        <div class="d-flex">
+                            <div class="vote-section">
+                                <button class="vote-btn" onclick="vote(this, 'up')">
+                                    <i class="fas fa-chevron-up"></i>
+                                </button>
+                                <span class="vote-count fw-bold">42</span>
+                                <button class="vote-btn" onclick="vote(this, 'down')">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                            <div class="thread-content">
+                                <h5 class="thread-title">
+                                    <a href="#" class="text-decoration-none text-dark">
+                                        Tại sao Trần Hưng Đạo được coi là danh tướng xuất sắc nhất lịch sử Việt Nam?
+                                    </a>
+                                </h5>
+                                <p class="text-muted mb-2">
+                                    Mình đang tìm hiểu về các danh tướng Việt Nam và thấy Trần Hưng Đạo được nhắc đến rất nhiều. 
+                                    Các bạn có thể chia sẻ những chiến công nổi bật của ông không?
+                                </p>
+                                <div class="thread-meta">
+                                    <span><i class="fas fa-user me-1"></i>NguyenVanA</span>
+                                    <span><i class="fas fa-clock me-1"></i>2 giờ trước</span>
+                                    <span><i class="fas fa-comments me-1"></i>15 bình luận</span>
+                                    <span><i class="fas fa-eye me-1"></i>234 lượt xem</span>
+                                    <a href="#" class="tag">#TrầnHưngĐạo</a>
+                                    <a href="#" class="tag">#NhânVật</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Thread 2 -->
+                    <div class="thread-item">
+                        <div class="d-flex">
+                            <div class="vote-section">
+                                <button class="vote-btn" onclick="vote(this, 'up')">
+                                    <i class="fas fa-chevron-up"></i>
+                                </button>
+                                <span class="vote-count fw-bold">28</span>
+                                <button class="vote-btn" onclick="vote(this, 'down')">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                            <div class="thread-content">
+                                <h5 class="thread-title">
+                                    <a href="#" class="text-decoration-none text-dark">
+                                        Những di tích lịch sử nào ở Huế đáng ghé thăm nhất?
+                                    </a>
+                                </h5>
+                                <p class="text-muted mb-2">
+                                    Tuần sau mình sẽ đi du lịch Huế, muốn tìm hiểu về lịch sử triều Nguyễn. 
+                                    Các bạn có thể gợi ý những địa điểm không thể bỏ qua không?
+                                </p>
+                                <div class="thread-meta">
+                                    <span><i class="fas fa-user me-1"></i>LeThi456</span>
+                                    <span><i class="fas fa-clock me-1"></i>4 giờ trước</span>
+                                    <span><i class="fas fa-comments me-1"></i>23 bình luận</span>
+                                    <span><i class="fas fa-eye me-1"></i>456 lượt xem</span>
+                                    <a href="#" class="tag">#Huế</a>
+                                    <a href="#" class="tag">#TriềuNguyễn</a>
+                                    <a href="#" class="tag">#DiTích</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Thread 3 -->
+                    <div class="thread-item">
+                        <div class="d-flex">
+                            <div class="vote-section">
+                                <button class="vote-btn active" onclick="vote(this, 'up')">
+                                    <i class="fas fa-chevron-up"></i>
+                                </button>
+                                <span class="vote-count fw-bold">156</span>
+                                <button class="vote-btn" onclick="vote(this, 'down')">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                            <div class="thread-content">
+                                <h5 class="thread-title">
+                                    <a href="#" class="text-decoration-none text-dark">
+                                        [HOT] Bộ ảnh hiếm về Việt Nam thời Pháp thuộc vừa được công bố
+                                    </a>
+                                    <span class="badge bg-danger ms-2">HOT</span>
+                                </h5>
+                                <p class="text-muted mb-2">
+                                    Viện Lịch sử vừa công bố bộ ảnh gồm 200+ tấm ảnh quý hiếm về Việt Nam thời kỳ Pháp thuộc. 
+                                    Rất nhiều hình ảnh chưa từng được công bố trước đây...
+                                </p>
+                                <div class="thread-meta">
+                                    <span><i class="fas fa-user me-1"></i>Admin_VieHistory</span>
+                                    <span><i class="fas fa-clock me-1"></i>6 giờ trước</span>
+                                    <span><i class="fas fa-comments me-1"></i>67 bình luận</span>
+                                    <span><i class="fas fa-eye me-1"></i>1.2k lượt xem</span>
+                                    <a href="#" class="tag">#PhápThuộc</a>
+                                    <a href="#" class="tag">#TàiLiệu</a>
+                                    <a href="#" class="tag">#HìnhẢnh</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Thread 4 -->
+                    <div class="thread-item">
+                        <div class="d-flex">
+                            <div class="vote-section">
+                                <button class="vote-btn" onclick="vote(this, 'up')">
+                                    <i class="fas fa-chevron-up"></i>
+                                </button>
+                                <span class="vote-count fw-bold">19</span>
+                                <button class="vote-btn" onclick="vote(this, 'down')">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                            <div class="thread-content">
+                                <h5 class="thread-title">
+                                    <a href="#" class="text-decoration-none text-dark">
+                                        Ý nghĩa của các biểu tượng rồng trong văn hóa Việt Nam
+                                    </a>
+                                </h5>
+                                <p class="text-muted mb-2">
+                                    Mình thấy hình ảnh rồng xuất hiện rất nhiều trong các di tích cổ. 
+                                    Có ai biết ý nghĩa và nguồn gốc của biểu tượng này không?
+                                </p>
+                                <div class="thread-meta">
+                                    <span><i class="fas fa-user me-1"></i>VanHoa_Lover</span>
+                                    <span><i class="fas fa-clock me-1"></i>1 ngày trước</span>
+                                    <span><i class="fas fa-comments me-1"></i>8 bình luận</span>
+                                    <span><i class="fas fa-eye me-1"></i>89 lượt xem</span>
+                                    <a href="#" class="tag">#VănHóa</a>
+                                    <a href="#" class="tag">#BiểuTượng</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Thread 5 -->
+                    <div class="thread-item">
+                        <div class="d-flex">
+                            <div class="vote-section">
+                                <button class="vote-btn" onclick="vote(this, 'up')">
+                                    <i class="fas fa-chevron-up"></i>
+                                </button>
+                                <span class="vote-count fw-bold">73</span>
+                                <button class="vote-btn" onclick="vote(this, 'down')">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                            <div class="thread-content">
+                                <h5 class="thread-title">
+                                    <a href="#" class="text-decoration-none text-dark">
+                                        Chiến thắng Điện Biên Phủ: Những điều ít người biết
+                                    </a>
+                                </h5>
+                                <p class="text-muted mb-2">
+                                    Kỷ niệm 70 năm chiến thắng Điện Biên Phủ, mình muốn chia sẻ một số tài liệu và 
+                                    câu chuyện ít được biết đến về trận đánh lịch sử này...
+                                </p>
+                                <div class="thread-meta">
+                                    <span><i class="fas fa-user me-1"></i>LichSu_Researcher</span>
+                                    <span><i class="fas fa-clock me-1"></i>2 ngày trước</span>
+                                    <span><i class="fas fa-comments me-1"></i>34 bình luận</span>
+                                    <span><i class="fas fa-eye me-1"></i>567 lượt xem</span>
+                                    <a href="#" class="tag">#ĐiệnBiênPhủ</a>
+                                    <a href="#" class="tag">#ChiếnThắng</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <nav aria-label="Forum pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1">Trước</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Sau</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div w3-include-html="/components/footer.html"></div>
+
+    <!-- JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore-compat.js"></script>
+    <script src="/assets/js/firebase-config.js"></script>
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/include-html.js"></script>
+    
+    <script>
+        // Toggle sidebar for mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('forumSidebar');
+            sidebar.classList.toggle('show');
+        }
+
+        // Vote functionality
+        function vote(button, direction) {
+            const voteSection = button.parentElement;
+            const countElement = voteSection.querySelector('.vote-count');
+            const upBtn = voteSection.querySelector('.vote-btn:first-child');
+            const downBtn = voteSection.querySelector('.vote-btn:last-child');
+            
+            let currentCount = parseInt(countElement.textContent);
+            
+            // Remove active class from both buttons
+            upBtn.classList.remove('active');
+            downBtn.classList.remove('active');
+            
+            // Add active class to clicked button and update count
+            if (direction === 'up') {
+                upBtn.classList.add('active');
+                countElement.textContent = currentCount + 1;
+            } else {
+                downBtn.classList.add('active');
+                countElement.textContent = currentCount - 1;
+            }
+        }
+
+        // Create new thread
+        function createNewThread() {
+            // This would typically open a modal or redirect to a new page
+            alert('Chức năng tạo bài viết mới sẽ được triển khai sau!');
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('forumSidebar');
+            const toggleBtn = document.querySelector('.sidebar-toggle');
+            
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(event.target) && 
+                !toggleBtn.contains(event.target) && 
+                sidebar.classList.contains('show')) {
+                sidebar.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>
