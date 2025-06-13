@@ -30,4 +30,4 @@ yarn-debug.log*
 yarn-error.log*
 
 data-creation/script-create-blog.js
-src/assets/js/core/firebase-config.js
+# src/assets/js/core/firebase-config.js
