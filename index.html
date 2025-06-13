@@ -3,330 +3,275 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VieHistory - Chạm vào quá khứ, xây dựng tương lai</title>
-    <link rel="icon" href="public/icons/logo.png" type="image/png">
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <title>VieHistory - Trang chủ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Favicon -->
+    <link rel="icon" href="src\assets\icons\logo.png" type="image/png">
+    <!-- CSS -->
+    <link rel="stylesheet" href="/src/assets/css/styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="/src/assets/js/utils/url-protection.js"></script>
 </head>
 
 <body>
+    <!-- Header -->
+    <div w3-include-html="/src/components/header.html"></div>
 
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-        <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="#">
-                <img src="public/icons/logo.png" alt="Logo" class="hourglass-icon"
-                    style="filter: grayscale(1) brightness(0) sepia(1) hue-rotate(200deg) saturate(5);">
-                <span class="logo-text text-white">VIE<span class="text-dark">HISTORY</span></span>
-            </a>
-            <div class="navbar-collapse show" id="navbarNav" style="display: flex !important;"></div>
-            <ul class="navbar-nav me-auto">
-                <!-- <li class="nav-item">
-                    <a class="nav-link" href="#">Trang chủ</a>
-                </li> -->
-            </ul>
-            <div class="auth-buttons d-flex">
-                <a href="login.html" class="btn btn-outline-light">Đăng nhập</a>
-                <a href="signup.html" class="btn btn-warning">Đăng ký</a>
-                <!-- <a href="home.html" class="btn btn-primary ms-2">Vào trang quản lý</a> -->
-            </div>
-        </div>
-        </div>
-    </nav>
+    <div w3-include-html="/src/components/navbar.html"></div>
 
-    <!-- Hero Section -->
-    <section class="hero text-center">
-        <div class="container">
-            <h1 class="display-4 fw-bold mb-4">Chạm vào quá khứ, xây dựng tương lai</h1>
-            <p class="lead mb-5">Nền tảng giáo dục lịch sử trực tuyến đầu tiên dành cho trẻ mầm non, giúp trẻ tiếp cận
-                lịch sử một cách tự nhiên, dễ hiểu và thú vị.</p>
-            <div class="d-flex justify-content-center gap-3">
-                <a href="login.html" class="btn btn-warning btn-lg px-4">Trải nghiệm ngay</a>
-                <!-- <a href="#demo" class="btn btn-outline-light btn-lg px-4">Xem demo</a> -->
-                <!-- <a href="#trial" class="btn btn-primary btn-lg px-4">Trải nghiệm miễn phí</a> -->
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section id="features" class="py-5">
-        <div class="container">
-            <h2 class="text-center mb-5">Tính năng nổi bật</h2>
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="card feature-card h-100">
-                        <img src="/public/images/video-lich-su-hap-dan.png" class="card-img-top feature-img"
-                            alt="Video lịch sử hấp dẫn">
-                        <div class="card-body text-center">
-                            <div class="mb-3">
-                                <i class="fas fa-film feature-icon"></i>
-                            </div>
-                            <h5 class="card-title">Video lịch sử hấp dẫn</h5>
-                            <p class="card-text">Truyền tải kiến thức lịch sử qua những câu chuyện sinh động, hình ảnh
-                                đẹp mắt giúp trẻ dễ dàng tiếp thu.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card feature-card h-100">
-                        <img src="/public/images/game-hap-dan.jpg" class="card-img-top feature-img"
-                            alt="Trò chơi tương tác">
-                        <div class="card-body text-center">
-                            <div class="mb-3">
-                                <i class="fas fa-gamepad feature-icon"></i>
-                            </div>
-                            <h5 class="card-title">Trò chơi tương tác</h5>
-                            <p class="card-text">Hệ thống trò chơi giáo dục giúp trẻ vừa học vừa chơi, ghi nhớ kiến thức
-                                lịch sử một cách tự nhiên.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card feature-card h-100">
-                        <img src="/public/images/online-learning.jpg" class="card-img-top feature-img"
-                            alt="Tài liệu giảng dạy chất lượng cao">
-                        <div class="card-body text-center">
-                            <div class="mb-3">
-                                <i class="fas fa-book feature-icon"></i>
-                            </div>
-                            <h5 class="card-title">Tài liệu giảng dạy chất lượng cao</h5>
-                            <p class="card-text">Cung cấp các bài giảng được biên soạn bởi chuyên gia lịch sử và giáo
-                                dục mầm non hàng đầu.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Demo Video & About Section -->
-    <section id="demo-about" class="bg-light py-5">
+    <!-- Hero Banner -->
+    <section class="hero-banner">
         <div class="container">
             <div class="row align-items-center">
-                <!-- Demo Video Column -->
-                <div class="col-lg-6 mb-4 mb-lg-0">
-                    <div class="ratio ratio-16x9 shadow">
-                        <iframe class="rounded" src="https://www.youtube.com/embed/PjC8qsPHbkc" title="Demo video"
-                            allowfullscreen></iframe>
-                    </div>
+                <div class="col-lg-8">
+                    <h1 class="display-4 fw-bold mb-3">Khám phá Lịch sử Việt Nam</h1>
+                    <p class="lead mb-4">Nơi giao lưu, chia sẻ và khám phá những câu chuyện lịch sử Việt Nam đầy thú vị
+                    </p>
+                    <a href="/forum" class="btn btn-light btn-lg me-3">
+                        <i class="fas fa-comments me-2"></i>Tham gia Diễn đàn
+                    </a>
+                    <a href="/store" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-shopping-cart me-2"></i>Khám phá Sản phẩm
+                    </a>
                 </div>
-                <!-- About Content Column -->
-                <div class="col-lg-6">
-                    <h2 class="mb-4">Về VieHistory</h2>
-                    <p class="lead">VieHistory là nền tảng giáo dục lịch sử đầu tiên dành riêng cho trẻ mầm non tại Việt
-                        Nam.</p>
-                    <p>Chúng tôi tin rằng việc tiếp cận lịch sử từ sớm sẽ giúp trẻ phát triển tình yêu đất nước, niềm tự
-                        hào dân tộc và hiểu biết về cội nguồn.</p>
-                    <p>Tất cả nội dung tại VieHistory được chọn lọc kỹ lưỡng và biên soạn cẩn thận, giúp đảm bảo tính
-                        chính xác và phù hợp với từng độ tuổi.</p>
-                    <div class="mt-4">
-                        <h5>Sứ mệnh của chúng tôi</h5>
-                        <p><em>"Trở thành nền tảng giáo dục lịch sử, đặt nền móng phát triển lịch sử cho trẻ mầm non tại
-                                Việt Nam."</em></p>
-                    </div>
-                    <!-- <div class="mt-4">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item bg-transparent"><i class="fas fa-check-circle text-success me-2"></i>
-                                Video hoạt hình sinh động</li>
-                            <li class="list-group-item bg-transparent"><i class="fas fa-check-circle text-success me-2"></i>
-                                Trò chơi tương tác phát triển tư duy</li>
-                            <li class="list-group-item bg-transparent"><i class="fas fa-check-circle text-success me-2"></i>
-                                Hình ảnh minh họa chất lượng cao</li>
-                            <li class="list-group-item bg-transparent"><i class="fas fa-check-circle text-success me-2"></i>
-                                Nội dung được kiểm duyệt bởi chuyên gia</li>
-                        </ul>
-                        <div class="mt-4">
-                            <a href="/login.html" class="btn btn-primary px-4">Dùng thử ngay</a>
-                        </div>
-                    </div> -->
+                <div class="col-lg-4 text-center">
+                    <i class="fas fa-landmark" style="font-size: 120px; opacity: 0.3;"></i>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Testimonials -->
-    <!-- <section class="py-5">
-        <div class="container">
-            <h2 class="text-center mb-5">Giáo viên nói gì về VieHistory?</h2>
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="card testimonial-card h-100">
-                        <div class="card-body">
-                            <div class="d-flex mb-3">
-                                <img src="/api/placeholder/64/64" alt="Teacher" class="rounded-circle">
-                                <div class="ms-3">
-                                    <h5 class="mb-0">Cô Nguyễn Thị Hoa</h5>
-                                    <small class="text-muted">Giáo viên mầm non, Hà Nội</small>
-                                </div>
-                            </div>
-                            <p class="card-text">"VieHistory đã giúp tôi tiết kiệm rất nhiều thời gian chuẩn bị bài giảng. Các video và hình ảnh chất lượng cao giúp trẻ rất hứng thú với các câu chuyện lịch sử."</p>
-                            <div class="text-warning">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                            </div>
-                        </div>
+    <!-- Main Content -->
+    <main class="container my-4">
+        <div class="row">
+            <div class="col-lg-9">
+                <!-- Bài viết mới nhất -->
+                <section class="mb-5">
+                    <h2 class="section-title">
+                        <i class="fas fa-newspaper me-2"></i>Bài viết mới nhất
+                    </h2>
+                    <div class="row" id="latest-posts">
+                        <!-- Bài viết sẽ được render ở đây bằng JS -->
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card testimonial-card h-100">
-                        <div class="card-body">
-                            <div class="d-flex mb-3">
-                                <img src="/api/placeholder/64/64" alt="Teacher" class="rounded-circle">
-                                <div class="ms-3">
-                                    <h5 class="mb-0">Cô Lê Thị Mai</h5>
-                                    <small class="text-muted">Giáo viên mầm non, TP. HCM</small>
-                                </div>
-                            </div>
-                            <p class="card-text">"Trẻ trong lớp tôi rất thích thú với các câu chuyện trên VieHistory. Chúng có thể nhớ được các nhân vật lịch sử như Thánh Gióng, Hai Bà Trưng chỉ sau vài buổi học."</p>
-                            <div class="text-warning">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star-half-alt"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card testimonial-card h-100">
-                        <div class="card-body">
-                            <div class="d-flex mb-3">
-                                <img src="/api/placeholder/64/64" alt="Principal" class="rounded-circle">
-                                <div class="ms-3">
-                                    <h5 class="mb-0">Thầy Trần Văn Nam</h5>
-                                    <small class="text-muted">Hiệu trưởng, Trường MN Hoa Hồng</small>
-                                </div>
-                            </div>
-                            <p class="card-text">"Từ khi áp dụng VieHistory vào giảng dạy, chúng tôi nhận thấy trẻ phát triển tốt hơn về khả năng tiếp thu kiến thức lịch sử và văn hóa dân tộc."</p>
-                            <div class="text-warning">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section> -->
+                </section>
 
-    <!-- Pricing Section -->
-    <section id="pricing" class="py-5 bg-light">
-        <div class="container">
-            <h2 class="text-center mb-5">Các gói dịch vụ</h2>
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="card h-100 shadow">
-                        <div class="card-header text-center py-4 bg-white">
-                            <h4>Gói Cơ Bản</h4>
-                            <h3 class="card-title pricing-card-title">199.000đ<small
-                                    class="text-muted fw-light">/tháng</small></h3>
-                        </div>
-                        <div class="card-body">
-                            <ul class="list-unstyled mt-3 mb-4">
-                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Truy cập video và hình
-                                    ảnh cơ bản</li>
-                                <!-- <li class="mb-2"><i class="fas fa-check text-success me-2"></i> 5 giáo án mẫu mỗi tháng
-                                </li> -->
-                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Hỗ trợ qua email</li>
-                                <!-- <li class="mb-2"><i class="fas fa-times text-danger me-2"></i> Không có trò chơi tương
-                                    tác</li> -->
-                                <li class="mb-2"><i class="fas fa-times text-danger me-2"></i> Không có tài liệu nâng
-                                    cao</li>
-                            </ul>
-                            <button type="button" class="w-100 btn btn-lg btn-outline-primary mt-3">Đăng ký
-                                ngay</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card h-100 shadow border-primary">
-                        <div class="card-header text-center py-4" style="background-color: #8B4513; color: #fff;">
-                            <h4>Gói Tiêu Chuẩn</h4>
-                            <h3 class="card-title pricing-card-title">299.000đ<small
-                                    class="text-muted fw-light"><b>/tháng</b></small></h3>
-                            <span class="badge bg-warning">Phổ biến nhất</span>
-                        </div>
-                        <div class="card-body">
-                            <ul class="list-unstyled mt-3 mb-4">
-                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Tất cả video và hình ảnh
-                                </li>
-                                <!-- <li class="mb-2"><i class="fas fa-check text-success me-2"></i> 15 giáo án mẫu mỗi tháng
-                                </li>
-                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Trò chơi tương tác</li> -->
-                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Hỗ trợ qua email và điện
-                                    thoại</li>
-                                <li class="mb-2"><i class="fas fa-times text-danger me-2"></i> Không có tài liệu nâng
-                                    cao</li>
-                            </ul>
-                            <button type="button" class="w-100 btn btn-lg btn-primary mt-3">Đăng ký ngay</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card h-100 shadow">
-                        <div class="card-header text-center py-4 bg-white">
-                            <h4>Gói Cao Cấp</h4>
-                            <h3 class="card-title pricing-card-title">399.000đ<small
-                                    class="text-muted fw-light">/tháng</small></h3>
-                        </div>
-                        <div class="card-body">
-                            <ul class="list-unstyled mt-3 mb-4">
-                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Tất cả nội dung không
-                                    giới hạn</li>
-                                <!-- <li class="mb-2"><i class="fas fa-check text-success me-2"></i> 30 giáo án mẫu mỗi tháng
-                                </li>
-                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Toàn bộ trò chơi tương
-                                    tác</li> -->
-                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Tài liệu chuyên sâu và
-                                    nâng cao</li>
-                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Hỗ trợ 24/7 ưu tiên</li>
-                            </ul>
-                            <button type="button" class="w-100 btn btn-lg btn-outline-primary mt-3">Đăng ký
-                                ngay</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- <div class="text-center mt-5">
-                <p class="lead">Cần gói doanh nghiệp cho trường học?</p>
-                <a href="#contact" class="btn btn-outline-primary">Liên hệ nhận báo giá</a>
-            </div> -->
-        </div>
-    </section>
 
-    <!-- CTA Section -->
-    <!-- <section class="cta-section py-5">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-8 text-center text-lg-start">
-                    <h2>Sẵn sàng để trẻ khám phá lịch sử?</h2>
-                    <p class="lead">Đăng ký ngay hôm nay để nhận 14 ngày dùng thử miễn phí!</p>
+                <!-- Bài viết phổ biến -->
+                <!-- <section class="mb-5">
+                    <h2 class="section-title">
+                        <i class="fas fa-fire me-2"></i>Bài viết phổ biến
+                    </h2>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card post-card">
+                                <div class="row g-0">
+                                    <div class="col-4">
+                                        <img src="https://via.placeholder.com/150x100?text=Địa+danh" class="img-fluid rounded-start h-100" alt="Địa danh">
+                                    </div>
+                                    <div class="col-8">
+                                        <div class="card-body p-3">
+                                            <h6 class="card-title">Những địa danh lịch sử nổi tiếng</h6>
+                                            <p class="card-text small text-muted">Khám phá các di tích lịch sử...</p>
+                                            <small class="text-muted">3.2k lượt xem</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card post-card">
+                                <div class="row g-0">
+                                    <div class="col-4">
+                                        <img src="https://via.placeholder.com/150x100?text=Biểu+tượng" class="img-fluid rounded-start h-100" alt="Biểu tượng">
+                                    </div>
+                                    <div class="col-8">
+                                        <div class="card-body p-3">
+                                            <h6 class="card-title">Biểu tượng văn hóa Việt Nam</h6>
+                                            <p class="card-text small text-muted">Ý nghĩa các biểu tượng truyền thống...</p>
+                                            <small class="text-muted">2.8k lượt xem</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section> -->
+            </div>
+
+            <div class="col-lg-3">
+                <!-- Sidebar: chủ đề hot, bài mới, quảng cáo -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <i class="fas fa-fire me-2"></i>Chủ đề HOT
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-hashtag text-primary me-2"></i>
+                            <div>
+                                <div class="fw-bold">Triều Nguyễn</div>
+                                <small class="text-muted">125 thảo luận</small>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-hashtag text-primary me-2"></i>
+                            <div>
+                                <div class="fw-bold">Nhân vật lịch sử</div>
+                                <small class="text-muted">89 thảo luận</small>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-hashtag text-primary me-2"></i>
+                            <div>
+                                <div class="fw-bold">Di tích cổ</div>
+                                <small class="text-muted">67 thảo luận</small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-lg-4 text-center text-lg-end mt-3 mt-lg-0">
-                    <a href="#" class="btn btn-primary btn-lg">Dùng thử miễn phí</a>
+
+                <!-- Sản phẩm nổi bật -->
+                <!-- <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <i class="fas fa-shopping-cart me-2"></i>Sản phẩm nổi bật
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <img src="https://via.placeholder.com/150x100?text=Sách+lịch+sử" class="img-fluid rounded" alt="Sách">
+                            <h6 class="mt-2">Sách Lịch sử Việt Nam</h6>
+                            <div class="text-primary fw-bold">299.000 VNĐ</div>
+                            <button class="btn btn-success btn-sm mt-2">
+                                <i class="fas fa-cart-plus me-1"></i>Xem ngay
+                            </button>
+                        </div>
+                    </div>
+                </div> -->
+
+                <!-- Thống kê -->
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <i class="fas fa-chart-bar me-2"></i>Thống kê
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <div class="fw-bold text-primary fs-4">121</div>
+                                <small class="text-muted">Thành viên</small>
+                            </div>
+                            <div class="col-6">
+                                <div class="fw-bold text-success fs-4">31</div>
+                                <small class="text-muted">Bài viết</small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </section> -->
+    </main>
 
     <!-- Footer -->
-    <div w3-include-html="components/footer.html"></div>
+    <div w3-include-html="/src/components/footer.html"></div>
 
+    <!-- JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore-compat.js"></script>
-    <script src="/assets/js/firebase-config.js"></script>
-    <script src="/assets/js/main.js"></script>
-    <script src="assets/js/include-html.js"></script>
+    <script src="/src/assets/js/core/firebase-config.js"></script> 
+    <script src="/src/assets/js/bundle.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Đợi window.db đã được bundle.js khởi tạo
+    function waitForDbAndRun(fn, tries = 10) {
+        if (window.db) {
+            fn(window.db);
+        } else if (tries > 0) {
+            setTimeout(() => waitForDbAndRun(fn, tries - 1), 200);
+        } else {
+            console.error('Không thể khởi tạo Firestore!');
+        }
+    }
+
+    waitForDbAndRun(function(db) {
+        function renderPost(post, docId) {
+            return `
+                <div class="col-md-6 col-lg-4">
+                    <div class="card post-card h-100">
+                        <div class="position-relative">
+                            <img src="${post.image || 'https://via.placeholder.com/300x200?text=No+Image'}" class="card-img-top" alt="${post.title}" style="height: 200px; object-fit: cover;">
+                            <span class="category-badge">${post.category || ''}</span>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">${post.title}</h5>
+                            <p class="card-text text-muted flex-grow-1">${post.summary || ''}</p>
+                            <div class="mb-3">
+                                ${post.tags ? post.tags.map(tag => `<span class="badge bg-secondary me-1">${tag}</span>`).join('') : ''}
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>${post.readTime || 5} phút đọc
+                                </small>
+                                <small class="text-muted">${post.timeAgo || ''}</small>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-eye me-1"></i>${post.views || 0}
+                                    <i class="fas fa-heart ms-2 me-1"></i>${post.likes || 0}
+                                    <i class="fas fa-comments ms-2 me-1"></i>${post.comments || 0}
+                                </div>
+                                <a href="/blog/${docId}" class="btn btn-primary btn-sm">
+                                    Đọc thêm <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function timeAgo(timestamp) {
+            if (!timestamp) return '';
+            const now = new Date();
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            const diff = Math.floor((now - date) / 1000);
+            if (diff < 60) return `${diff} giây trước`;
+            if (diff < 3600) return `${Math.floor(diff / 60)} phút trước`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)} giờ trước`;
+            return `${Math.floor(diff / 86400)} ngày trước`;
+        }
+
+        db.collection('posts')
+            .orderBy('createdAt', 'desc')
+            .limit(3)
+            .get()
+            .then(snapshot => {
+                const posts = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    posts.push({
+                        id: doc.id,
+                        title: data.title,
+                        summary: data.summary,
+                        image: data.image,
+                        category: data.category,
+                        tags: data.tags,
+                        views: data.views,
+                        likes: data.likes,
+                        comments: data.comments,
+                        readTime: data.readTime,
+                        timeAgo: timeAgo(data.createdAt)
+                    });
+                });
+                document.getElementById('latest-posts').innerHTML = posts.map(post => renderPost(post, post.id)).join('');
+            })
+            .catch(err => {
+                document.getElementById('latest-posts').innerHTML = '<div class="col-12 text-danger">Không thể tải bài viết.</div>';
+                console.error(err);
+            });
+    });
+});
+</script>
 </body>
 
 </html>

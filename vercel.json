@@ -1,0 +1,63 @@
+{
+  "public": true,
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/index.html"
+    },    
+    {
+      "source": "/src/(.*)",
+      "destination": "/src/$1"
+    },
+    {
+      "source": "/blog/:id",
+      "destination": "/src/app/blog/blog-detail.html?id=:id"
+    },
+    {
+      "source": "/blog",
+      "destination": "/src/app/blog/blog.html"
+    },
+    {
+      "source": "/lessons",
+      "destination": "/src/app/lesson/lesson-list.html"
+    },
+    {
+      "source": "/lesson-video",
+      "destination": "/src/app/lesson/lesson-video.html"
+    },
+    {
+      "source": "/store",
+      "destination": "/src/app/store/store.html"
+    },
+    {
+      "source": "/ai-assistant",
+      "destination": "/src/app/store/ai-assistant.html"
+    },
+    {
+      "source": "/custom-shirts/ai-generated",
+      "destination": "/src/app/custom-shirts/ai-assistant.html"
+    },
+    {
+      "source": "/forum",
+      "destination": "/src/app/forum/forum-reddit-style.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/src/app/admin/dashboard.html"
+    },
+    {
+      "source": "/admin/posts",
+      "destination": "/src/app/admin/posts.html"
+    },
+    {
+      "source": "/login",
+      "destination": "/login.html"
+    },
+    {
+      "source": "/signup",
+      "destination": "/signup.html"
+    }
+  ],
+  "cleanUrls": true,
+  "trailingSlash": false
+}

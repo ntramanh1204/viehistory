@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>VieHistory - Giỏ Hàng</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Favicon -->
+    <link rel="icon" href="/public/icons/logo.png" type="image/png">
+    <!-- CSS -->
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        .cart-item {
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .product-image {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .quantity-btn {
+            width: 35px;
+            height: 35px;
+            border: 1px solid #dee2e6;
+            background: white;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .quantity-btn:hover {
+            background: #f8f9fa;
+            border-color: #007bff;
+        }
+        
+        .quantity-input {
+            width: 60px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 8px;
+        }
+        
+        .cart-summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 25px;
+            position: sticky;
+            top: 20px;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+        }
+        
+        .summary-item:not(:last-child) {
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .total-row {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .empty-cart {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        
+        .continue-shopping {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .remove-btn {
+            color: #dc3545;
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .remove-btn:hover {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .sidebar-ad {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div w3-include-html="/components/header.html"></div>
+    
+    <!-- Navbar -->
+    <div w3-include-html="/components/navbar.html"></div>
+    
+    <!-- Main Content -->
+    <main class="container my-4">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2><i class="fas fa-shopping-cart me-2"></i>Giỏ Hàng Của Bạn</h2>
+                    <span class="badge bg-primary fs-6" id="cartCount">3 sản phẩm</span>
+                </div>
+                
+                <!-- Cart Items -->
+                <div id="cartItems">
+                    <!-- Cart Item 1 -->
+                    <div class="cart-item" data-price="299000">
+                        <div class="row align-items-center">
+                            <div class="col-md-2">
+                                <img src="https://via.placeholder.com/120x120/FF6B6B/FFFFFF?text=Ao+Tran+Hung+Dao" 
+                                     alt="Áo Trần Hưng Đạo" class="product-image">
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="mb-1">Áo Trần Hưng Đạo Cưỡi Ngựa</h6>
+                                <p class="text-muted small mb-1">Kích cỡ: L | Màu: Đỏ</p>
+                                <p class="text-muted small mb-0">Chất liệu: Cotton 100%</p>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn" onclick="updateQuantity(this, -1)">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <input type="number" class="quantity-input" value="1" min="1" readonly>
+                                    <button class="quantity-btn" onclick="updateQuantity(this, 1)">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <div class="fw-bold text-primary">299,000₫</div>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <button class="remove-btn" onclick="removeItem(this)" title="Xóa sản phẩm">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Cart Item 2 -->
+                    <div class="cart-item" data-price="299000">
+                        <div class="row align-items-center">
+                            <div class="col-md-2">
+                                <img src="https://via.placeholder.com/120x120/4ECDE6/FFFFFF?text=Ao+Chua+Mot+Cot" 
+                                     alt="Áo Chùa Một Cột" class="product-image">
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="mb-1">Áo Chùa Một Cột Minimalist</h6>
+                                <p class="text-muted small mb-1">Kích cỡ: M | Màu: Xanh</p>
+                                <p class="text-muted small mb-0">Chất liệu: Cotton 100%</p>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn" onclick="updateQuantity(this, -1)">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <input type="number" class="quantity-input" value="2" min="1" readonly>
+                                    <button class="quantity-btn" onclick="updateQuantity(this, 1)">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <div class="fw-bold text-primary">598,000₫</div>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <button class="remove-btn" onclick="removeItem(this)" title="Xóa sản phẩm">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Cart Item 3 -->
+                    <div class="cart-item" data-price="299000">
+                        <div class="row align-items-center">
+                            <div class="col-md-2">
+                                <img src="https://via.placeholder.com/120x120/96CEB4/FFFFFF?text=Ao+Rong+Ly" 
+                                     alt="Áo Rồng Lý Triều" class="product-image">
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="mb-1">Áo Rồng Lý Triều Vintage</h6>
+                                <p class="text-muted small mb-1">Kích cỡ: XL | Màu: Vàng</p>
+                                <p class="text-muted small mb-0">Chất liệu: Cotton 100%</p>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn" onclick="updateQuantity(this, -1)">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <input type="number" class="quantity-input" value="1" min="1" readonly>
+                                    <button class="quantity-btn" onclick="updateQuantity(this, 1)">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <div class="fw-bold text-primary">299,000₫</div>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <button class="remove-btn" onclick="removeItem(this)" title="Xóa sản phẩm">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Continue Shopping -->
+                <div class="continue-shopping">
+                    <h6><i class="fas fa-arrow-left me-2"></i>Tiếp Tục Mua Sắm</h6>
+                    <p class="text-muted mb-3">Khám phá thêm các thiết kế áo lịch sử độc đáo khác</p>
+                    <a href="/tao-thiet-ke-ao.html" class="btn btn-outline-primary">
+                        <i class="fas fa-tshirt me-2"></i>Tạo Thiết Kế Mới
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Cart Summary -->
+                <div class="cart-summary">
+                    <h5 class="mb-4"><i class="fas fa-receipt me-2"></i>Tóm Tắt Đơn Hàng</h5>
+                    
+                    <div class="summary-item">
+                        <span>Tạm tính:</span>
+                        <span id="subtotal">1,196,000₫</span>
+                    </div>
+                    
+                    <div class="summary-item">
+                        <span>Phí vận chuyển:</span>
+                        <span id="shipping">30,000₫</span>
+                    </div>
+                    
+                    <div class="summary-item">
+                        <span>Giảm giá:</span>
+                        <span class="text-success">-50,000₫</span>
+                    </div>
+                    
+                    <div class="summary-item total-row">
+                        <span>Tổng cộng:</span>
+                        <span id="total">1,176,000₫</span>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <div class="mb-3">
+                            <label class="form-label">Mã giảm giá:</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Nhập mã giảm giá">
+                                <button class="btn btn-light" type="button">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-light btn-lg w-100 mb-3" onclick="proceedToCheckout()">
+                            <i class="fas fa-credit-card me-2"></i>
+                            Tiến Hành Thanh Toán
+                        </button>
+                        
+                        <div class="text-center small">
+                            <i class="fas fa-shield-alt me-1"></i>
+                            Thanh toán an toàn & bảo mật
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sidebar Ads -->
+                <div class="sidebar-ad mt-4">
+                    <h6><i class="fas fa-percentage"></i> Ưu Đãi Đặc Biệt</h6>
+                    <p class="small mb-2">🎉 Mua 3 áo giảm 15% - Áp dụng tự động</p>
+                    <small class="text-muted">Có hiệu lực đến hết tháng</small>
+                </div>
+                
+                <div class="sidebar-ad">
+                    <h6><i class="fas fa-truck"></i> Miễn Phí Vận Chuyển</h6>
+                    <p class="small mb-2">🚚 Đơn hàng từ 500,000₫</p>
+                    <small class="text-muted">Chỉ còn 324,000₫ nữa!</small>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <div w3-include-html="/components/footer.html"></div>
+    
+    <!-- JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore-compat.js"></script>
+    <script src="/assets/js/firebase-config.js"></script>
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/include-html.js"></script>
+    
+    <script>
+        // Cập nhật số lượng sản phẩm
+        function updateQuantity(button, change) {
+            const quantityInput = button.parentNode.querySelector('.quantity-input');
+            let currentValue = parseInt(quantityInput.value);
+            let newValue = currentValue + change;
+            
+            if (newValue >= 1) {
+                quantityInput.value = newValue;
+                updateItemPrice(button.closest('.cart-item'));
+                updateCartSummary();
+            }
+        }
+        
+        // Cập nhật giá của một item
+        function updateItemPrice(cartItem) {
+            const basePrice = parseInt(cartItem.dataset.price);
+            const quantity = parseInt(cartItem.querySelector('.quantity-input').value);
+            const newPrice = basePrice * quantity;
+            
+            const priceElement = cartItem.querySelector('.fw-bold');
+            priceElement.textContent = formatPrice(newPrice);
+        }
+        
+        // Xóa sản phẩm khỏi giỏ hàng
+        function removeItem(button) {
+            if (confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?')) {
+                const cartItem = button.closest('.cart-item');
+                cartItem.remove();
+                updateCartSummary();
+                updateCartCount();
+                
+                // Kiểm tra nếu giỏ hàng trống
+                checkEmptyCart();
+            }
+        }
+        
+        // Cập nhật tóm tắt giỏ hàng
+        function updateCartSummary() {
+            const cartItems = document.querySelectorAll('.cart-item');
+            let subtotal = 0;
+            
+            cartItems.forEach(item => {
+                const basePrice = parseInt(item.dataset.price);
+                const quantity = parseInt(item.querySelector('.quantity-input').value);
+                subtotal += basePrice * quantity;
+            });
+            
+            const shipping = 30000;
+            const discount = 50000;
+            const total = subtotal + shipping - discount;
+            
+            document.getElementById('subtotal').textContent = formatPrice(subtotal);
+            document.getElementById('total').textContent = formatPrice(total);
+        }
+        
+        // Cập nhật số lượng sản phẩm trong giỏ hàng
+        function updateCartCount() {
+            const cartItems = document.querySelectorAll('.cart-item');
+            let totalItems = 0;
+            
+            cartItems.forEach(item => {
+                totalItems += parseInt(item.querySelector('.quantity-input').value);
+            });
+            
+            document.getElementById('cartCount').textContent = `${totalItems} sản phẩm`;
+        }
+        
+        // Kiểm tra giỏ hàng trống
+        function checkEmptyCart() {
+            const cartItems = document.querySelectorAll('.cart-item');
+            if (cartItems.length === 0) {
+                document.getElementById('cartItems').innerHTML = `
+                    <div class="empty-cart">
+                        <i class="fas fa-shopping-cart" style="font-size: 64px; opacity: 0.3;"></i>
+                        <h4 class="mt-3">Giỏ hàng của bạn đang trống</h4>
+                        <p>Hãy khám phá các thiết kế áo lịch sử độc đáo của chúng tôi!</p>
+                        <a href="/tao-thiet-ke-ao.html" class="btn btn-primary">
+                            <i class="fas fa-tshirt me-2"></i>Bắt Đầu Tạo Thiết Kế
+                        </a>
+                    </div>
+                `;
+                document.getElementById('cartCount').textContent = '0 sản phẩm';
+            }
+        }
+        
+        // Format giá tiền
+        function formatPrice(price) {
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(price).replace('₫', '₫');
+        }
+        
+        // Tiến hành thanh toán
+        function proceedToCheckout() {
+            // Lưu thông tin giỏ hàng vào localStorage để chuyển sang trang checkout
+            const cartData = {
+                items: [],
+                subtotal: document.getElementById('subtotal').textContent,
+                shipping: document.getElementById('shipping').textContent,
+                total: document.getElementById('total').textContent
+            };
+            
+            // Thu thập thông tin các sản phẩm
+            document.querySelectorAll('.cart-item').forEach(item => {
+                const productName = item.querySelector('h6').textContent;
+                const productImage = item.querySelector('.product-image').src;
+                const productDetails = item.querySelector('.text-muted').textContent;
+                const quantity = parseInt(item.querySelector('.quantity-input').value);
+                const price = item.querySelector('.fw-bold').textContent;
+                
+                cartData.items.push({
+                    name: productName,
+                    image: productImage,
+                    details: productDetails,
+                    quantity: quantity,
+                    price: price
+                });
+            });
+            
+            // Lưu vào localStorage (chỉ để demo, thực tế nên dùng database)
+            localStorage.setItem('checkoutData', JSON.stringify(cartData));
+            
+            // Chuyển đến trang thanh toán
+            window.location.href = '/checkout.html';
+        }
+        
+        // Khởi tạo
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartSummary();
+            console.log('Giỏ hàng đã được khởi tạo!');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!-- admin/posts.html -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <!-- ...header tương tự dashboard... -->
+     <script src="/src/assets/js/utils/url-protection.js"></script>
+</head>
+<body>
+    <!-- Header và sidebar tương tự -->
+    
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">Quản lý bài viết diễn đàn</h1>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPostModal">
+                <i class="fas fa-plus me-2"></i>Thêm bài viết
+            </button>
+        </div>
+
+        <!-- Filter và search -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <input type="text" class="form-control" id="searchPosts" placeholder="Tìm kiếm bài viết...">
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="filterCategory">
+                    <option value="">Tất cả chủ đề</option>
+                    <option value="trieuđai">Triều đại</option>
+                    <option value="nhanvat">Nhân vật</option>
+                    <option value="ditich">Di tích</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tiêu đề</th>
+                            <th>Tác giả</th>
+                            <th>Chủ đề</th>
+                            <th>Ngày tạo</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="postsTable">
+                        <!-- Data sẽ được load bằng JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal thêm/sửa bài viết -->
+    <div class="modal fade" id="addPostModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Thêm bài viết mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="postForm">
+                        <div class="mb-3">
+                            <label class="form-label">Tiêu đề</label>
+                            <input type="text" class="form-control" id="postTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nội dung</label>
+                            <textarea class="form-control" id="postContent" rows="5" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Chủ đề</label>
+                            <select class="form-select" id="postCategory" required>
+                                <option value="">Chọn chủ đề</option>
+                                <option value="trieuđai">Triều đại</option>
+                                <option value="nhanvat">Nhân vật</option>
+                                <option value="ditich">Di tích</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="savePost()">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
