@@ -28,3 +28,6 @@ Thumbs.db
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+data-creation/script-create-blog.js
+src/assets/js/core/firebase-config.js

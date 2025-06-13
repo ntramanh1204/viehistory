@@ -7,15 +7,6 @@
     'use strict';
 
     // ==================== FIREBASE CONFIG ====================
-    
-    const firebaseConfig = {
-        apiKey: "[REMOVED]",
-        authDomain: "viehistory-436c6.firebaseapp.com",
-        projectId: "viehistory-436c6",
-        storageBucket: "viehistory-436c6.firebasestorage.app",
-        messagingSenderId: "348086067423",
-        appId: "1:348086067423:web:86b3c0c0ffed29d2b9896a"
-    };
 
     // Initialize Firebase immediately when available
     function initializeFirebase() {
