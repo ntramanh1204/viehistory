@@ -7,7 +7,7 @@ export default defineConfig({
         emptyOutDir: true,
         rollupOptions: {
             input: {
-                main: resolve(__dirname, 'public/index.html'),
+                main: resolve(__dirname, 'index.html'),
                 // blog: resolve(__dirname, 'public/blog.html'),
                 // forum: resolve(__dirname, 'public/forum.html'),
                 // login: resolve(__dirname, 'public/login.html')
