@@ -1,8 +1,19 @@
 {
-  "dependencies": {
-    "firebase-admin": "^13.4.0"
-  },
+  "name": "viehistory",
+  "version": "2.0.0",
+  "type": "module",
   "scripts": {
-    "build": "echo 'No build step required'"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "deploy": "npm run build && vercel --prod",
+    "clean": "rm -rf node_modules package-lock.json dist",
+    "fresh": "npm run clean && npm install"
+  },
+  "dependencies": {
+    "firebase": "^11.9.1"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5"
   }
 }

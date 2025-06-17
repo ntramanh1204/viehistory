@@ -1,63 +1,26 @@
 {
-  "public": true,
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist", 
+  "framework": "vite",
+  "trailingSlash": false,
   "rewrites": [
-    {
-      "source": "/",
-      "destination": "/index.html"
-    },    
-    {
-      "source": "/src/(.*)",
-      "destination": "/src/$1"
-    },
-    {
-      "source": "/blog/:id",
-      "destination": "/src/app/blog/blog-detail.html?id=:id"
-    },
-    {
-      "source": "/blog",
-      "destination": "/src/app/blog/blog.html"
-    },
-    {
-      "source": "/lessons",
-      "destination": "/src/app/lesson/lesson-list.html"
-    },
-    {
-      "source": "/lesson-video",
-      "destination": "/src/app/lesson/lesson-video.html"
-    },
-    {
-      "source": "/store",
-      "destination": "/src/app/store/store.html"
-    },
-    {
-      "source": "/ai-assistant",
-      "destination": "/src/app/store/ai-assistant.html"
-    },
-    {
-      "source": "/custom-shirts/ai-generated",
-      "destination": "/src/app/custom-shirts/ai-assistant.html"
-    },
-    {
-      "source": "/forum",
-      "destination": "/src/app/forum/forum-reddit-style.html"
-    },
-    {
-      "source": "/admin",
-      "destination": "/src/app/admin/dashboard.html"
-    },
-    {
-      "source": "/admin/posts",
-      "destination": "/src/app/admin/posts.html"
-    },
-    {
-      "source": "/login",
-      "destination": "/login.html"
-    },
-    {
-      "source": "/signup",
-      "destination": "/signup.html"
-    }
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/blog", "destination": "/blog.html" },
+    { "source": "/forum", "destination": "/forum.html" },
+    { "source": "/login", "destination": "/login.html" }
   ],
-  "cleanUrls": true,
-  "trailingSlash": false
+  "redirects": [
+    { "source": "/index.html", "destination": "/", "permanent": true },
+    { "source": "/blog.html", "destination": "/blog", "permanent": true },
+    { "source": "/forum.html", "destination": "/forum", "permanent": true },
+    { "source": "/login.html", "destination": "/login", "permanent": true }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    }
+  ]
 }

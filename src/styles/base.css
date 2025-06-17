@@ -1,0 +1,39 @@
+/* Reset, body, layout */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-sans);
+    background-color: var(--bg-parchment);
+    color: var(--text-primary);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.app-container {
+    max-width: 680px;
+    margin: 0 auto;
+    min-height: 100vh;
+}
+
+/* Skip Link */
+.skip-link {
+    position: absolute;
+    top: -100px;
+    left: 0;
+    background: var(--accent-primary);
+    color: var(--text-on-accent);
+    padding: 10px 15px;
+    z-index: 3000;
+    transition: top 0.3s ease;
+    border-bottom-right-radius: var(--radius-md);
+}
+
+.skip-link:focus {
+    top: 0;
+}
