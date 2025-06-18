@@ -46,7 +46,7 @@
 }
 
 /* Navigation Tabs */
-.navigation-tabs {
+/* .navigation-tabs {
     display: flex;
     align-items: center;
     gap: 16px;
@@ -63,7 +63,7 @@
     transition: color 0.2s;
     position: relative;
     border-bottom: 2px solid transparent;
-}
+} */
 
 .tab-button:hover {
     color: var(--accent-primary);

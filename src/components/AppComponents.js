@@ -56,6 +56,57 @@ class AppHeader extends HTMLElement {
     }
 }
 
+class AppMobileBottomNav extends HTMLElement {
+    async connectedCallback() {
+        try {
+            const response = await fetch('/src/templates/MobileBottomNav.html');
+            const html = await response.text();
+            this.innerHTML = html;
+            
+            this.initializeMobileNavigation();
+            this.dispatchEvent(new CustomEvent('mobile-nav-loaded'));
+        } catch (error) {
+            console.error('Error loading mobile bottom nav:', error);
+        }
+    }
+
+    initializeMobileNavigation() {
+        const mobileNavItems = this.querySelectorAll('.mobile-nav-item');
+        
+        mobileNavItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Remove active from all mobile nav items
+                mobileNavItems.forEach(navItem => navItem.classList.remove('active'));
+                
+                // Add active to clicked item
+                item.classList.add('active');
+                
+                // Also sync with desktop sidebar
+                const page = item.dataset.page;
+                this.setActivePage(page);
+                
+                // Navigate to page
+                window.navigationManager?.navigateToPage(page);
+            });
+        });
+    }
+
+    setActivePage(page) {
+        // Sync both desktop sidebar and mobile nav
+        const allNavItems = document.querySelectorAll('.nav-item, .mobile-nav-item');
+        allNavItems.forEach(item => {
+            if (item.dataset.page === page) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+    }
+}
+
 // Register components
 customElements.define('app-sidebar', AppSidebar);
 customElements.define('app-header', AppHeader);
+customElements.define('app-mobile-bottom-nav', AppMobileBottomNav);
