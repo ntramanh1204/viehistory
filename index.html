@@ -13,6 +13,7 @@
     <!-- Styles -->
     <link rel="stylesheet" href="/src/styles/variables.css">
     <link rel="stylesheet" href="/src/styles/base.css">
+    <link rel="stylesheet" href="/src/styles/layout.css"> 
     <link rel="stylesheet" href="/src/styles/components.css">
     <link rel="stylesheet" href="/src/styles/auth.css">
     <link rel="stylesheet" href="/src/styles/responsive.css">
@@ -84,9 +85,11 @@
         <div class="modal-content">
             <h2>Chào mừng đến với VieHistory</h2>
             <p>Kết nối với cộng đồng yêu lịch sử</p>
-            <button class="submit-button" onclick="startApp()">Bắt đầu</button>
+            <button class="submit-button" id="onboarding-start-btn">Bắt đầu</button>
         </div>
     </div>
+
+    <app-sidebar></app-sidebar>
 
     <div class="app-container">
         <!-- Header -->

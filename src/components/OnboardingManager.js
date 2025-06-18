@@ -1,25 +1,34 @@
-// Onboarding functionality
 export class OnboardingManager {
     constructor() {
         this.modal = document.getElementById('onboarding-modal');
+        this.startBtn = document.getElementById('onboarding-start-btn');
     }
 
     init() {
+        // Setup event listener for start button
+        this.startBtn?.addEventListener('click', () => {
+            this.startApp();
+        });
+        
         if (!localStorage.getItem('onboarded')) {
             this.showModal();
         }
     }
 
     showModal() {
-        this.modal.style.display = 'flex';
-        this.modal.classList.add('active');
+        if (this.modal) {
+            this.modal.style.display = 'flex';
+            this.modal.classList.add('active');
+        }
     }
 
     hideModal() {
-        this.modal.classList.remove('active');
-        setTimeout(() => {
-            this.modal.style.display = 'none';
-        }, 300);
+        if (this.modal) {
+            this.modal.classList.remove('active');
+            setTimeout(() => {
+                this.modal.style.display = 'none';
+            }, 300);
+        }
     }
 
     startApp() {
@@ -27,9 +36,3 @@ export class OnboardingManager {
         this.hideModal();
     }
 }
-
-// Global function for onclick
-window.startApp = () => {
-    const onboarding = new OnboardingManager();
-    onboarding.startApp();
-};

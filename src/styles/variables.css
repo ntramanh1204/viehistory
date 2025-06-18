@@ -4,40 +4,241 @@
 
 :root {
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    /* Primary Colors - Giữ nguyên màu hồng/peach */
+    --accent-primary: #FFE8CD;
+    /* Màu chính - peach nhạt (giữ nguyên) */
+    --accent-primary-hover: #FFD6BA;
+    /* Hover state */
+    --accent-secondary: #FFDCDC;
+    /* Màu phụ - pink nhạt (giữ nguyên) */
+    --accent-tertiary: #FFF2EB;
+    /* Màu nền accent */
 
-    /* Light Theme: Palette D - Refined Heritage */
-    --bg-parchment: #FAF7F0;
+    /* Background Colors - Giữ nguyên */
+    --bg-primary: #FFFAF7;
+    /* Nền chính - trắng ấm */
     --bg-canvas: #FFFFFF;
-    --bg-hover-light: #F0EFEA;
+    /* Nền content */
+    --bg-secondary: #FFF2EB;
+    /* Nền phụ */
+    --background-secondary: #FFE8CD;
+    /* Background hover */
 
-    --text-primary: #4A4947;
-    --text-secondary: #6B6765;
-    --text-placeholder: #8B8884;
-    --text-on-accent: #FAF7F0;
+    /* Text Colors - CHỈ SỬA PHẦN NÀY để dễ đọc */
+    --text-primary: #8B4513;
+    /* Text chính - nâu đậm (dễ đọc) */
+    --text-secondary: #CD853F;
+    /* Text phụ - nâu vàng (dễ đọc) */
+    --text-tertiary: #A0522D;
+    /* Text tertiary - readable */
+    --text-muted: #D2B48C;
+    /* Text muted - vẫn đọc được */
 
-    --accent-primary: #B17457;
-    --accent-primary-hover: #A0654B;
-    --accent-secondary: #D8D2C2;
-    --accent-secondary-hover: #C9C1B6;
+    /* Border Colors - Giữ nguyên màu hồng */
+    --border-primary: #FFD6BA;
+    /* Border chính - peach */
+    --border-soft: #FFE8CD;
+    /* Border nhẹ - peach nhạt */
+    --border-muted: #FFF2EB;
+    /* Border rất nhẹ */
 
-    --border-soft: #E8E3DB;
-    --border-interactive: #D8D2C2;
+    /* Status Colors - Giữ soft colors */
+    --accent-success: #90EE90;
+    /* Xanh lá pastel */
+    --accent-warning: #FFB347;
+    /* Cam ấm */
+    --accent-error: #FFB6C1;
+    /* Hồng pastel */
+    --accent-info: #87CEEB;
+    /* Xanh dương pastel */
 
-    --shadow-color-rgb: 74, 73, 71;
-    --shadow-sm: 0 1px 2px rgba(var(--shadow-color-rgb), 0.06), 0 1px 1px rgba(var(--shadow-color-rgb), 0.04);
-    --shadow-md: 0 4px 6px -1px rgba(var(--shadow-color-rgb), 0.08), 0 2px 4px -1px rgba(var(--shadow-color-rgb), 0.05);
-    --shadow-lg: 0 10px 15px -3px rgba(var(--shadow-color-rgb), 0.1), 0 4px 6px -2px rgba(var(--shadow-color-rgb), 0.06);
+    /* Interactive States - Giữ màu hồng */
+    --state-hover: rgba(255, 232, 205, 0.1);
+    --state-active: rgba(255, 214, 186, 0.2);
+    --state-focus: rgba(255, 232, 205, 0.3);
 
-    --radius-sm: 12px;
-    --radius-md: 16px;
-    --radius-lg: 24px;
-    --radius-full: 9999px;
+    /* Shadows - Giữ warm pink tones */
+    --shadow-soft: 0 2px 8px rgba(255, 214, 186, 0.1);
+    --shadow-medium: 0 4px 16px rgba(255, 214, 186, 0.15);
+    --shadow-strong: 0 8px 32px rgba(255, 214, 186, 0.2);
 
-    /* Status colors */
-    --accent-success: #10b981;
-    --accent-warning: #f59e0b;
-    --accent-error: #ef4444;
-    --accent-info: #3b82f6;
+    /* Gradients - Giữ nguyên màu hồng */
+    --gradient-primary: linear-gradient(135deg, #FFDCDC 0%, #FFE8CD 100%);
+    --gradient-secondary: linear-gradient(135deg, #FFF2EB 0%, #FFFFFF 100%);
+
+    /* Rest remains the same... */
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-full: 50px;
+
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-2xl: 48px;
+
+    --font-size-xs: 12px;
+    --font-size-sm: 14px;
+    --font-size-md: 16px;
+    --font-size-lg: 18px;
+    --font-size-xl: 20px;
+    --font-size-2xl: 24px;
+    --font-size-3xl: 32px;
+}
+
+/* CHỈ override text colors để dễ đọc, giữ nguyên UI colors */
+
+/* ...existing code... */
+
+/* Override text colors để dễ đọc, giữ nguyên UI colors */
+
+/* Headers */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: var(--text-primary) !important;
+    /* Nâu đậm cho headers */
+}
+
+/* Logo - làm đậm và nổi bật */
+.logo {
+    color: var(--text-primary) !important;
+    font-weight: 800 !important; /* Thêm độ đậm cho logo */
+}
+
+/* Paragraph text */
+p,
+.post-content,
+.compose-textarea {
+    color: var(--text-secondary) !important;
+    /* Nâu vàng cho body text */
+}
+
+/* Compose textarea placeholder - làm đậm */
+.compose-textarea::placeholder {
+    color: var(--text-placeholder) !important; /* Về màu cũ (mờ hơn) */
+    font-weight: 400 !important; /* Bớt đậm */
+}
+
+/* Compose textarea text - khi user gõ chữ */
+.compose-textarea {
+    color: var(--text-primary) !important; /* Màu nâu đậm khi gõ */
+    font-weight: 500 !important; /* Làm đậm chữ user gõ */
+}
+
+/* Navigation labels - chỉ khi không active */
+.nav-label {
+    color: var(--text-primary) !important;
+    font-weight: 500 !important; /* Làm đậm nav labels */
+}
+
+.nav-item.active {
+    background: linear-gradient(135deg, #CD853F 0%, #8B4513 100%); /* Gradient nâu đậm */
+    color: white !important;
+    font-weight: 700 !important;
+    box-shadow: 0 2px 8px rgba(139, 69, 19, 0.3);
+}
+
+.nav-item.active .nav-label {
+    color: white !important;
+    font-weight: 700 !important;
+}
+
+.nav-item.active .nav-icon {
+    filter: brightness(0) saturate(100%) invert(100%); /* Icon trắng */
+}
+
+/* ...rest of existing code... */
+
+/* User info text */
+.user-name {
+    color: var(--text-primary) !important;
+}
+
+.user-status {
+    color: var(--text-secondary) !important;
+}
+
+/* Form labels và inputs */
+label {
+    color: var(--text-primary) !important;
+}
+
+input,
+textarea {
+    color: var(--text-secondary) !important;
+}
+
+/* Page titles */
+.page-title {
+    color: var(--text-primary) !important;
+}
+
+/* Brand text */
+.brand-text {
+    color: var(--text-primary) !important;
+}
+
+/* Post author names */
+.post-author,
+.user-display-name {
+    color: var(--text-primary) !important;
+}
+
+/* Links - giữ một phần màu hồng */
+a {
+    color: #CD853F !important;
+    /* Nâu vàng thay vì hồng nhạt */
+}
+
+a:hover {
+    color: var(--text-primary) !important;
+}
+
+/* Buttons - giữ nguyên background hồng, chỉ sửa text */
+.submit-button {
+    background: var(--gradient-primary);
+    /* Giữ background hồng */
+    color: var(--text-primary) !important;
+    /* Text nâu đậm */
+    border: 1px solid var(--border-primary);
+    /* Border hồng */
+}
+
+/* Placeholders */
+::placeholder {
+    color: var(--text-muted) !important;
+}
+
+/* Tooltips */
+.nav-tooltip {
+    background-color: var(--bg-canvas);
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-soft);
+    /* Border hồng */
+}
+
+/* Dark theme text adjustments */
+.dark-theme {
+    --text-primary: #FFE8CD;
+    /* Text sáng cho dark mode */
+    --text-secondary: #FFDCDC;
+    /* Text phụ sáng */
+    --text-tertiary: #F5DEB3;
+    --text-muted: #DEB887;
+
+    /* Giữ nguyên các màu UI khác cho dark mode */
+    --accent-primary: #FFE8CD;
+    --accent-secondary: #FFDCDC;
+    --bg-primary: #2F1B14;
+    --bg-canvas: #3D2817;
+    /* ... rest of dark theme colors */
 }
 
 .dark-theme {
