@@ -186,11 +186,17 @@
 }
 
 .user-info {
-    opacity: 0;
+    opacity: 1;
     transform: translateX(-20px);
     transition: all 0.3s ease 0.1s;
     flex: 1;
     min-width: 0;
+}
+
+.user-info.logged-in,
+.user-menu:not(.hidden) .user-info {
+    opacity: 1 !important;
+    transform: translateX(0);
 }
 
 .sidebar-nav:hover .user-info {

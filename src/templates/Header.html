@@ -1,29 +1,38 @@
 <!-- App Header Component -->
 <header class="app-header">
-    <div class="header-left">
-        <button class="mobile-menu-btn" id="mobile-menu-btn">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"/>
-            </svg>
-        </button>
-        <h1 class="page-title">Threads</h1>
-    </div>
-    
+    <div class="logo">VieHistory</div>
     <div class="header-actions">
-        <button class="header-btn" aria-label="Tìm kiếm">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"/>
+        <button aria-label="Tìm kiếm">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                <path
+                    d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
             </svg>
         </button>
-        <button class="header-btn" aria-label="Thông báo">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12,22A2,2 0 0,0 14,20H10A2,2 0 0,0 12,22M18,16V11C18,7.93 16.36,5.36 13.5,4.68V4A1.5,1.5 0 0,0 12,2.5A1.5,1.5 0 0,0 10.5,4V4.68C7.63,5.36 6,7.92 6,11V16L4,18V19H20V18L18,16Z"/>
+        <button aria-label="Thông báo">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                <path
+                    d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
             </svg>
         </button>
-        <div class="auth-menu">
-            <button class="auth-menu-trigger" id="auth-menu-trigger">
-                <div class="user-avatar">A</div>
+
+        <!-- Auth/User Menu -->
+        <button id="header-signin-btn" class="header-signin-btn">Đăng nhập</button>
+
+        <!-- ...existing code... -->
+        <div id="user-menu" class="user-menu hidden">
+            <button id="user-avatar-btn" class="user-avatar-btn">
+                <!-- Thay img bằng div với text avatar giống sidebar -->
+                <div id="user-avatar-header" class="user-avatar-header">
+                    <span id="user-avatar-header-text">U</span>
+                </div>
             </button>
+            <div id="user-dropdown" class="user-dropdown hidden">
+                <div class="user-info">
+                    <span id="user-display-name">User</span>
+                </div>
+                <button id="signout-btn" class="dropdown-item">Đăng xuất</button>
+            </div>
         </div>
+<!-- ...existing code... -->
     </div>
 </header>
