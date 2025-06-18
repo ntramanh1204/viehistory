@@ -365,21 +365,23 @@ export class ComposeManager {
             this.setSubmitLoading(false);
         }
     }
-    
+
     updateCharacterCounter() {
         if (this.characterCounter && this.textarea) {
             const length = this.textarea.value.length;
-            const remaining = 2000 - length;
 
             this.characterCounter.innerHTML = `
-                <span class="char-count">${length}/2000</span>
-                ${this.extractedHashtags.length > 0 ? `<span class="hashtag-count">${this.extractedHashtags.length} hashtag</span>` : ''}
-            `;
+            <span class="char-count">${length}/2000</span>
+            ${this.extractedHashtags.length > 0 ? `<span class="hashtag-count">${this.extractedHashtags.length} hashtag</span>` : ''}
+        `;
 
-            if (remaining < 100) {
-                this.characterCounter.style.color = 'var(--accent-warning)';
-            } else if (remaining < 0) {
-                this.characterCounter.style.color = 'var(--accent-error)';
+            // Reset color to default when empty
+            if (length === 0) {
+                this.characterCounter.style.color = 'var(--text-secondary)';
+            } else if (length > 1900) {
+                this.characterCounter.style.color = 'var(--accent-warning, #f59e0b)';
+            } else if (length > 2000) {
+                this.characterCounter.style.color = 'var(--accent-error, #ef4444)';
             } else {
                 this.characterCounter.style.color = 'var(--text-secondary)';
             }
@@ -431,11 +433,11 @@ export class ComposeManager {
         }
     }
 
-    showSuccessMessage(message) {
+    showSuccess(message) {
         this.showToast(message, 'success');
     }
 
-    showErrorMessage(message) {
+    showError(message) {
         this.showToast(message, 'error');
     }
 
@@ -507,12 +509,30 @@ export class ComposeManager {
     }
 
     resetForm() {
+        // Clear textarea
         this.textarea.value = '';
         this.textarea.style.height = 'auto';
+
+        // Clear hashtag state
+        this.extractedHashtags = [];
+
+        // Hide suggestions if showing
+        this.hideSuggestions();
+
+        // Remove hashtag highlighting
+        this.textarea.classList.remove('has-hashtags');
+
+        // Reset old topic pills (if any exist)
         document.querySelectorAll('.pill-button').forEach(btn =>
             btn.classList.remove('active')
         );
-        this.currentTopic = '';
+
+        // Reset character counter
+        this.updateCharacterCounter();
+
+        // Update submit button state
         this.updateSubmitButtonState();
+
+        console.log('✅ Form reset completed');
     }
 }

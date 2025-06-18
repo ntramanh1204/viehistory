@@ -321,11 +321,11 @@ export class DatabaseService {
     /**
      * Update user statistics
      */
-    async updateUserStats(userId, field, increment) {
+    async updateUserStats(userId, field, incrementValue) {
         try {
             const userRef = doc(db, this.usersCollection, userId);
             await updateDoc(userRef, {
-                [`stats.${field}`]: increment(increment),
+                [`stats.${field}`]: increment(incrementValue),
                 updatedAt: serverTimestamp()
             });
         } catch (error) {
