@@ -8,7 +8,7 @@
     <meta name="description" content="Nền tảng chia sẻ và thảo luận về lịch sử Việt Nam">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/public/assets/icons/logo.png">
+    <link rel="icon" type="image/png" href="/assets/icons/logo.png">
 
     <!-- Styles -->
     <link rel="stylesheet" href="/src/styles/variables.css">
@@ -133,19 +133,30 @@
             <button id="feed-signin-btn" class="submit-button">Đăng nhập</button>
         </div>
 
+
         <!-- Compose Area -->
         <section class="compose-area">
             <div class="user-avatar">B</div>
             <div class="compose-input-wrapper">
                 <textarea id="composeTextarea" class="compose-textarea"
                     placeholder="Chia sẻ dòng thời gian của bạn..."></textarea>
+
+                <!-- Hashtag suggestions sẽ được tạo động -->
+
                 <div class="compose-actions-bar">
-                    <div class="action-pills">
-                        <button class="pill-button" data-topic="Việt Nam">Việt Nam</button>
-                        <button class="pill-button" data-topic="Thế giới">Thế giới</button>
-                        <button class="pill-button" data-topic="Cổ Đại">Cổ Đại</button>
+                    <div class="compose-actions-left">
+                        <!-- <div class="action-pills">
+                            <button class="pill-button" data-topic="Việt Nam">Việt Nam</button>
+                            <button class="pill-button" data-topic="Thế giới">Thế giới</button>
+                            <button class="pill-button" data-topic="Cổ Đại">Cổ Đại</button>
+                        </div> -->
+                        <div class="character-counter">
+                            <span class="char-count">0/2000</span>
+                        </div>
                     </div>
-                    <button class="submit-button" id="post-submit-btn">Đăng dòng</button>
+                    <div class="compose-actions-right">
+                        <button class="submit-button" id="post-submit-btn">Đăng dòng</button>
+                    </div>
                 </div>
             </div>
         </section>

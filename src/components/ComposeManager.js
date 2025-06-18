@@ -8,13 +8,36 @@ export class ComposeManager {
         this.focusBtn = document.getElementById('focus-compose-btn');
         this.fabBtn = document.getElementById('fab-compose-btn');
         this.userAvatar = document.querySelector('.compose-area .user-avatar');
-        this.currentTopic = '';
+        this.hashtagSuggestions = document.getElementById('hashtag-suggestions');
+        this.characterCounter = document.querySelector('.character-counter');
+
+        // State
         this.isSubmitting = false;
+        this.extractedHashtags = [];
+        this.suggestedHashtags = [
+            'lịchsửViệt', 'NguyễnTrãi', 'HồChíMinh', 'LêLợi', 'TrầnHưngĐạo',
+            'chiếntranhViệt', 'cổđại', 'hiệnđại', 'vănhóa', 'truyềnthống',
+            'anhùng', 'cáchmạng', 'độclập', 'thống nhất', 'pháthtriển'
+        ];
+        this.currentSuggestionIndex = -1;
     }
 
     init() {
         this.setupEventListeners();
         this.setupAuthListener();
+        this.updateUserAvatar();
+        this.updateSubmitButtonState();
+        this.createHashtagSuggestionsElement();
+    }
+
+    createHashtagSuggestionsElement() {
+        if (!this.hashtagSuggestions) {
+            const suggestions = document.createElement('div');
+            suggestions.id = 'hashtag-suggestions';
+            suggestions.className = 'hashtag-suggestions hidden';
+            this.textarea.parentNode.appendChild(suggestions);
+            this.hashtagSuggestions = suggestions;
+        }
     }
 
     setupAuthListener() {
@@ -26,15 +49,15 @@ export class ComposeManager {
     }
 
     setupEventListeners() {
-        // Topic selection
-        document.querySelectorAll('.pill-button').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                this.selectTopic(e.target, e.target.dataset.topic);
-            });
-        });
+        // Remove old topic pills (we'll replace with hashtags)
+        const topicPills = document.querySelector('.topic-pills');
+        if (topicPills) {
+            topicPills.style.display = 'none';
+        }
 
         // Submit post
-        this.submitBtn.addEventListener('click', () => {
+        this.submitBtn?.addEventListener('click', (e) => {
+            e.preventDefault();
             this.handlePostSubmit();
         });
 
@@ -47,43 +70,222 @@ export class ComposeManager {
             this.focusCompose();
         });
 
-        // Textarea auto-resize
-        this.textarea.addEventListener('input', () => {
-            this.autoResize();
-            this.updateSubmitButtonState();
+        // Enhanced textarea with hashtag detection
+        this.textarea?.addEventListener('input', (e) => {
+            this.handleTextInput(e);
         });
 
-        // Keyboard shortcuts
-        this.textarea.addEventListener('keydown', (e) => {
-            if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-                e.preventDefault();
-                this.handlePostSubmit();
+        this.textarea?.addEventListener('keydown', (e) => {
+            this.handleKeyDown(e);
+        });
+
+        // Click outside to hide suggestions
+        document.addEventListener('click', (e) => {
+            if (!this.textarea?.contains(e.target) && !this.hashtagSuggestions?.contains(e.target)) {
+                this.hideSuggestions();
             }
         });
     }
 
-    selectTopic(buttonEl, topicName) {
-        document.querySelectorAll('.pill-button').forEach(btn =>
-            btn.classList.remove('active')
+    handleTextInput(e) {
+        const content = e.target.value;
+
+        // Auto-resize
+        this.autoResize();
+
+        // Extract hashtags
+        this.extractHashtags(content);
+
+        // Check for hashtag typing
+        this.checkHashtagTyping(content, e.target.selectionStart);
+
+        // Update UI
+        this.updateSubmitButtonState();
+        this.updateCharacterCounter();
+        this.highlightHashtags();
+    }
+
+    extractHashtags(content) {
+        // Extract hashtags using regex
+        const hashtagRegex = /#[\w\u00C0-\u024F\u1E00-\u1EFFÀàÁáÂâÃãÈèÉéÊêÌìÍíÒòÓóÔôÕõÙùÚúÝýĂăĐđĨĩŨũƠơƯưẠạẢảẤấẦầẨẩẪẫẬậẮắẰằẲẳẴẵẶặẸẹẺẻẼẽẾếỀềỂểỄễỆệỈỉỊịỌọỎỏỐốỒồỔổỖỗỘộỚớỜờỞởỠỡỢợỤụỦủỨứỪừỬửỮữỰựỲỳỴỵỶỷỸỹ]+/g;
+
+        this.extractedHashtags = content.match(hashtagRegex) || [];
+
+        console.log('📝 Extracted hashtags:', this.extractedHashtags);
+    }
+
+    checkHashtagTyping(content, cursorPos) {
+        // Find if user is typing a hashtag
+        const beforeCursor = content.substring(0, cursorPos);
+        const hashtagMatch = beforeCursor.match(/#[\w\u00C0-\u024F\u1E00-\u1EFF]*$/);
+
+        if (hashtagMatch) {
+            const typingHashtag = hashtagMatch[0].substring(1); // Remove #
+            this.showHashtagSuggestions(typingHashtag);
+        } else {
+            this.hideSuggestions();
+        }
+    }
+
+    showHashtagSuggestions(partial) {
+        if (!this.hashtagSuggestions) return;
+
+        // Filter suggestions based on partial input
+        const filtered = this.suggestedHashtags.filter(tag =>
+            tag.toLowerCase().includes(partial.toLowerCase()) &&
+            !this.extractedHashtags.includes('#' + tag)
         );
-        buttonEl.classList.add('active');
-        this.currentTopic = topicName;
+
+        if (filtered.length === 0 || (partial.length === 0)) {
+            this.hideSuggestions();
+            return;
+        }
+
+        // Create suggestion items
+        this.hashtagSuggestions.innerHTML = filtered.map((tag, index) => `
+            <div class="hashtag-suggestion-item ${index === 0 ? 'active' : ''}" data-hashtag="${tag}">
+                #${tag}
+            </div>
+        `).join('');
+
+        // Position suggestions
+        this.positionSuggestions();
+
+        // Show suggestions
+        this.hashtagSuggestions.classList.remove('hidden');
+        this.currentSuggestionIndex = 0;
+
+        // Add click handlers
+        this.hashtagSuggestions.querySelectorAll('.hashtag-suggestion-item').forEach((item, index) => {
+            item.addEventListener('click', () => {
+                this.selectHashtag(item.dataset.hashtag);
+            });
+        });
+    }
+
+    hideSuggestions() {
+        if (this.hashtagSuggestions) {
+            this.hashtagSuggestions.classList.add('hidden');
+            this.currentSuggestionIndex = -1;
+        }
+    }
+
+    positionSuggestions() {
+        if (!this.hashtagSuggestions || !this.textarea) return;
+
+        const textareaRect = this.textarea.getBoundingClientRect();
+
+        this.hashtagSuggestions.style.position = 'absolute';
+        this.hashtagSuggestions.style.top = `${textareaRect.bottom + window.scrollY + 5}px`;
+        this.hashtagSuggestions.style.left = `${textareaRect.left + window.scrollX}px`;
+        this.hashtagSuggestions.style.width = `${textareaRect.width}px`;
+    }
+
+    selectHashtag(hashtag) {
+        const content = this.textarea.value;
+        const cursorPos = this.textarea.selectionStart;
+
+        // Find the hashtag being typed
+        const beforeCursor = content.substring(0, cursorPos);
+        const hashtagMatch = beforeCursor.match(/#[\w\u00C0-\u024F\u1E00-\u1EFF]*$/);
+
+        if (hashtagMatch) {
+            const startPos = cursorPos - hashtagMatch[0].length;
+            const newContent = content.substring(0, startPos) + '#' + hashtag + ' ' + content.substring(cursorPos);
+
+            this.textarea.value = newContent;
+            this.textarea.focus();
+
+            // Set cursor after the hashtag
+            const newCursorPos = startPos + hashtag.length + 2; // +2 for # and space
+            this.textarea.setSelectionRange(newCursorPos, newCursorPos);
+
+            // Update state
+            this.extractHashtags(newContent);
+            this.hideSuggestions();
+            this.updateSubmitButtonState();
+            this.highlightHashtags();
+        }
+    }
+
+    handleKeyDown(e) {
+        // Handle suggestion navigation
+        if (this.hashtagSuggestions && !this.hashtagSuggestions.classList.contains('hidden')) {
+            const suggestions = this.hashtagSuggestions.querySelectorAll('.hashtag-suggestion-item');
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                this.currentSuggestionIndex = Math.min(this.currentSuggestionIndex + 1, suggestions.length - 1);
+                this.updateSuggestionSelection(suggestions);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                this.currentSuggestionIndex = Math.max(this.currentSuggestionIndex - 1, 0);
+                this.updateSuggestionSelection(suggestions);
+            } else if (e.key === 'Enter' || e.key === 'Tab') {
+                e.preventDefault();
+                const activeItem = suggestions[this.currentSuggestionIndex];
+                if (activeItem) {
+                    this.selectHashtag(activeItem.dataset.hashtag);
+                }
+            } else if (e.key === 'Escape') {
+                this.hideSuggestions();
+            }
+        }
+
+        // Submit shortcut
+        if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            this.handlePostSubmit();
+        }
+    }
+
+    updateSuggestionSelection(suggestions) {
+        suggestions.forEach((item, index) => {
+            item.classList.toggle('active', index === this.currentSuggestionIndex);
+        });
+    }
+
+    highlightHashtags() {
+        // For now, we'll just add a visual cue through CSS
+        // Later we can implement proper syntax highlighting
+        const content = this.textarea.value;
+        const hasHashtags = /#[\w\u00C0-\u024F\u1E00-\u1EFF]+/.test(content);
+
+        this.textarea.classList.toggle('has-hashtags', hasHashtags);
     }
 
     async handlePostSubmit() {
+        console.log('🚀 Post submit triggered');
+
         const content = this.textarea.value.trim();
+
+        // Validation
         if (!content) {
+            this.showError('Vui lòng nhập nội dung bài viết');
             this.shakeTextarea();
             return;
         }
 
-        if (this.isSubmitting) {
-            return; // Prevent double submission
+        if (content.length < 3) {
+            this.showError('Nội dung phải có ít nhất 3 ký tự');
+            this.focusTextarea();
+            return;
         }
 
-        // Check if user is signed in
+        if (content.length > 2000) {
+            this.showError('Nội dung không được vượt quá 2000 ký tự');
+            this.focusTextarea();
+            return;
+        }
+
+        if (this.isSubmitting) {
+            console.log('⚠️ Already submitting, ignoring...');
+            return;
+        }
+
+        // Check authentication
         if (!authService.isSignedIn()) {
-            // Show auth modal with specific message
+            console.log('🔐 User not signed in, showing auth modal');
             const event = new CustomEvent('showAuthModal', {
                 detail: {
                     message: 'Đăng nhập để chia sẻ bài viết của bạn'
@@ -94,34 +296,49 @@ export class ComposeManager {
         }
 
         try {
-            // Set loading state
+            console.log('💾 Starting post creation...');
             this.setSubmitLoading(true);
 
-            // Get current user (already signed in)
             const user = authService.getCurrentUser();
+            if (!user) {
+                throw new Error('Không thể xác thực người dùng');
+            }
 
-            // Prepare post data
+            // Extract content without hashtags for main content
+            const plainContent = content.replace(/#[\w\u00C0-\u024F\u1E00-\u1EFF]+/g, '').trim();
+
+            // Prepare enhanced post data
             const postData = {
-                content: content,
-                topic: this.currentTopic
+                content: content, // Full content with hashtags
+                plainContent: plainContent, // Content without hashtags for search
+                hashtags: this.extractedHashtags,
+                metadata: {
+                    characterCount: content.length,
+                    wordCount: content.split(/\s+/).filter(word => word.length > 0).length,
+                    hashtagCount: this.extractedHashtags.length
+                }
             };
+
+            console.log('📝 Enhanced post data:', postData);
 
             // Save to database
             const postId = await dbService.createPost(postData, user);
+            console.log('✅ Post created with ID:', postId);
 
-            // Show success feedback
-            this.showSuccessMessage('Đã đăng bài thành công!');
+            this.showSuccess('Đã đăng bài thành công!');
 
-            // Get user display info for local display
+            // Get user display info
             const userInfo = authService.getUserDisplayInfo();
 
-            // Dispatch event for FeedManager (local display)
-            const event = new CustomEvent('newPost', {
+            // Dispatch event for FeedManager
+            const newPostEvent = new CustomEvent('newPost', {
                 detail: {
                     id: postId,
                     content: content,
-                    topic: this.currentTopic,
+                    plainContent: plainContent,
+                    hashtags: this.extractedHashtags,
                     author: {
+                        uid: user.uid,
                         displayName: userInfo.displayName,
                         avatar: userInfo.avatar,
                         photoURL: userInfo.photoURL
@@ -131,19 +348,41 @@ export class ComposeManager {
                         likes: 0,
                         comments: 0,
                         shares: 0
-                    }
+                    },
+                    metadata: postData.metadata
                 }
             });
-            document.dispatchEvent(event);
 
-            // Reset form
+            document.dispatchEvent(newPostEvent);
+            console.log('📢 New post event dispatched');
+
             this.resetForm();
 
         } catch (error) {
-            console.error('Error submitting post:', error);
-            this.showErrorMessage(error.message || 'Có lỗi xảy ra khi đăng bài');
+            console.error('❌ Error submitting post:', error);
+            this.showError(error.message || 'Có lỗi xảy ra khi đăng bài. Vui lòng thử lại.');
         } finally {
             this.setSubmitLoading(false);
+        }
+    }
+    
+    updateCharacterCounter() {
+        if (this.characterCounter && this.textarea) {
+            const length = this.textarea.value.length;
+            const remaining = 2000 - length;
+
+            this.characterCounter.innerHTML = `
+                <span class="char-count">${length}/2000</span>
+                ${this.extractedHashtags.length > 0 ? `<span class="hashtag-count">${this.extractedHashtags.length} hashtag</span>` : ''}
+            `;
+
+            if (remaining < 100) {
+                this.characterCounter.style.color = 'var(--accent-warning)';
+            } else if (remaining < 0) {
+                this.characterCounter.style.color = 'var(--accent-error)';
+            } else {
+                this.characterCounter.style.color = 'var(--text-secondary)';
+            }
         }
     }
 
