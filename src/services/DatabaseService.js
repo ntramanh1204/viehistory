@@ -125,8 +125,6 @@ export class DatabaseService {
         }
     }
 
-    // Thêm sau dòng 113 (sau method incrementPostViews)
-
     /**
      * Lấy chi tiết một post theo ID
      */
@@ -387,6 +385,24 @@ export class DatabaseService {
 
         return mentions;
     }
+
+
+
+    /**
+     * Tăng share count cho post
+     */
+    async incrementPostShares(postId) {
+        try {
+            const postRef = doc(db, this.postsCollection, postId);
+            await updateDoc(postRef, {
+                'stats.shares': increment(1)
+            });
+        } catch (error) {
+            console.error('❌ Error incrementing shares:', error);
+        }
+    }
+
+
 }
 
 // Create singleton instance
