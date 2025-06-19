@@ -1,12 +1,12 @@
-import { 
-    collection, 
-    addDoc, 
+import {
+    collection,
+    addDoc,
     getDocs,
     doc,
     updateDoc,
     increment,
-    query, 
-    orderBy, 
+    query,
+    orderBy,
     limit,
     where,
     serverTimestamp,
@@ -25,7 +25,7 @@ export class DatabaseService {
     }
 
     // ==================== POSTS ====================
-    
+
     /**
      * Tạo post mới (cần auth)
      */
@@ -61,10 +61,10 @@ export class DatabaseService {
             };
 
             const docRef = await addDoc(collection(db, this.postsCollection), post);
-            
+
             // Update user stats
             await this.updateUserStats(user.uid, 'postsCount', 1);
-            
+
             console.log('✅ Post created:', docRef.id);
             return docRef.id;
         } catch (error) {
@@ -89,10 +89,10 @@ export class DatabaseService {
             if (lastDoc) {
                 q = query(q, startAfter(lastDoc));
             }
-            
+
             const querySnapshot = await getDocs(q);
             const posts = [];
-            
+
             querySnapshot.forEach((doc) => {
                 posts.push({
                     id: doc.id,
@@ -100,7 +100,7 @@ export class DatabaseService {
                     createdAt: doc.data().createdAt?.toDate() || new Date()
                 });
             });
-            
+
             return {
                 posts,
                 lastDoc: querySnapshot.docs[querySnapshot.docs.length - 1]
@@ -125,8 +125,33 @@ export class DatabaseService {
         }
     }
 
+    // Thêm sau dòng 113 (sau method incrementPostViews)
+
+    /**
+     * Lấy chi tiết một post theo ID
+     */
+    async getPostById(postId) {
+        try {
+            const docRef = doc(db, this.postsCollection, postId);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                return {
+                    id: docSnap.id,
+                    ...docSnap.data(),
+                    createdAt: docSnap.data().createdAt?.toDate() || new Date()
+                };
+            } else {
+                return null;
+            }
+        } catch (error) {
+            console.error('❌ Error getting post:', error);
+            throw new Error('Không thể tải bài viết.');
+        }
+    }
+
     // ==================== COMMENTS ====================
-    
+
     /**
      * Tạo comment mới (cần auth)
      */
@@ -156,7 +181,7 @@ export class DatabaseService {
             };
 
             const docRef = await addDoc(collection(db, this.commentsCollection), comment);
-            
+
             // Update post comment count
             const postRef = doc(db, this.postsCollection, commentData.postId);
             await updateDoc(postRef, {
@@ -166,7 +191,7 @@ export class DatabaseService {
 
             // Update user stats
             await this.updateUserStats(user.uid, 'commentsCount', 1);
-            
+
             // If this is a reply, update parent comment
             if (commentData.parentId) {
                 const parentRef = doc(db, this.commentsCollection, commentData.parentId);
@@ -174,7 +199,7 @@ export class DatabaseService {
                     'stats.replies': increment(1)
                 });
             }
-            
+
             console.log('✅ Comment created:', docRef.id);
             return docRef.id;
         } catch (error) {
@@ -192,13 +217,13 @@ export class DatabaseService {
                 collection(db, this.commentsCollection),
                 where('postId', '==', postId),
                 where('status', '==', 'published'),
-                orderBy('createdAt', 'asc'),
+                orderBy('createdAt', 'desc'),
                 limit(limitCount)
             );
-            
+
             const querySnapshot = await getDocs(q);
             const comments = [];
-            
+
             querySnapshot.forEach((doc) => {
                 comments.push({
                     id: doc.id,
@@ -206,7 +231,7 @@ export class DatabaseService {
                     createdAt: doc.data().createdAt?.toDate() || new Date()
                 });
             });
-            
+
             // Organize into threaded structure
             return this.organizeComments(comments);
         } catch (error) {
@@ -241,7 +266,7 @@ export class DatabaseService {
     }
 
     // ==================== LIKES ====================
-    
+
     /**
      * Toggle like cho post/comment (cần auth)
      */
@@ -259,10 +284,10 @@ export class DatabaseService {
                 where('itemId', '==', itemId),
                 where('itemType', '==', itemType)
             );
-            
+
             const likeSnapshot = await getDocs(likeQuery);
             const itemRef = doc(db, itemType === 'post' ? this.postsCollection : this.commentsCollection, itemId);
-            
+
             if (likeSnapshot.empty) {
                 // Add like
                 await addDoc(likesRef, {
@@ -271,21 +296,21 @@ export class DatabaseService {
                     itemType: itemType,
                     createdAt: serverTimestamp()
                 });
-                
+
                 await updateDoc(itemRef, {
                     'stats.likes': increment(1)
                 });
-                
+
                 return { liked: true, action: 'liked' };
             } else {
                 // Remove like
                 const likeDoc = likeSnapshot.docs[0];
                 await deleteDoc(doc(db, 'likes', likeDoc.id));
-                
+
                 await updateDoc(itemRef, {
                     'stats.likes': increment(-1)
                 });
-                
+
                 return { liked: false, action: 'unliked' };
             }
         } catch (error) {
@@ -299,7 +324,7 @@ export class DatabaseService {
      */
     async checkUserLike(itemType, itemId, userId) {
         if (!userId) return false;
-        
+
         try {
             const likeQuery = query(
                 collection(db, 'likes'),
@@ -307,7 +332,7 @@ export class DatabaseService {
                 where('itemId', '==', itemId),
                 where('itemType', '==', itemType)
             );
-            
+
             const likeSnapshot = await getDocs(likeQuery);
             return !likeSnapshot.empty;
         } catch (error) {
@@ -317,7 +342,7 @@ export class DatabaseService {
     }
 
     // ==================== UTILITIES ====================
-    
+
     /**
      * Update user statistics
      */
@@ -340,11 +365,11 @@ export class DatabaseService {
         const hashtagRegex = /#(\w+)/g;
         const hashtags = [];
         let match;
-        
+
         while ((match = hashtagRegex.exec(content)) !== null) {
             hashtags.push(match[1].toLowerCase());
         }
-        
+
         return hashtags;
     }
 
@@ -355,11 +380,11 @@ export class DatabaseService {
         const mentionRegex = /@(\w+)/g;
         const mentions = [];
         let match;
-        
+
         while ((match = mentionRegex.exec(content)) !== null) {
             mentions.push(match[1].toLowerCase());
         }
-        
+
         return mentions;
     }
 }

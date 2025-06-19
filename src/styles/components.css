@@ -576,8 +576,13 @@
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* Empty State */
@@ -649,11 +654,9 @@
 
 /* Compose textarea with hashtag highlighting */
 .compose-textarea.has-hashtags {
-    background: linear-gradient(
-        to right,
-        transparent 0%,
-        color-mix(in srgb, var(--accent-primary) 5%, transparent) 100%
-    );
+    background: linear-gradient(to right,
+            transparent 0%,
+            color-mix(in srgb, var(--accent-primary) 5%, transparent) 100%);
 }
 
 /* Character counter */
@@ -742,18 +745,18 @@
         right: 12px !important;
         width: calc(100% - 24px) !important;
     }
-    
+
     .hashtag-suggestion-item {
         padding: 10px 12px;
         font-size: 13px;
     }
-    
+
     .character-counter {
         flex-direction: column;
         align-items: flex-start;
         gap: 4px;
     }
-    
+
     .compose-actions-bar {
         flex-direction: column;
         align-items: stretch;
@@ -775,10 +778,24 @@
 }
 
 @keyframes dots {
-    0%, 20% { content: ''; }
-    40% { content: '.'; }
-    60% { content: '..'; }
-    80%, 100% { content: '...'; }
+
+    0%,
+    20% {
+        content: '';
+    }
+
+    40% {
+        content: '.';
+    }
+
+    60% {
+        content: '..';
+    }
+
+    80%,
+    100% {
+        content: '...';
+    }
 }
 
 /* Hidden class override */
@@ -786,4 +803,128 @@
     display: none !important;
 }
 
-/* ...existing code... */
+/* Thêm ở cuối file */
+
+/* Post Detail Styles */
+.post-detail-page {
+    min-height: 100vh;
+    background: var(--bg-primary);
+    padding: var(--spacing-md);
+}
+
+.post-detail-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.back-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+}
+
+.back-button:hover {
+    background: var(--state-hover);
+}
+
+.post-detail-card {
+    background: var(--bg-canvas);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    margin-bottom: var(--spacing-lg);
+    box-shadow: var(--shadow-soft);
+}
+
+.post-content-full {
+    font-size: var(--font-size-lg);
+    line-height: 1.6;
+    margin: var(--spacing-lg) 0;
+}
+
+.comments-section-detail {
+    background: var(--bg-canvas);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+}
+
+.comment-form-detail {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.comment-input-detail {
+    flex: 1;
+    padding: var(--spacing-md);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md);
+    resize: vertical;
+    min-height: 80px;
+}
+
+.comment-submit-detail {
+    background: var(--gradient-primary);
+    color: var(--text-primary);
+    border: none;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+}
+
+.comment-item {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    background: var(--bg-secondary);
+}
+
+.comment-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background: var(--accent-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.comment-content {
+    flex: 1;
+}
+
+.comment-author {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.comment-text {
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.comment-time {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+}
+
+.read-more-link {
+    display: inline-block;
+    margin-top: var(--spacing-md);
+    color: var(--accent-primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.read-more-link:hover {
+    text-decoration: underline;
+}
