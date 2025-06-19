@@ -46,16 +46,143 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('✅ VieHistory loaded with full auth and nav');
 });
 
-function handleRouting() {
+// ...existing code...
+
+// Thay đổi hàm handleRouting thành:
+async function handleRouting() {
     const hash = window.location.hash;
 
-    if (hash.startsWith('#/post/')) {
+ if (hash === '#/blog/create' || hash === '#/blog/editor') {
+        await showBlogEditor();
+    }
+    else if (hash.startsWith('#/blog/') && hash !== '#/blog') {
+        const blogId = hash.split('/')[2];
+        if (blogId && blogId !== 'create' && blogId !== 'editor') {
+            await showBlogDetail(blogId);
+        }
+    }
+    else if (hash === '#/blog' || hash.startsWith('#/blog?')) {
+        await showBlogPage();
+    }
+    else if (hash.startsWith('#/post/')) {
         const postId = hash.split('/')[2];
         if (postId) {
-            showPostDetail(postId);
+            await showPostDetail(postId);
         }
-    } else {
+    }
+    else {
         showHomePage();
+    }
+}
+
+async function showBlogPage() {
+    try {
+        // Ẩn TẤT CẢ các container khác
+        hideAllContainers();
+        
+        // Hiển thị trang blog
+        let blogContainer = document.getElementById('blog-page-container');
+
+        if (!blogContainer) {
+            blogContainer = document.createElement('div');
+            blogContainer.id = 'blog-page-container';
+
+            // Nạp template từ Blog.html
+            try {
+                const response = await fetch('/src/page/Blog.html');
+                const template = await response.text();
+                blogContainer.innerHTML = template;
+                document.body.appendChild(blogContainer);
+            } catch (error) {
+                console.error('Error loading blog template:', error);
+                blogContainer.innerHTML = '<div class="error">Không thể tải trang blog</div>';
+            }
+        }
+
+        blogContainer.style.display = 'block';
+
+        // Khởi tạo BlogManager
+        const { BlogManager } = await import('./components/BlogManager.js');
+        const blogManager = new BlogManager();
+        await blogManager.init();
+
+    } catch (error) {
+        console.error('Error showing blog page:', error);
+    }
+}
+
+// Thêm hàm showBlogDetail
+async function showBlogDetail(blogId) {
+    try {
+        // Ẩn các phần khác
+        document.querySelector('.app-container').style.display = 'none';
+
+        // Ẩn post detail nếu đang hiển thị
+        const postDetailContainer = document.getElementById('post-detail-container');
+        if (postDetailContainer) {
+            postDetailContainer.style.display = 'none';
+        }
+
+        // Ẩn trang blog nếu đang hiển thị
+        const blogPageContainer = document.getElementById('blog-page-container');
+        if (blogPageContainer) {
+            blogPageContainer.style.display = 'none';
+        }
+
+        // Hiển thị blog detail
+        let blogDetailContainer = document.getElementById('blog-detail-container');
+
+        if (!blogDetailContainer) {
+            blogDetailContainer = document.createElement('div');
+            blogDetailContainer.id = 'blog-detail-container';
+            document.body.appendChild(blogDetailContainer);
+        }
+
+        // Nạp bài viết
+        const { default: BlogDetailManager } = await import('./components/BlogDetailManager.js');
+        const blogDetailManager = new BlogDetailManager();
+        blogDetailContainer.style.display = 'block';
+        await blogDetailManager.loadBlog(blogId);
+
+    } catch (error) {
+        console.error('Error showing blog detail:', error);
+        window.location.hash = '#/blog'; // Quay lại trang blog khi có lỗi
+    }
+}
+
+async function showBlogEditor() {
+    try {
+        // Ẩn TẤT CẢ các container khác
+        hideAllContainers();
+        
+        // Show blog editor
+        let editorContainer = document.getElementById('blog-editor-container');
+        
+        if (!editorContainer) {
+            editorContainer = document.createElement('div');
+            editorContainer.id = 'blog-editor-container';
+            
+            // Load template
+            try {
+                const response = await fetch('/src/page/BlogEditor.html');
+                const template = await response.text();
+                editorContainer.innerHTML = template;
+                document.body.appendChild(editorContainer);
+            } catch (error) {
+                console.error('Error loading blog editor template:', error);
+                editorContainer.innerHTML = '<div class="error">Không thể tải trang soạn thảo</div>';
+            }
+        }
+        
+        editorContainer.style.display = 'block';
+        
+        // Initialize BlogEditorManager
+        const { BlogEditorManager } = await import('./components/BlogEditorManager.js');
+        const editorManager = new BlogEditorManager();
+        await editorManager.init();
+        
+    } catch (error) {
+        console.error('Error showing blog editor:', error);
     }
 }
 
@@ -113,4 +240,21 @@ async function createPostDetailContainer() {
 function show404() {
     console.error('Post not found');
     window.location.hash = '#/';
+}
+
+function hideAllContainers() {
+    const containers = [
+        '.app-container',
+        '#post-detail-container',
+        '#blog-detail-container',
+        '#blog-page-container',
+        '#blog-editor-container'
+    ];
+    
+    containers.forEach(selector => {
+        const element = document.querySelector(selector);
+        if (element) {
+            element.style.display = 'none';
+        }
+    });
 }

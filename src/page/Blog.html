@@ -1,0 +1,68 @@
+<div class="blog-page">
+    <header class="blog-header">
+        <!-- Thêm vào phần blog-hero -->
+        <div class="blog-hero">
+            <h1 class="blog-title">Blog Lịch Sử</h1>
+            <p class="blog-subtitle">Khám phá những câu chuyện lịch sử thú vị</p>
+
+            <!-- Thêm nút tạo bài viết -->
+            <div class="blog-actions">
+                <a href="#/blog/create" class="create-blog-btn">
+                    <span>✏️</span> Viết bài mới
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="blog-container">
+        <!-- Featured Article -->
+        <section class="featured-section">
+            <h2 class="section-title">Bài viết nổi bật</h2>
+            <div class="featured-article" id="featured-article"></div>
+        </section>
+
+        <!-- Main Content -->
+        <div class="blog-main-content">
+            <!-- Categories Filter -->
+            <div class="blog-categories">
+                <button class="category-btn active" data-category="all">Tất cả</button>
+                <button class="category-btn" data-category="viet-nam">Lịch sử Việt Nam</button>
+                <button class="category-btn" data-category="the-gioi">Lịch sử Thế giới</button>
+                <button class="category-btn" data-category="co-dai">Thời cổ đại</button>
+            </div>
+
+            <!-- Articles Grid -->
+            <div class="articles-grid" id="articles-grid"></div>
+
+            <!-- Load More -->
+            <div class="load-more-section">
+                <button class="load-more-btn" id="load-more-btn">Xem thêm</button>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="blog-sidebar">
+            <div class="sidebar-widget search-widget">
+                <h3>Tìm kiếm</h3>
+                <div class="search-box">
+                    <input type="text" id="blog-search" placeholder="Tìm kiếm bài viết...">
+                    <button class="search-btn">🔍</button>
+                </div>
+            </div>
+
+            <div class="sidebar-widget popular-widget">
+                <h3>Bài viết phổ biến</h3>
+                <div class="popular-articles" id="popular-articles"></div>
+            </div>
+
+            <div class="sidebar-widget categories-widget">
+                <h3>Danh mục</h3>
+                <ul class="sidebar-categories">
+                    <li><a href="#/blog?category=viet-nam">Lịch sử Việt Nam</a></li>
+                    <li><a href="#/blog?category=the-gioi">Lịch sử Thế giới</a></li>
+                    <li><a href="#/blog?category=co-dai">Thời cổ đại</a></li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+</div>

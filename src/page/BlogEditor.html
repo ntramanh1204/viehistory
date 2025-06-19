@@ -1,0 +1,133 @@
+<div class="blog-editor-page">
+    <header class="editor-header">
+        <div class="editor-title-section">
+            <h2 class="editor-title">Tạo bài viết mới</h2>
+            <p class="editor-subtitle">Chia sẻ kiến thức lịch sử với cộng đồng</p>
+        </div>
+        <div class="editor-actions">
+            <button type="button" id="editor-cancel-btn" class="editor-btn cancel-btn">
+                <span>←</span> Hủy
+            </button>
+            <button type="button" id="editor-save-btn" class="editor-btn save-btn">
+                <span>💾</span> Lưu nháp
+            </button>
+            <button type="button" id="editor-publish-btn" class="editor-btn publish-btn">
+                <span>🚀</span> Đăng bài
+            </button>
+        </div>
+    </header>
+
+    <div class="editor-container">
+        <form id="blog-editor-form" class="blog-editor-form">
+            <!-- Tiêu đề -->
+            <div class="form-group">
+                <label for="blog-title" class="form-label">
+                    Tiêu đề bài viết <span class="required">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="blog-title" 
+                    class="form-input" 
+                    placeholder="Nhập tiêu đề hấp dẫn cho bài viết..." 
+                    required>
+                <div class="field-hint">Tiêu đề nên rõ ràng và thu hút người đọc</div>
+            </div>
+
+            <!-- Danh mục và Featured -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="blog-category" class="form-label">
+                        Danh mục <span class="required">*</span>
+                    </label>
+                    <select id="blog-category" class="form-select" required>
+                        <option value="">-- Chọn danh mục --</option>
+                        <option value="viet-nam">🇻🇳 Lịch sử Việt Nam</option>
+                        <option value="the-gioi">🌍 Lịch sử Thế giới</option>
+                        <option value="co-dai">🏛️ Thời cổ đại</option>
+                        <option value="hien-dai">🏙️ Thời hiện đại</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Tùy chọn</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="blog-featured">
+                            <span class="checkbox-custom"></span>
+                            Bài viết nổi bật
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload ảnh đại diện -->
+            <div class="form-group">
+                <label class="form-label">Ảnh đại diện</label>
+                <div class="image-upload-section">
+                    <div class="upload-area" id="upload-area">
+                        <div class="upload-placeholder" id="upload-placeholder">
+                            <div class="upload-icon">📸</div>
+                            <div class="upload-text">
+                                <p><strong>Click để chọn ảnh</strong> hoặc kéo thả vào đây</p>
+                                <p class="upload-hint">JPG, PNG, WebP - Tối đa 10MB</p>
+                            </div>
+                        </div>
+                        <div class="image-preview hidden" id="image-preview">
+                            <img id="preview-img" alt="Preview">
+                            <div class="image-overlay">
+                                <button type="button" class="btn-change-image" id="change-image-btn">
+                                    ✏️ Thay đổi
+                                </button>
+                                <button type="button" class="btn-remove-image" id="remove-image-btn">
+                                    🗑️ Xóa
+                                </button>
+                            </div>
+                        </div>
+                        <input type="file" id="thumbnail-input" accept="image/*" style="display: none;">
+                    </div>
+                    <div class="upload-status" id="upload-status"></div>
+                </div>
+            </div>
+
+            <!-- Nội dung -->
+            <div class="form-group">
+                <label for="blog-content" class="form-label">
+                    Nội dung bài viết <span class="required">*</span>
+                </label>
+                <div class="content-editor">
+                    <div class="editor-toolbar">
+                        <button type="button" class="toolbar-btn" data-action="bold">
+                            <strong>B</strong>
+                        </button>
+                        <button type="button" class="toolbar-btn" data-action="italic">
+                            <em>I</em>
+                        </button>
+                        <button type="button" class="toolbar-btn" data-action="heading">
+                            H2
+                        </button>
+                        <div class="toolbar-divider"></div>
+                        <button type="button" class="toolbar-btn" data-action="preview">
+                            👁️ Preview
+                        </button>
+                    </div>
+                    <textarea 
+                        id="blog-content" 
+                        class="content-textarea" 
+                        placeholder="Viết nội dung bài viết của bạn tại đây...
+
+Một số gợi ý:
+- Bắt đầu với một câu mở đầu hấp dẫn
+- Chia nội dung thành các đoạn ngắn, dễ đọc
+- Sử dụng ví dụ cụ thể và dẫn chứng lịch sử
+- Kết thúc bằng tóm tắt hoặc câu hỏi cho người đọc suy ngẫm" 
+                        required></textarea>
+                    <div class="content-preview hidden" id="content-preview"></div>
+                </div>
+                <div class="field-hint">
+                    <span id="word-count">0 từ</span> • 
+                    Nội dung nên có ít nhất 100 từ để đảm bảo chất lượng
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

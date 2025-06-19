@@ -1,19 +1,19 @@
-import {
-    collection,
-    addDoc,
-    getDocs,
-    doc,
+import { 
+    getFirestore, 
+    collection, 
+    addDoc, 
+    getDocs, 
+    doc, 
+    getDoc, 
     updateDoc,
-    increment,
-    query,
-    orderBy,
-    limit,
-    where,
-    serverTimestamp,
-    arrayUnion,
-    getDoc,
     deleteDoc,
-    startAfter
+    query, 
+    where, 
+    orderBy, 
+    limit, 
+    startAfter, 
+    serverTimestamp,
+    increment
 } from 'firebase/firestore';
 import { db } from '../config/firebase.js';
 
@@ -402,6 +402,241 @@ export class DatabaseService {
         }
     }
 
+    // ==================== BLOGS ====================
+
+    /**
+     * Tạo blog mới (cần auth)
+     */
+    async createBlog(blogData, user) {
+        if (!user) {
+            throw new Error('Cần đăng nhập để tạo blog');
+        }
+
+        try {
+            const blog = {
+                title: blogData.title,
+                content: blogData.content,
+                thumbnail: blogData.thumbnail || null,
+                category: blogData.category || 'viet-nam',
+                featured: blogData.featured || false,
+                status: blogData.status || 'published',
+                author: {
+                    uid: user.uid,
+                    displayName: user.displayName || 'Anonymous',
+                    photoURL: user.photoURL || null
+                },
+                stats: {
+                    views: 0,
+                    likes: 0,
+                    comments: 0,
+                    shares: 0
+                },
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
+            };
+
+            const docRef = await addDoc(collection(db, 'blogs'), blog);
+            console.log('✅ Blog created with ID:', docRef.id);
+            return docRef.id;
+
+        } catch (error) {
+            console.error('❌ Error creating blog:', error);
+            throw new Error('Không thể tạo bài blog. Vui lòng thử lại.');
+        }
+    }
+
+    /**
+     * Cập nhật blog (cần auth)
+     */
+    async updateBlog(blogId, blogData) {
+        try {
+            const blogRef = doc(db, 'blogs', blogId);
+
+            const updateData = {
+                ...blogData,
+                updatedAt: serverTimestamp()
+            };
+
+            await updateDoc(blogRef, updateData);
+            console.log('✅ Blog updated:', blogId);
+            return blogId;
+
+        } catch (error) {
+            console.error('❌ Error updating blog:', error);
+            throw new Error('Không thể cập nhật bài blog. Vui lòng thử lại.');
+        }
+    }
+
+    /**
+     * Lấy blog theo ID
+     */
+    async getBlogById(blogId) {
+        try {
+            const docRef = doc(db, 'blogs', blogId);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                return {
+                    id: docSnap.id,
+                    ...docSnap.data(),
+                    createdAt: docSnap.data().createdAt?.toDate() || new Date()
+                };
+            } else {
+                return null;
+            }
+        } catch (error) {
+            console.error('❌ Error getting blog:', error);
+            throw new Error('Không thể tải bài blog.');
+        }
+    }
+
+// ...existing code...
+
+/**
+ * Lấy blogs nổi bật
+ */
+async getFeaturedBlogs(limitCount = 1) {
+    try {
+        console.log('🔍 Getting featured blogs with limit:', limitCount);
+        
+        const q = query(
+            collection(db, 'blogs'),
+            where('featured', '==', true),
+            where('status', '==', 'published'),
+            orderBy('createdAt', 'desc'),
+            limit(limitCount)  // Dòng 575 - nơi xảy ra lỗi
+        );
+
+        const querySnapshot = await getDocs(q);
+        const blogs = [];
+
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            blogs.push({
+                id: doc.id,
+                ...data,
+                createdAt: data.createdAt?.toDate() || new Date()
+            });
+        });
+
+        console.log('✅ Featured blogs loaded:', blogs.length);
+        return blogs;
+    } catch (error) {
+        console.error('Error getting featured blogs:', error);
+        return [];
+    }
+}
+
+/**
+ * Lấy danh sách blogs với filter
+ */
+async getBlogs({ category = null, searchQuery = '', limit: limitCount = 6, lastVisible = null }) {
+    try {
+        console.log('🔍 Getting blogs with params:', { category, searchQuery, limitCount });
+        
+        let blogsRef = collection(db, 'blogs');
+        let blogsQuery;
+
+        // Xây dựng query dựa trên bộ lọc
+        if (category) {
+            blogsQuery = query(
+                blogsRef,
+                where('category', '==', category),
+                where('status', '==', 'published'),
+                orderBy('createdAt', 'desc')
+            );
+        } else {
+            blogsQuery = query(
+                blogsRef,
+                where('status', '==', 'published'),
+                orderBy('createdAt', 'desc')
+            );
+        }
+
+        // Thêm điều kiện lastVisible cho phân trang
+        if (lastVisible) {
+            blogsQuery = query(
+                blogsQuery,
+                startAfter(lastVisible),
+                limit(limitCount)  // Dòng 527 - nơi xảy ra lỗi
+            );
+        } else {
+            blogsQuery = query(
+                blogsQuery,
+                limit(limitCount)  // Dòng 527 - nơi xảy ra lỗi
+            );
+        }
+
+        const snapshot = await getDocs(blogsQuery);
+        const blogs = [];
+
+        snapshot.forEach((doc) => {
+            const data = doc.data();
+            blogs.push({
+                id: doc.id,
+                ...data,
+                createdAt: data.createdAt?.toDate() || new Date()
+            });
+        });
+
+        // Filter by search query if provided
+        let filteredBlogs = blogs;
+        if (searchQuery) {
+            const lowerQuery = searchQuery.toLowerCase();
+            filteredBlogs = blogs.filter(blog => 
+                blog.title?.toLowerCase().includes(lowerQuery) ||
+                blog.content?.toLowerCase().includes(lowerQuery)
+            );
+        }
+
+        const lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1];
+
+        console.log('✅ Blogs loaded:', filteredBlogs.length);
+        return {
+            blogs: filteredBlogs,
+            lastVisible: lastVisibleDoc
+        };
+    } catch (error) {
+        console.error('Error getting blogs:', error);
+        throw error;
+    }
+}
+
+/**
+ * Lấy blogs phổ biến
+ */
+async getPopularBlogs(limitCount = 5) {
+    try {
+        console.log('🔍 Getting popular blogs with limit:', limitCount);
+        
+        const q = query(
+            collection(db, 'blogs'),
+            where('status', '==', 'published'),
+            orderBy('stats.views', 'desc'),
+            limit(limitCount)  // Dòng 606 - nơi xảy ra lỗi
+        );
+
+        const querySnapshot = await getDocs(q);
+        const blogs = [];
+
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            blogs.push({
+                id: doc.id,
+                ...data,
+                createdAt: data.createdAt?.toDate() || new Date()
+            });
+        });
+
+        console.log('✅ Popular blogs loaded:', blogs.length);
+        return blogs;
+    } catch (error) {
+        console.error('Error getting popular blogs:', error);
+        return [];
+    }
+}
+
+// ...existing code...
 
 }
 
