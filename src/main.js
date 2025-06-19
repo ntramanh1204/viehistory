@@ -9,6 +9,7 @@ import { FeedManager } from './components/FeedManager.js';
 import { ThemeManager } from './components/ThemeManager.js';
 import { NavigationManager } from './components/NavigationManager.js';
 import { PostDetailManager } from './components/PostDetailManager.js';
+import { ShareManager } from './components/ShareManager.js';
 
 let postDetailManager;
 
@@ -27,6 +28,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const compose = new ComposeManager();
     const feed = new FeedManager();
     const theme = new ThemeManager();
+    const shareManager = new ShareManager();
 
     // Start app
     navigation.init();
@@ -35,6 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     compose.init();
     feed.init();
     theme.init();
+    shareManager.init();
 
     // Initialize routing
     window.addEventListener('hashchange', handleRouting);

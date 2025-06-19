@@ -928,3 +928,112 @@
 .read-more-link:hover {
     text-decoration: underline;
 }
+
+/* ...existing code... */
+
+/* Share Modal Styles */
+.share-modal .modal-content {
+    max-width: 400px;
+    padding: var(--spacing-lg);
+}
+
+.share-options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin: var(--spacing-md) 0;
+}
+
+.share-option {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    background: var(--bg-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.share-option:hover {
+    background: var(--bg-secondary);
+    border-color: var(--primary-color);
+}
+
+.share-option svg {
+    color: var(--text-secondary);
+}
+
+.share-url {
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--border-soft);
+}
+
+.share-url h4 {
+    margin-bottom: var(--spacing-sm);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.share-url-input {
+    width: 100%;
+    padding: var(--spacing-sm);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    background: var(--bg-secondary);
+    font-size: 0.85rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.share-url-copy {
+    width: 100%;
+    padding: var(--spacing-sm);
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.share-url-copy:hover {
+    background: var(--primary-hover);
+}
+
+/* Share Toast */
+.share-toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: var(--success-color);
+    color: white;
+    border-radius: var(--radius-sm);
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    animation: slideUp 0.3s ease;
+}
+
+.share-toast.error {
+    background: var(--error-color);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Share button animation */
+.share-btn.shared {
+    background: var(--success-color) !important;
+    color: white !important;
+    transform: scale(1.05);
+}
