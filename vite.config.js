@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite'
+import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 export default defineConfig({
   base: './',
-  assetsInclude: ['**/*.html'],
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
@@ -12,6 +12,17 @@ export default defineConfig({
       }
     }
   },
+  plugins: [
+    viteStaticCopy({
+      targets: [
+        {
+          src: 'src/templates/**/*.html',
+          dest: 'src/templates'
+        }
+        // Bỏ target src/components nếu không có file html ở đó
+      ]
+    })
+  ],
   server: {
     port: 3000
   }
