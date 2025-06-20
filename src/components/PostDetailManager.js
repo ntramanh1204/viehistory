@@ -118,7 +118,7 @@ export class PostDetailManager {
     setupEventListeners() {
         // Back button
         document.getElementById('back-to-feed')?.addEventListener('click', () => {
-            window.location.hash = '#/';
+            navigate('/');
         });
 
         // Comment submit

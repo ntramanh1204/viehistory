@@ -36,6 +36,33 @@ export class NavigationManager {
         });
     }
 
+    // ✅ THÊM METHOD BỊ THIẾU
+    navigateToPage(page) {
+        console.log(`Navigating to page: ${page}`);
+        
+        // Map pages to paths
+        const pageToPath = {
+            'home': '/',
+            'blog': '/blog',
+            'store': '/store',
+            'cart': '/cart',
+            'profile': '/profile'
+        };
+
+        const path = pageToPath[page] || '/';
+        
+        // Use the global navigate function
+        if (typeof navigate === 'function') {
+            navigate(path);
+        } else {
+            // Fallback
+            window.history.pushState({}, '', path);
+            window.dispatchEvent(new PopStateEvent('popstate'));
+        }
+        
+        this.setActivePage(page);
+    }
+
     updateAuthUI() {
         console.log('updateAuthUI called but not implemented yet');
         // Update navigation based on auth state
@@ -64,7 +91,8 @@ export class NavigationManager {
         const titles = {
             'home': 'Threads',
             'blog': 'Blog',
-            'shop': 'Shop',
+            'store': 'Store',
+            'cart': 'Cart',
             'profile': 'Profile'
         };
         return titles[page] || 'VieHistory';
@@ -72,27 +100,8 @@ export class NavigationManager {
 
     async loadComponents() {
         try {
-            // Load sidebar
-            const sidebarResponse = await fetch('/src/components/Sidebar.html');
-            const sidebarHTML = await sidebarResponse.text();
-
-            // Load header
-            const headerResponse = await fetch('/src/components/Header.html');
-            const headerHTML = await headerResponse.text();
-
-            // Insert components into DOM
-            const appLayout = document.querySelector('.app-layout');
-            if (appLayout) {
-                appLayout.insertAdjacentHTML('afterbegin', sidebarHTML);
-
-                const mainContent = appLayout.querySelector('.main-content');
-                if (mainContent) {
-                    mainContent.insertAdjacentHTML('afterbegin', headerHTML);
-                }
-            }
-
-            // Cache DOM elements after insertion
-            this.navItems = document.querySelectorAll('.nav-item');
+            // Cache DOM elements after template is loaded
+            this.navItems = document.querySelectorAll('.nav-item, .mobile-nav-item');
             this.pageContents = document.querySelectorAll('.page-content');
             this.pageTitle = document.querySelector('.page-title');
             this.mobileMenuBtn = document.getElementById('mobile-menu-btn');
@@ -105,6 +114,4 @@ export class NavigationManager {
             console.error('❌ Error loading components:', error);
         }
     }
-
-    // ... rest of methods remain the same
 }

@@ -18,35 +18,33 @@ export class ShareManager {
         });
     }
 
-    async handleShare(e) {
+async handleShare(e) {
         e.preventDefault();
-        const button = e.target.closest('.share-btn');
-        const postId = button.dataset.postId;
+        e.stopPropagation();
 
-        if (!postId) {
-            console.error('No post ID found for share');
-            return;
-        }
+        const shareButton = e.target.closest('.share-btn');
+        if (!shareButton) return;
+
+        const postId = shareButton.dataset.postId;
+        if (!postId) return;
 
         try {
-            // Tạo URL cho post
-            const postUrl = `${window.location.origin}/#/post/${postId}`;
+            // ✅ SỬA: Tạo URL không có hash
+            const postUrl = `${window.location.origin}/post/${postId}`;
             
-            // Kiểm tra Web Share API support
             if (navigator.share) {
                 await this.nativeShare(postUrl, postId);
             } else {
                 await this.fallbackShare(postUrl, postId);
             }
-
-            // Increment share count
-            await this.incrementShareCount(postId, button);
-
         } catch (error) {
-            console.error('Error sharing post:', error);
-            // Fallback to copy URL
-            await this.copyToClipboard(`${window.location.origin}/#/post/${postId}`);
+            console.error('Error sharing:', error);
+            // ✅ SỬA: Fallback URL không có hash
+            await this.copyToClipboard(`${window.location.origin}/post/${postId}`);
+            this.showToast('Link đã được sao chép!', 'success');
         }
+
+        await this.incrementShareCount(postId, shareButton);
     }
 
     async nativeShare(postUrl, postId) {

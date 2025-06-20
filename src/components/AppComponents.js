@@ -7,6 +7,8 @@ class AppSidebar extends HTMLElement {
 
             // Wait for DOM to settle before updating
             setTimeout(() => {
+                this.initializeNavigation();
+                
                 // Listen for auth state changes AFTER template is loaded
                 document.addEventListener('authStateChanged', (e) => {
                     this.updateUserInfo(e.detail);
@@ -25,64 +27,42 @@ class AppSidebar extends HTMLElement {
         }
     }
 
- updateUserInfo(authData) {
-    console.log('🔄 Updating sidebar user info...', authData);
-
-    // Use correct IDs from template
-    const userAvatar = this.querySelector('#user-avatar-text');
-    const userName = this.querySelector('#user-name');
-    const userStatus = this.querySelector('#user-status');
-    
-    // THÊM SYNC VỚI HEADER
-    const headerAvatarText = document.getElementById('user-avatar-header-text');
-
-    console.log('📧 Found elements:', {
-        userAvatar: !!userAvatar,
-        userName: !!userName,
-        userStatus: !!userStatus,
-        headerAvatarText: !!headerAvatarText
-    });
-
-    if (authData?.isSignedIn) {
-        const initial = authData.displayName?.charAt(0)?.toUpperCase() || 'U';
-        const name = authData.displayName || 'User';
-
-        // Update sidebar
-        if (userAvatar) {
-            userAvatar.textContent = initial;
-            console.log('✅ Updated sidebar avatar:', initial);
-        }
+    initializeNavigation() {
+        const navItems = this.querySelectorAll('.nav-item');
         
-        // Update header - ĐỒNG BỘ
-        if (headerAvatarText) {
-            headerAvatarText.textContent = initial;
-            console.log('✅ Updated header avatar:', initial);
-        }
-        
-        if (userName) {
-            userName.textContent = name;
-            userName.style.color = 'var(--text-primary)';
-            userName.style.fontWeight = '600';
-            console.log('✅ Updated user name:', name);
-        }
-        if (userStatus) {
-            userStatus.textContent = 'Đã đăng nhập';
-            userStatus.style.color = 'var(--text-secondary)';
-            console.log('✅ Updated user status');
-        }
-    } else {
-        if (userAvatar) userAvatar.textContent = 'A';
-        if (headerAvatarText) headerAvatarText.textContent = 'A'; // ĐỒNG BỘ
-        if (userName) {
-            userName.textContent = 'Anonymous';
-            userName.style.color = 'var(--text-primary)';
-        }
-        if (userStatus) {
-            userStatus.textContent = 'Chưa đăng nhập';
-            userStatus.style.color = 'var(--text-secondary)';
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Remove active from all nav items
+                navItems.forEach(navItem => navItem.classList.remove('active'));
+                
+                // Add active to clicked item
+                item.classList.add('active');
+                
+                // Get the href and navigate
+                const href = item.getAttribute('href');
+                if (href && typeof window.navigate === 'function') {
+                    window.navigate(href);
+                }
+            });
+        });
+    }
+
+    updateUserInfo(userInfo) {
+        const userElement = this.querySelector('.sidebar-user');
+        if (userElement && userInfo) {
+            userElement.innerHTML = `
+                <div class="user-avatar">
+                    <img src="${userInfo.photoURL}" alt="${userInfo.displayName}">
+                </div>
+                <div class="user-info">
+                    <div class="user-name">${userInfo.displayName}</div>
+                    <div class="user-email">${userInfo.email}</div>
+                </div>
+            `;
         }
     }
-}
 }
 
 class AppHeader extends HTMLElement {
@@ -112,7 +92,6 @@ class AppHeader extends HTMLElement {
 
         if (signinBtn) {
             signinBtn.addEventListener('click', () => {
-                // Handle signin button click
                 const authModal = document.getElementById('auth-modal');
                 authModal?.classList.remove('hidden');
             });
@@ -154,12 +133,15 @@ class AppMobileBottomNav extends HTMLElement {
                 // Add active to clicked item
                 item.classList.add('active');
 
+                // Get the href and navigate
+                const href = item.getAttribute('href');
+                if (href && typeof window.navigate === 'function') {
+                    window.navigate(href);
+                }
+
                 // Also sync with desktop sidebar
                 const page = item.dataset.page;
                 this.setActivePage(page);
-
-                // Navigate to page
-                window.navigationManager?.navigateToPage(page);
             });
         });
     }

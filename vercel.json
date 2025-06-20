@@ -5,15 +5,14 @@
   "trailingSlash": false,
   "rewrites": [
     { "source": "/", "destination": "/index.html" },
-    { "source": "/blog", "destination": "/blog.html" },
-    { "source": "/forum", "destination": "/forum.html" },
-    { "source": "/login", "destination": "/login.html" }
+    { "source": "/blog", "destination": "/index.html" },
+    { "source": "/blog/create", "destination": "/index.html" },
+    { "source": "/blog/editor", "destination": "/index.html" },
+    { "source": "/blog/(.*)", "destination": "/index.html" },
+    { "source": "/post/(.*)", "destination": "/index.html" }
   ],
   "redirects": [
-    { "source": "/index.html", "destination": "/", "permanent": true },
-    { "source": "/blog.html", "destination": "/blog", "permanent": true },
-    { "source": "/forum.html", "destination": "/forum", "permanent": true },
-    { "source": "/login.html", "destination": "/login", "permanent": true }
+    { "source": "/index.html", "destination": "/", "permanent": true }
   ],
   "headers": [
     {

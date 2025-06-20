@@ -6,38 +6,38 @@ export default class BlogDetailManager {
         this.blog = null;
         this.container = document.getElementById('blog-detail-container');
     }
-    
+
     async loadBlog(blogId) {
         try {
             // Hiển thị loading
             this.renderLoading();
-            
+
             // Lấy dữ liệu bài viết
             const blog = await dbService.getBlogById(blogId);
             this.blog = blog;
-            
+
             // Render bài viết
             this.renderBlog(blog);
-            
+
         } catch (error) {
             console.error('Error loading blog:', error);
             this.renderError('Không thể tải bài viết hoặc bài viết không tồn tại');
         }
     }
-    
+
     renderLoading() {
         if (!this.container) return;
-        
+
         this.container.innerHTML = `
             <div class="blog-detail-page">
                 <div class="loading-spinner">Đang tải...</div>
             </div>
         `;
     }
-    
+
     renderError(message) {
         if (!this.container) return;
-        
+
         this.container.innerHTML = `
             <div class="blog-detail-page">
                 <div class="blog-detail-header">
@@ -48,35 +48,35 @@ export default class BlogDetailManager {
                 <div class="error-message">${message}</div>
             </div>
         `;
-        
+
         // Thêm sự kiện cho nút quay lại
         document.getElementById('back-to-blog-btn')?.addEventListener('click', () => {
-            window.location.hash = '#/blog';
+             navigate('/blog');
         });
     }
-    
-     renderBlog(blog) {
+
+    renderBlog(blog) {
         if (!this.container) return;
-        
+
         // Format nội dung
         const content = this.formatContent(blog.content);
-        
+
         // Format ngày
-        const date = blog.createdAt instanceof Date 
-            ? blog.createdAt 
+        const date = blog.createdAt instanceof Date
+            ? blog.createdAt
             : new Date(blog.createdAt.seconds ? blog.createdAt.seconds * 1000 : blog.createdAt);
-            
+
         const formattedDate = date.toLocaleDateString('vi-VN', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric'
         });
-        
+
         // Sử dụng Cloudinary để tối ưu ảnh cover
-        const coverImage = blog.thumbnail 
+        const coverImage = blog.thumbnail
             ? cloudinaryService.getBlogCover(blog.thumbnail)
             : '/assets/default-blog-cover.jpg';
-        
+
         this.container.innerHTML = `
             <div class="blog-detail-page">
                 <div class="blog-detail-header">
@@ -107,23 +107,23 @@ export default class BlogDetailManager {
                 </article>
             </div>
         `;
-        
+
         // Thêm sự kiện cho nút quay lại
         document.getElementById('back-to-blog-btn')?.addEventListener('click', () => {
-            window.location.hash = '#/blog';
+            navigate('/blog');
         });
     }
-    
+
     formatContent(content) {
         if (!content) return '';
-        
+
         // Xử lý các đoạn văn bản thành các đoạn html
         const paragraphs = content
             .split('\n\n')
             .filter(p => p.trim())
             .map(p => `<p>${p.trim()}</p>`)
             .join('');
-            
+
         return paragraphs;
     }
 }

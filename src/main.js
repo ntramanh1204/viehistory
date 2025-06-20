@@ -40,39 +40,55 @@ document.addEventListener('DOMContentLoaded', async () => {
     shareManager.init();
 
     // Initialize routing
-    window.addEventListener('hashchange', handleRouting);
+     window.addEventListener('popstate', handleRouting);
     window.addEventListener('load', handleRouting);
+
+    // Export navigate function to global scope
+    window.navigate = navigate;
 
     console.log('✅ VieHistory loaded with full auth and nav');
 });
 
-// ...existing code...
-
-// Thay đổi hàm handleRouting thành:
 async function handleRouting() {
-    const hash = window.location.hash;
-
- if (hash === '#/blog/create' || hash === '#/blog/editor') {
+    const path = window.location.pathname;
+    const search = window.location.search;
+    
+    if (path === '/blog/create' || path === '/blog/editor') {
         await showBlogEditor();
     }
-    else if (hash.startsWith('#/blog/') && hash !== '#/blog') {
-        const blogId = hash.split('/')[2];
+    else if (path.startsWith('/blog/') && path !== '/blog') {
+        const blogId = path.split('/')[2];
         if (blogId && blogId !== 'create' && blogId !== 'editor') {
             await showBlogDetail(blogId);
         }
     }
-    else if (hash === '#/blog' || hash.startsWith('#/blog?')) {
+    else if (path === '/blog') {
         await showBlogPage();
     }
-    else if (hash.startsWith('#/post/')) {
-        const postId = hash.split('/')[2];
+    else if (path.startsWith('/post/')) {
+        const postId = path.split('/')[2];
         if (postId) {
             await showPostDetail(postId);
         }
     }
-    else {
+    else if (path === '/' || path === '') {
         showHomePage();
     }
+    else {
+        show404();
+    }
+}
+
+// ✅ Helper function để navigate
+function navigate(path) {
+    window.history.pushState({}, '', path);
+    handleRouting();
+}
+
+// Parse query parameters
+function parseQuery(queryString) {
+    const params = new URLSearchParams(queryString);
+    return Object.fromEntries(params.entries());
 }
 
 async function showBlogPage() {

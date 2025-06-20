@@ -14,10 +14,10 @@ export class BlogEditorManager {
 
     async init() {
         // Kiểm tra đăng nhập
-        const user = authService.getCurrentUser();
+        const user = authService.currentUser;
         if (!user) {
             alert('Bạn cần đăng nhập để tạo bài viết');
-            window.location.hash = '#/';
+            navigate('/');
             return;
         }
 
@@ -37,7 +37,7 @@ export class BlogEditorManager {
         // Header buttons
         document.getElementById('editor-cancel-btn')?.addEventListener('click', () => {
             if (confirm('Bạn có chắc muốn hủy? Mọi thay đổi sẽ bị mất.')) {
-                window.location.hash = '#/blog';
+                navigate('/blog');
             }
         });
 
@@ -325,7 +325,7 @@ export class BlogEditorManager {
             this.setLoading(true);
 
             const formData = this.getFormData();
-            const user = authService.getCurrentUser();
+            const user = authService.currentUser;
 
             if (this.currentBlogId) {
                 // Update existing blog
@@ -339,13 +339,13 @@ export class BlogEditorManager {
             }
 
             // Redirect after short delay
-            setTimeout(() => {
-                if (this.isDraft) {
-                    window.location.hash = '#/blog';
-                } else {
-                    window.location.hash = `#/blog/${this.currentBlogId}`;
-                }
-            }, 1500);
+             setTimeout(() => {
+            if (this.isDraft) {
+                navigate('/blog'); //
+            } else {
+                navigate(`/blog/${this.currentBlogId}`);
+            }
+        }, 1500);
 
         } catch (error) {
             console.error('❌ Save blog error:', error);

@@ -120,7 +120,7 @@ export class FeedManager {
                 
                 <div class="post-content">
                     <p>${this.formatContent(post.content)}</p>
-                    <a href="#/post/${post.id}" class="read-more-link">Xem chi tiết</a>
+                     <a href="/post/${post.id}" class="read-more-link">Xem chi tiết</a>
                 </div>
                 
                 <div class="post-actions">

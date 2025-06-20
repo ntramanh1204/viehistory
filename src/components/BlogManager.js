@@ -24,7 +24,7 @@ export class BlogManager {
 
         // Set up event listeners
         this.setupEventListeners();
-        
+
         // Load content
         await Promise.all([
             this.loadFeaturedArticle(),
@@ -72,19 +72,19 @@ export class BlogManager {
     async loadArticles() {
         try {
             this.setLoading(true);
-            
+
             const result = await dbService.getBlogs({
                 category: this.currentCategory === 'all' ? null : this.currentCategory,
                 searchQuery: this.searchQuery,
                 limit: this.perPage,
                 lastVisible: null
             });
-            
+
             this.blogs = result.blogs;
             this.lastVisible = result.lastVisible;
-            
+
             this.renderArticles(this.blogs);
-            
+
             // Toggle load more button visibility
             if (this.loadMoreBtn) {
                 this.loadMoreBtn.style.display = result.blogs.length < this.perPage ? 'none' : 'block';
@@ -96,59 +96,59 @@ export class BlogManager {
             this.setLoading(false);
         }
     }
-    
-async loadMoreArticles() {
-    // Kiểm tra nếu không có lastVisible (hết bài viết) hoặc đang tải
-    if (!this.lastVisible || this.isLoading) return;
-    
-    try {
-        // Bắt đầu trạng thái loading
-        this.setLoading(true);
-        
-        // Gọi API để lấy thêm bài viết
-        const result = await dbService.getBlogs({
-            category: this.currentCategory === 'all' ? null : this.currentCategory,
-            searchQuery: this.searchQuery,
-            limit: this.perPage,
-            lastVisible: this.lastVisible
-        });
-        
-        // Thêm bài viết mới vào danh sách hiện có
-        this.blogs = [...this.blogs, ...result.blogs];
-        
-        // Cập nhật vị trí cuối cùng cho lần tải tiếp theo
-        this.lastVisible = result.lastVisible;
-        
-        // Hiển thị các bài viết mới (không thay thế, chỉ thêm vào)
-        this.renderMoreArticles(result.blogs);
-        
-        // Ẩn nút "Xem thêm" nếu không còn bài viết nào
-        if (this.loadMoreBtn) {
-            this.loadMoreBtn.style.display = result.blogs.length < this.perPage ? 'none' : 'block';
-        }
-    } catch (error) {
-        console.error('Error loading more articles:', error);
-        this.showError('Không thể tải thêm bài viết');
-    } finally {
-        // Kết thúc trạng thái loading dù thành công hay thất bại
-        this.setLoading(false);
-    }
-}
 
-// Thêm phương thức mới để chỉ render các bài viết mới mà không xóa các bài cũ
-renderMoreArticles(articles) {
-    if (!this.articlesGrid) return;
-    
-    if (articles.length === 0) {
-        return;
+    async loadMoreArticles() {
+        // Kiểm tra nếu không có lastVisible (hết bài viết) hoặc đang tải
+        if (!this.lastVisible || this.isLoading) return;
+
+        try {
+            // Bắt đầu trạng thái loading
+            this.setLoading(true);
+
+            // Gọi API để lấy thêm bài viết
+            const result = await dbService.getBlogs({
+                category: this.currentCategory === 'all' ? null : this.currentCategory,
+                searchQuery: this.searchQuery,
+                limit: this.perPage,
+                lastVisible: this.lastVisible
+            });
+
+            // Thêm bài viết mới vào danh sách hiện có
+            this.blogs = [...this.blogs, ...result.blogs];
+
+            // Cập nhật vị trí cuối cùng cho lần tải tiếp theo
+            this.lastVisible = result.lastVisible;
+
+            // Hiển thị các bài viết mới (không thay thế, chỉ thêm vào)
+            this.renderMoreArticles(result.blogs);
+
+            // Ẩn nút "Xem thêm" nếu không còn bài viết nào
+            if (this.loadMoreBtn) {
+                this.loadMoreBtn.style.display = result.blogs.length < this.perPage ? 'none' : 'block';
+            }
+        } catch (error) {
+            console.error('Error loading more articles:', error);
+            this.showError('Không thể tải thêm bài viết');
+        } finally {
+            // Kết thúc trạng thái loading dù thành công hay thất bại
+            this.setLoading(false);
+        }
     }
-    
-    // Tạo HTML cho mỗi bài viết mới
-    const articlesHTML = articles.map(article => this.createArticleCard(article)).join('');
-    
-    // Thêm vào cuối grid hiện tại (không thay thế)
-    this.articlesGrid.insertAdjacentHTML('beforeend', articlesHTML);
-}
+
+    // Thêm phương thức mới để chỉ render các bài viết mới mà không xóa các bài cũ
+    renderMoreArticles(articles) {
+        if (!this.articlesGrid) return;
+
+        if (articles.length === 0) {
+            return;
+        }
+
+        // Tạo HTML cho mỗi bài viết mới
+        const articlesHTML = articles.map(article => this.createArticleCard(article)).join('');
+
+        // Thêm vào cuối grid hiện tại (không thay thế)
+        this.articlesGrid.insertAdjacentHTML('beforeend', articlesHTML);
+    }
 
     async loadPopularArticles() {
         try {
@@ -160,16 +160,16 @@ renderMoreArticles(articles) {
         }
     }
 
-renderFeaturedArticle(article) {
+    renderFeaturedArticle(article) {
         if (!this.featuredArticleEl) return;
-        
+
         const truncatedContent = this.truncateText(article.content, 200);
-        
+
         // Sử dụng Cloudinary để tối ưu ảnh featured
-        const featuredImage = article.thumbnail 
+        const featuredImage = article.thumbnail
             ? cloudinaryService.getFeaturedImage(article.thumbnail)
             : '/assets/default-blog-cover.jpg';
-        
+
         this.featuredArticleEl.innerHTML = `
             <div class="featured-article-card">
                 <img src="${featuredImage}" 
@@ -181,7 +181,7 @@ renderFeaturedArticle(article) {
                     <p class="featured-article-excerpt">${truncatedContent}</p>
                     <div class="featured-article-meta">
                         <span>${this.formatDate(article.createdAt)}</span>
-                        <a href="#/blog/${article.id}" class="read-more-btn">Đọc tiếp</a>
+                        <a href="/blog/${article.id}" class="read-more-btn">Đọc tiếp</a>
                     </div>
                 </div>
             </div>
@@ -190,7 +190,7 @@ renderFeaturedArticle(article) {
 
     renderArticles(articles) {
         if (!this.articlesGrid) return;
-        
+
         if (articles.length === 0) {
             this.articlesGrid.innerHTML = `
                 <div class="empty-state">
@@ -199,33 +199,33 @@ renderFeaturedArticle(article) {
             `;
             return;
         }
-        
+
         // Nếu đang reset và load lại, thay thế nội dung
         if (articles === this.blogs) {
             this.articlesGrid.innerHTML = '';
         }
-        
+
         // Tạo HTML cho mỗi bài viết
         const articlesHTML = articles.map(article => this.createArticleCard(article)).join('');
-        
+
         // Thêm vào grid
         this.articlesGrid.innerHTML += articlesHTML;
     }
 
-renderPopularArticles(articles) {
+    renderPopularArticles(articles) {
         if (!this.popularArticles) return;
-        
+
         if (articles.length === 0) {
             this.popularArticles.innerHTML = `<p>Chưa có bài viết phổ biến</p>`;
             return;
         }
-        
+
         const html = articles.map(article => {
             // Sử dụng Cloudinary để tối ưu thumbnail cho popular articles
-            const thumbnail = article.thumbnail 
+            const thumbnail = article.thumbnail
                 ? cloudinaryService.getPopularThumbnail(article.thumbnail)
                 : '/assets/default-thumb.jpg';
-                
+
             return `
                 <div class="popular-article" data-id="${article.id}">
                     <img src="${thumbnail}" 
@@ -239,14 +239,14 @@ renderPopularArticles(articles) {
                 </div>
             `;
         }).join('');
-        
+
         this.popularArticles.innerHTML = html;
-        
+
         // Thêm event listener cho mỗi bài viết phổ biến
         document.querySelectorAll('.popular-article').forEach(el => {
             el.addEventListener('click', () => {
                 const id = el.dataset.id;
-                window.location.hash = `#/blog/${id}`;
+                navigate(`/blog/${id}`);
             });
         });
     }
@@ -254,12 +254,12 @@ renderPopularArticles(articles) {
     createArticleCard(article) {
         const title = article.title || this.truncateText(article.content, 80);
         const excerpt = this.truncateText(article.content, 120);
-        
+
         // Sử dụng Cloudinary để tối ưu thumbnail
-        const thumbnail = article.thumbnail 
+        const thumbnail = article.thumbnail
             ? cloudinaryService.getBlogThumbnail(article.thumbnail)
             : '/assets/default-thumb.jpg';
-        
+
         return `
             <div class="blog-article-card">
                 <img src="${thumbnail}" 
@@ -271,7 +271,7 @@ renderPopularArticles(articles) {
                     <p class="article-excerpt">${excerpt}</p>
                     <div class="article-meta">
                         <span>${this.formatDate(article.createdAt)}</span>
-                        <a href="#/blog/${article.id}" class="read-more-btn">Đọc tiếp</a>
+                        <a href="/blog/${article.id}" class="read-more-btn">Đọc tiếp</a>
                     </div>
                 </div>
             </div>
@@ -286,7 +286,7 @@ renderPopularArticles(articles) {
 
     setLoading(isLoading) {
         this.isLoading = isLoading;
-        
+
         if (this.loadMoreBtn) {
             this.loadMoreBtn.disabled = isLoading;
             this.loadMoreBtn.innerText = isLoading ? 'Đang tải...' : 'Xem thêm';
@@ -306,18 +306,18 @@ renderPopularArticles(articles) {
     // Tiện ích
     truncateText(text, maxLength) {
         if (!text) return '';
-        return text.length > maxLength 
-            ? text.substring(0, maxLength).trim() + '...' 
+        return text.length > maxLength
+            ? text.substring(0, maxLength).trim() + '...'
             : text;
     }
 
     formatDate(timestamp) {
         if (!timestamp) return '';
-        
-        const date = timestamp instanceof Date 
-            ? timestamp 
+
+        const date = timestamp instanceof Date
+            ? timestamp
             : new Date(timestamp.seconds ? timestamp.seconds * 1000 : timestamp);
-            
+
         return date.toLocaleDateString('vi-VN', {
             day: '2-digit',
             month: '2-digit',
@@ -327,7 +327,7 @@ renderPopularArticles(articles) {
 
     throttle(func, delay) {
         let lastCall = 0;
-        return function(...args) {
+        return function (...args) {
             const now = new Date().getTime();
             if (now - lastCall < delay) {
                 return;
