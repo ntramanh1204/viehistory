@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 export default defineConfig({
-  base: './',
+  base: '/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
@@ -18,12 +18,26 @@ export default defineConfig({
         {
           src: 'src/templates/**/*.html',
           dest: 'src/templates'
+        },
+        {
+          src: 'src/page/**/*.html', 
+          dest: 'src/page'
+        },
+        {
+          src: 'public/assets/**/*',
+          dest: 'assets'
         }
-        // Bỏ target src/components nếu không có file html ở đó
       ]
     })
   ],
   server: {
-    port: 3000
+    port: 3000,
+    historyApiFallback: {
+      rewrites: [
+        { from: /^\/blog/, to: '/index.html' },
+        { from: /^\/post/, to: '/index.html' },
+        { from: /.*/, to: '/index.html' }
+      ]
+    }
   }
 })
