@@ -221,17 +221,42 @@ async function showPostDetail(postId) {
 }
 
 function showHomePage() {
-    // Show main feed
+    console.log('Showing home page');
+    
+    // Ẩn TẤT CẢ containers khác
+    hideAllContainers();
+    
+    // CHỈ hiển thị app-container (trang chủ)
     const appContainer = document.querySelector('.app-container');
     if (appContainer) {
         appContainer.style.display = 'block';
     }
+    
+    // Update navigation active state
+    document.querySelectorAll('.nav-item, .mobile-nav-item').forEach(item => {
+        if (item.dataset.page === 'home') {
+            item.classList.add('active');
+        } else {
+            item.classList.remove('active');
+        }
+    });
+}
 
-    // Hide post detail
-    const postDetailContainer = document.getElementById('post-detail-container');
-    if (postDetailContainer) {
-        postDetailContainer.style.display = 'none';
-    }
+function hideAllContainers() {
+    const containers = [
+        '.app-container',
+        '#post-detail-container', 
+        '#blog-detail-container',
+        '#blog-page-container',
+        '#blog-editor-container'
+    ];
+    
+    containers.forEach(selector => {
+        const element = document.querySelector(selector);
+        if (element) {
+            element.style.display = 'none';
+        }
+    });
 }
 
 async function createPostDetailContainer() {
@@ -256,21 +281,4 @@ async function createPostDetailContainer() {
 function show404() {
     console.error('Post not found');
     window.location.hash = '#/';
-}
-
-function hideAllContainers() {
-    const containers = [
-        '.app-container',
-        '#post-detail-container',
-        '#blog-detail-container',
-        '#blog-page-container',
-        '#blog-editor-container'
-    ];
-    
-    containers.forEach(selector => {
-        const element = document.querySelector(selector);
-        if (element) {
-            element.style.display = 'none';
-        }
-    });
 }
