@@ -12,25 +12,56 @@ export class BlogEditorManager {
         this.isPreviewMode = false;
     }
 
-    async init() {
-        // Kiểm tra đăng nhập
-        const user = authService.currentUser;
-        if (!user) {
-            alert('Bạn cần đăng nhập để tạo bài viết');
-            navigate('/');
-            return;
-        }
+async init() {
+        // ✅ SỬA: Kiểm tra auth state một cách chính xác hơn
+        try {
+            // Đợi auth service ready
+            await new Promise(resolve => {
+                if (authService.isReady) {
+                    resolve();
+                } else {
+                    // Lắng nghe auth state change
+                    const unsubscribe = authService.onAuthStateChanged((user) => {
+                        unsubscribe(); // Cleanup listener
+                        resolve();
+                    });
+                }
+            });
 
-        // Setup event listeners
-        this.setupEventListeners();
-        
-        // Setup drag & drop
-        this.setupDragDrop();
-        
-        // Setup word counter
-        this.setupWordCounter();
-        
-        console.log('✅ Blog Editor initialized');
+            const user = authService.getCurrentUser(); // Sử dụng getCurrentUser() thay vì currentUser
+            
+            if (!user) {
+                console.warn('User not authenticated for blog editor');
+                // Hiển thị modal auth thay vì alert
+                const event = new CustomEvent('showAuthModal', {
+                    detail: {
+                        message: 'Đăng nhập để tạo bài viết'
+                    }
+                });
+                document.dispatchEvent(event);
+                
+                // Redirect về blog page thay vì home
+                setTimeout(() => {
+                    navigate('/blog');
+                }, 1000);
+                return;
+            }
+
+            // Setup event listeners
+            this.setupEventListeners();
+            
+            // Setup drag & drop
+            this.setupDragDrop();
+            
+            // Setup word counter
+            this.setupWordCounter();
+            
+            console.log('✅ Blog Editor initialized for user:', user.displayName);
+            
+        } catch (error) {
+            console.error('Error initializing blog editor:', error);
+            navigate('/blog');
+        }
     }
 
     setupEventListeners() {

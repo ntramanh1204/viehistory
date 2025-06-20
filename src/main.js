@@ -30,9 +30,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const theme = new ThemeManager();
     const shareManager = new ShareManager();
 
+    // ✅ Đảm bảo auth được init trước
+    await auth.init();
+
     // Start app
     navigation.init();
-    auth.init();
     onboarding.init();
     compose.init();
     feed.init();

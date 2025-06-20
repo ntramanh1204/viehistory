@@ -201,6 +201,22 @@ export class AuthService {
         return this.currentUser;
     }
 
+        /**
+     * Check if auth service is ready
+     */
+    isAuthReady() {
+        return this.isReady;
+    }
+
+    // ✅ THÊM method để listen auth state changes
+    onAuthStateChanged(callback) {
+        return onAuthStateChanged(auth, (user) => {
+            this.currentUser = user;
+            this.isReady = true;
+            callback(user);
+        });
+    }
+
     /**
      * Check if user is signed in
      */
