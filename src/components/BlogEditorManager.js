@@ -12,7 +12,7 @@ export class BlogEditorManager {
         this.isPreviewMode = false;
     }
 
-async init() {
+    async init() {
         // ✅ SỬA: Kiểm tra auth state một cách chính xác hơn
         try {
             // Đợi auth service ready
@@ -29,7 +29,7 @@ async init() {
             });
 
             const user = authService.getCurrentUser(); // Sử dụng getCurrentUser() thay vì currentUser
-            
+
             if (!user) {
                 console.warn('User not authenticated for blog editor');
                 // Hiển thị modal auth thay vì alert
@@ -39,7 +39,7 @@ async init() {
                     }
                 });
                 document.dispatchEvent(event);
-                
+
                 // Redirect về blog page thay vì home
                 setTimeout(() => {
                     navigate('/blog');
@@ -49,15 +49,15 @@ async init() {
 
             // Setup event listeners
             this.setupEventListeners();
-            
+
             // Setup drag & drop
             this.setupDragDrop();
-            
+
             // Setup word counter
             this.setupWordCounter();
-            
+
             console.log('✅ Blog Editor initialized for user:', user.displayName);
-            
+
         } catch (error) {
             console.error('Error initializing blog editor:', error);
             navigate('/blog');
@@ -134,7 +134,7 @@ async init() {
         uploadArea.addEventListener('drop', (e) => {
             e.preventDefault();
             uploadArea.classList.remove('dragover');
-            
+
             const files = e.dataTransfer.files;
             if (files && files[0] && files[0].type.startsWith('image/')) {
                 this.handleImageSelect(files[0]);
@@ -145,14 +145,14 @@ async init() {
     setupWordCounter() {
         const textarea = document.getElementById('blog-content');
         const counter = document.getElementById('word-count');
-        
+
         if (!textarea || !counter) return;
 
         textarea.addEventListener('input', () => {
             const text = textarea.value.trim();
             const wordCount = text ? text.split(/\s+/).length : 0;
             counter.textContent = `${wordCount} từ`;
-            
+
             // Change color based on word count
             if (wordCount < 100) {
                 counter.style.color = 'var(--error)';
@@ -174,7 +174,7 @@ async init() {
 
             // Upload to Cloudinary
             const imageUrl = await cloudinaryService.uploadImage(file, 'thumbnails');
-            
+
             // Update UI
             this.thumbnailUrl = imageUrl;
             this.showImagePreview(imageUrl);
@@ -370,13 +370,13 @@ async init() {
             }
 
             // Redirect after short delay
-             setTimeout(() => {
-            if (this.isDraft) {
-                navigate('/blog'); //
-            } else {
-                navigate(`/blog/${this.currentBlogId}`);
-            }
-        }, 1500);
+            setTimeout(() => {
+                if (this.isDraft) {
+                    navigate('/blog'); //
+                } else {
+                    navigate(`/blog/${this.currentBlogId}`);
+                }
+            }, 1500);
 
         } catch (error) {
             console.error('❌ Save blog error:', error);

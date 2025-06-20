@@ -2,15 +2,53 @@ export class NavigationManager {
     constructor() {
         this.currentPage = 'home';
         this.isInitialized = false;
+        this.navItems = null;
+        this.pageContents = null;
+        this.pageTitle = null;
+        this.mobileMenuBtn = null;
+        this.sidebar = null;
+        this.sidebarUser = null;
     }
 
     async init() {
-        await this.loadComponents();
-        this.setupEventListeners();
-        this.updateAuthUI();
-        this.setActivePage('home');
+        try {
+            console.log('🔧 Initializing NavigationManager...');
 
-        console.log('✅ NavigationManager initialized');
+            // Wait for components to be ready
+            await new Promise(resolve => {
+                if (document.querySelector('.nav-item') && document.querySelector('.mobile-nav-item')) {
+                    resolve();
+                } else {
+                    // Wait for components to load
+                    const checkInterval = setInterval(() => {
+                        if (document.querySelector('.nav-item') && document.querySelector('.mobile-nav-item')) {
+                            clearInterval(checkInterval);
+                            resolve();
+                        }
+                    }, 100);
+
+                    // Timeout after 3 seconds
+                    setTimeout(() => {
+                        clearInterval(checkInterval);
+                        resolve();
+                    }, 3000);
+                }
+            });
+
+            await this.loadComponents();
+            this.setupEventListeners();
+            this.updateAuthUI();
+
+            // Set initial active state
+            setTimeout(() => {
+                this.updateActiveStateFromURL();
+            }, 100);
+
+            this.isInitialized = true;
+            console.log('✅ NavigationManager initialized');
+        } catch (error) {
+            console.error('❌ Error initializing NavigationManager:', error);
+        }
     }
 
     setupEventListeners() {
@@ -39,7 +77,7 @@ export class NavigationManager {
     // ✅ THÊM METHOD BỊ THIẾU
     navigateToPage(page) {
         console.log(`Navigating to page: ${page}`);
-        
+
         // Map pages to paths
         const pageToPath = {
             'home': '/',
@@ -50,7 +88,7 @@ export class NavigationManager {
         };
 
         const path = pageToPath[page] || '/';
-        
+
         // Use the global navigate function
         if (typeof navigate === 'function') {
             navigate(path);
@@ -59,7 +97,7 @@ export class NavigationManager {
             window.history.pushState({}, '', path);
             window.dispatchEvent(new PopStateEvent('popstate'));
         }
-        
+
         this.setActivePage(page);
     }
 
@@ -72,10 +110,22 @@ export class NavigationManager {
     setActivePage(page) {
         this.currentPage = page;
 
-        // Update active state for all nav items
+        // ✅ SỬA: Thêm debug và ensure elements exist
+        console.log(`Setting active page to: ${page}`);
+
+        // Re-query elements nếu cần
+        if (!this.navItems || this.navItems.length === 0) {
+            this.navItems = document.querySelectorAll('.nav-item, .mobile-nav-item');
+            console.log('Re-queried nav items:', this.navItems.length);
+        }
+
         this.navItems?.forEach(item => {
-            if (item.dataset.page === page) {
+            const itemPage = item.dataset.page;
+            console.log(`Item: ${itemPage}, Target: ${page}`);
+
+            if (itemPage === page) {
                 item.classList.add('active');
+                console.log(`✅ Added active to ${itemPage}`);
             } else {
                 item.classList.remove('active');
             }
@@ -85,6 +135,34 @@ export class NavigationManager {
         if (this.pageTitle) {
             this.pageTitle.textContent = this.getPageTitle(page);
         }
+    }
+
+    updateActiveStateFromURL() {
+        if (!this.isInitialized) {
+            console.warn('⚠️ NavigationManager not initialized yet');
+            return;
+        }
+
+        const currentPath = window.location.pathname;
+        let activePage = 'home';
+
+        if (currentPath === '/' || currentPath === '') {
+            activePage = 'home';
+        } else if (currentPath.startsWith('/blog')) {
+            activePage = 'blog';
+        } else if (currentPath.startsWith('/store')) {
+            activePage = 'store';
+        } else if (currentPath.startsWith('/cart')) {
+            activePage = 'cart';
+        } else if (currentPath.startsWith('/profile')) {
+            activePage = 'profile';
+        }
+
+        console.log('🎯 Current path:', currentPath);
+        console.log('🎯 Determined active page:', activePage);
+        console.log('🎯 Nav items found:', this.navItems?.length);
+
+        this.setActivePage(activePage);
     }
 
     getPageTitle(page) {

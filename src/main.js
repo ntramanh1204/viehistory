@@ -30,23 +30,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     const theme = new ThemeManager();
     const shareManager = new ShareManager();
 
+    // ✅ THÊM: Export navigation to global scope TRƯỚC KHI init
+    window.navigation = navigation;
+
     // ✅ Đảm bảo auth được init trước
     await auth.init();
 
-    // Start app
-    navigation.init();
+    // Sau đó mới init các component khác
+    await navigation.init(); // ✅ SỬA: Đợi navigation init xong
+
     onboarding.init();
     compose.init();
     feed.init();
     theme.init();
     shareManager.init();
 
-    // Initialize routing
-     window.addEventListener('popstate', handleRouting);
+    // Initialize routing AFTER navigation is ready
+    window.addEventListener('popstate', handleRouting);
     window.addEventListener('load', handleRouting);
 
     // Export navigate function to global scope
     window.navigate = navigate;
+
+    // ✅ THÊM: Initial routing sau khi tất cả đã init
+    setTimeout(() => {
+        handleRouting();
+    }, 300);
 
     console.log('✅ VieHistory loaded with full auth and nav');
 });
@@ -54,7 +63,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function handleRouting() {
     const path = window.location.pathname;
     const search = window.location.search;
-    
+
+    console.log('🔄 Routing to:', path);
+
     if (path === '/blog/create' || path === '/blog/editor') {
         await showBlogEditor();
     }
@@ -79,6 +90,41 @@ async function handleRouting() {
     else {
         show404();
     }
+
+    // ✅ SỬA: Kiểm tra navigation có tồn tại và có method không
+    setTimeout(() => {
+        if (window.navigation && typeof window.navigation.updateActiveStateFromURL === 'function') {
+            console.log('📍 Updating navigation active state');
+            window.navigation.updateActiveStateFromURL();
+        } else {
+            console.warn('⚠️ Navigation not ready or method missing');
+
+            // ✅ FALLBACK: Cập nhật trực tiếp
+            const currentPath = window.location.pathname;
+            let activePage = 'home';
+
+            if (currentPath === '/' || currentPath === '') {
+                activePage = 'home';
+            } else if (currentPath.startsWith('/blog')) {
+                activePage = 'blog';
+            } else if (currentPath.startsWith('/store')) {
+                activePage = 'store';
+            } else if (currentPath.startsWith('/cart')) {
+                activePage = 'cart';
+            } else if (currentPath.startsWith('/profile')) {
+                activePage = 'profile';
+            }
+
+            // Cập nhật trực tiếp DOM
+            document.querySelectorAll('.nav-item, .mobile-nav-item').forEach(item => {
+                if (item.dataset.page === activePage) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+    }, 200);
 }
 
 // ✅ Helper function để navigate
@@ -97,7 +143,7 @@ async function showBlogPage() {
     try {
         // Ẩn TẤT CẢ các container khác
         hideAllContainers();
-        
+
         // Hiển thị trang blog
         let blogContainer = document.getElementById('blog-page-container');
 
@@ -172,14 +218,14 @@ async function showBlogEditor() {
     try {
         // Ẩn TẤT CẢ các container khác
         hideAllContainers();
-        
+
         // Show blog editor
         let editorContainer = document.getElementById('blog-editor-container');
-        
+
         if (!editorContainer) {
             editorContainer = document.createElement('div');
             editorContainer.id = 'blog-editor-container';
-            
+
             // Load template
             try {
                 const response = await fetch('/src/page/BlogEditor.html');
@@ -191,14 +237,14 @@ async function showBlogEditor() {
                 editorContainer.innerHTML = '<div class="error">Không thể tải trang soạn thảo</div>';
             }
         }
-        
+
         editorContainer.style.display = 'block';
-        
+
         // Initialize BlogEditorManager
         const { BlogEditorManager } = await import('./components/BlogEditorManager.js');
         const editorManager = new BlogEditorManager();
         await editorManager.init();
-        
+
     } catch (error) {
         console.error('Error showing blog editor:', error);
     }
@@ -224,16 +270,16 @@ async function showPostDetail(postId) {
 
 function showHomePage() {
     console.log('Showing home page');
-    
+
     // Ẩn TẤT CẢ containers khác
     hideAllContainers();
-    
+
     // CHỈ hiển thị app-container (trang chủ)
     const appContainer = document.querySelector('.app-container');
     if (appContainer) {
         appContainer.style.display = 'block';
     }
-    
+
     // Update navigation active state
     document.querySelectorAll('.nav-item, .mobile-nav-item').forEach(item => {
         if (item.dataset.page === 'home') {
@@ -247,12 +293,12 @@ function showHomePage() {
 function hideAllContainers() {
     const containers = [
         '.app-container',
-        '#post-detail-container', 
+        '#post-detail-container',
         '#blog-detail-container',
         '#blog-page-container',
         '#blog-editor-container'
     ];
-    
+
     containers.forEach(selector => {
         const element = document.querySelector(selector);
         if (element) {

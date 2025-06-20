@@ -1,5 +1,5 @@
-import { 
-    signInAnonymously, 
+import {
+    signInAnonymously,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     signOut,
@@ -14,7 +14,7 @@ export class AuthService {
         this.currentUser = null;
         this.authStateListeners = [];
         this.isInitialized = false;
-        
+
         this.init();
     }
 
@@ -23,12 +23,12 @@ export class AuthService {
         onAuthStateChanged(auth, (user) => {
             this.currentUser = user;
             this.isInitialized = true;
-            
+
             // Notify all listeners
             this.authStateListeners.forEach(callback => {
                 callback(user);
             });
-            
+
             console.log('🔐 Auth state changed:', user ? 'Signed in' : 'Signed out');
         });
     }
@@ -38,12 +38,12 @@ export class AuthService {
      */
     onAuthStateChange(callback) {
         this.authStateListeners.push(callback);
-        
+
         // If already initialized, call immediately
         if (this.isInitialized) {
             callback(this.currentUser);
         }
-        
+
         // Return unsubscribe function
         return () => {
             const index = this.authStateListeners.indexOf(callback);
@@ -60,13 +60,13 @@ export class AuthService {
         try {
             const result = await signInAnonymously(auth);
             const user = result.user;
-            
+
             // Create user document if doesn't exist
             await this.createUserDocument(user, {
                 isAnonymous: true,
                 displayName: 'Người dùng ẩn danh'
             });
-            
+
             console.log('✅ Signed in anonymously');
             return user;
         } catch (error) {
@@ -85,7 +85,7 @@ export class AuthService {
             return result.user;
         } catch (error) {
             console.error('❌ Email sign in failed:', error);
-            
+
             switch (error.code) {
                 case 'auth/user-not-found':
                     throw new Error('Không tìm thấy tài khoản với email này.');
@@ -108,24 +108,24 @@ export class AuthService {
         try {
             const result = await createUserWithEmailAndPassword(auth, email, password);
             const user = result.user;
-            
+
             // Update profile
             await updateProfile(user, {
                 displayName: displayName
             });
-            
+
             // Create user document
             await this.createUserDocument(user, {
                 displayName: displayName,
                 email: email,
                 isAnonymous: false
             });
-            
+
             console.log('✅ Account created successfully');
             return user;
         } catch (error) {
             console.error('❌ Account creation failed:', error);
-            
+
             switch (error.code) {
                 case 'auth/email-already-in-use':
                     throw new Error('Email này đã được sử dụng.');
@@ -157,10 +157,10 @@ export class AuthService {
      */
     async createUserDocument(user, additionalData = {}) {
         if (!user) return;
-        
+
         const userRef = doc(db, 'users', user.uid);
         const userDoc = await getDoc(userRef);
-        
+
         if (!userDoc.exists()) {
             // Create new user document
             const userData = {
@@ -183,7 +183,7 @@ export class AuthService {
                 lastLoginAt: serverTimestamp(),
                 ...additionalData
             };
-            
+
             await setDoc(userRef, userData);
             console.log('✅ User document created');
         } else {
@@ -201,9 +201,9 @@ export class AuthService {
         return this.currentUser;
     }
 
-        /**
-     * Check if auth service is ready
-     */
+    /**
+ * Check if auth service is ready
+ */
     isAuthReady() {
         return this.isReady;
     }
@@ -243,9 +243,9 @@ export class AuthService {
             };
         }
 
-        const displayName = this.currentUser.displayName || 
+        const displayName = this.currentUser.displayName ||
             (this.currentUser.isAnonymous ? 'Ẩn danh' : 'User');
-        
+
         const avatar = displayName.charAt(0).toUpperCase();
 
         return {
