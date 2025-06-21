@@ -1,5 +1,6 @@
 import { dbService } from '../services/DatabaseService.js';
 import { authService } from '../services/AuthService.js';
+import { AvatarService } from '../services/AvatarService.js';
 
 export class FeedManager {
     constructor() {
@@ -100,64 +101,167 @@ export class FeedManager {
         this.attachPostEventListeners();
     }
 
-createPostHTML(post) {
-    const timeAgo = this.getTimeAgo(post.createdAt);
-    const avatar = post.author.photoURL ?
-        `<img src="${post.author.photoURL}" alt="${post.author.displayName}">` :
-        `<span class="avatar-text">${post.author.displayName.charAt(0).toUpperCase()}</span>`;
+    createPostHTML(post) {
+        const timeAgo = this.getTimeAgo(post.createdAt);
 
-    // ✅ THÊM: Render media nhưng không làm hỏng cấu trúc cũ
-    const mediaHTML = this.createMediaHTML(post.media || []);
+        // ✅ SỬA: Sử dụng AvatarService để hiển thị avatar nhất quán
+        const avatar = AvatarService.shouldUseAvataaars(post.author) ?
+            `<img src="${AvatarService.getUserAvatar(post.author, 40)}" alt="${post.author.displayName}" class="author-avatar-img">` :
+            `<span class="author-avatar-text">${post.author.displayName.charAt(0).toUpperCase()}</span>`;
 
-    return `
-        <article class="post-item" data-post-id="${post.id}">
-            <header class="post-header">
-                <div class="post-author">
-                    <div class="author-avatar">${avatar}</div>
-                    <div class="author-info">
-                        <span class="author-name">${post.author.displayName}</span>
-                        <span class="post-time">${timeAgo}</span>
+        // ✅ THÊM: Format content tốt hơn
+        const formattedContent = this.formatPostContent(post.content);
+
+        // ✅ THÊM: Render media với preview tốt hơn
+        const mediaHTML = this.createEnhancedMediaHTML(post.media || []);
+
+        // ✅ THÊM: Hashtag rendering
+        const hashtagsHTML = this.createHashtagsHTML(post.hashtags || []);
+
+        return `
+            <article class="post-item" data-post-id="${post.id}">
+                <header class="post-header">
+                    <div class="post-author">
+                        <div class="author-avatar">${avatar}</div>
+                        <div class="author-info">
+                            <span class="author-name">${post.author.displayName}</span>
+                            <span class="post-time">${timeAgo}</span>
+                            ${post.author.isVerified ? '<span class="verified-badge">✓</span>' : ''}
+                        </div>
+                    </div>
+                    ${post.topic ? `<span class="post-topic">${post.topic}</span>` : ''}
+                    <div class="post-menu">
+                        <button class="post-menu-btn" data-post-id="${post.id}">⋯</button>
+                    </div>
+                </header>
+                
+                <div class="post-content">
+                    <div class="post-text">${formattedContent}</div>
+                    ${mediaHTML}
+                    ${hashtagsHTML}
+                </div>
+                
+                <footer class="post-actions">
+                    <button class="action-btn like-btn ${post.isLiked ? 'liked' : ''}" data-post-id="${post.id}">
+                        <i class="${post.isLiked ? 'fas fa-heart' : 'far fa-heart'}"></i>
+                        <span class="action-count">${this.formatCount(post.stats.likes || 0)}</span>
+                    </button>
+                    
+                    <button class="action-btn comment-btn" data-post-id="${post.id}">
+                        <i class="far fa-comment"></i>
+                        <span class="action-count">${this.formatCount(post.stats.comments || 0)}</span>
+                    </button>
+                    
+                    <button class="action-btn share-btn" data-post-id="${post.id}">
+                        <i class="fas fa-share"></i>
+                        <span class="action-count">${this.formatCount(post.stats.shares || 0)}</span>
+                    </button>
+
+                    <button class="action-btn bookmark-btn" data-post-id="${post.id}">
+                        <i class="far fa-bookmark"></i>
+                    </button>
+
+                    <a href="/post/${post.id}" class="read-more-btn">Chi tiết</a>
+                </footer>
+
+                <div class="comments-section hidden" data-post-id="${post.id}">
+                    <div class="comment-form">
+                        <div class="comment-avatar">
+                            ${authService.isSignedIn() ?
+                AvatarService.shouldUseAvataaars(authService.getCurrentUser()) ?
+                    `<img src="${AvatarService.getUserAvatar(authService.getCurrentUser(), 32)}" alt="Your avatar">` :
+                    `<span class="comment-avatar-text">A</span>` :
+                `<span class="comment-avatar-text">A</span>`
+            }
+                        </div>
+                        <div class="comment-input-container">
+                            <textarea class="comment-input" placeholder="Viết bình luận..." data-post-id="${post.id}"></textarea>
+                            <button class="comment-submit" data-post-id="${post.id}">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="comments-list" data-post-id="${post.id}">
+                        <div class="comments-loading hidden">Đang tải bình luận...</div>
                     </div>
                 </div>
-                ${post.topic ? `<span class="post-topic">${post.topic}</span>` : ''}
-            </header>
-            
-            <div class="post-content">
-                <p class="post-body-text">${this.formatContent(post.content)}</p>
-                ${mediaHTML}
-                <a href="/post/${post.id}" class="read-more-link">Xem chi tiết</a>
-            </div>
-            
-            <div class="post-actions">
-                <button class="action-btn like-btn" data-post-id="${post.id}" data-liked="false">
-                    <i class="far fa-heart"></i>
-                    <span class="action-count">${post.stats.likes || 0}</span>
-                </button>
-                
-                <button class="action-btn comment-btn" data-post-id="${post.id}">
-                    <i class="far fa-comment"></i>
-                    <span class="action-count">${post.stats.comments || 0}</span>
-                </button>
-                
-                <button class="action-btn share-btn" data-post-id="${post.id}">
-                    <i class="fas fa-share"></i>
-                    <span class="action-text">Chia sẻ</span>
-                </button>
-            </div>
+            </article>
+        `;
+    }
 
-            <div class="comments-section hidden" data-post-id="${post.id}">
-                <div class="comment-form">
-                    <textarea class="comment-input" placeholder="Viết bình luận..." data-post-id="${post.id}"></textarea>
-                    <button class="comment-submit" data-post-id="${post.id}">
-                        <i class="fas fa-paper-plane"></i>
-                        Gửi
-                    </button>
-                </div>
-                <div class="comments-list"></div>
+    // ✅ THÊM: Format content với link detection
+    formatPostContent(content) {
+        if (!content) return '';
+
+        // Convert URLs to links
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        let formatted = content.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+
+        // Convert mentions to links (if you have user profiles)
+        const mentionRegex = /@(\w+)/g;
+        formatted = formatted.replace(mentionRegex, '<span class="mention">@$1</span>');
+
+        // Convert line breaks
+        formatted = formatted.replace(/\n/g, '<br>');
+
+        return formatted;
+    }
+
+    // ✅ THÊM: Enhanced media rendering
+    createEnhancedMediaHTML(media) {
+        if (!media || media.length === 0) return '';
+
+        const mediaItems = media.map((item, index) => {
+            if (item.type === 'image') {
+                return `
+                    <div class="post-media-item image-item" data-index="${index}">
+                        <img src="${item.url}" alt="${item.originalName || 'Ảnh'}" 
+                             class="post-media-image" loading="lazy"
+                             onclick="this.parentElement.parentElement.parentElement.dispatchEvent(new CustomEvent('openLightbox', {detail: {index: ${index}, media: ${JSON.stringify(media).replace(/"/g, '&quot;')}}))">
+                        ${media.length > 1 ? `<div class="media-counter">${index + 1}/${media.length}</div>` : ''}
+                    </div>
+                `;
+            } else if (item.type === 'video') {
+                return `
+                    <div class="post-media-item video-item" data-index="${index}">
+                        <video controls class="post-media-video" preload="metadata">
+                            <source src="${item.url}" type="video/mp4">
+                            Trình duyệt không hỗ trợ video.
+                        </video>
+                    </div>
+                `;
+            }
+            return '';
+        }).join('');
+
+        const gridClass = media.length === 1 ? 'single' :
+            media.length === 2 ? 'double' :
+                media.length === 3 ? 'triple' : 'quad';
+
+        return `
+            <div class="post-media ${gridClass}" data-media-count="${media.length}">
+                ${mediaItems}
             </div>
-        </article>
-    `;
-}
+        `;
+    }
+
+    // ✅ THÊM: Hashtags rendering
+    createHashtagsHTML(hashtags) {
+        if (!hashtags || hashtags.length === 0) return '';
+
+        const hashtagItems = hashtags.map(tag =>
+            `<a href="/?hashtag=${encodeURIComponent(tag)}" class="hashtag">#${tag}</a>`
+        ).join(' ');
+
+        return `<div class="post-hashtags">${hashtagItems}</div>`;
+    }
+
+    // ✅ THÊM: Format số lượng (1k, 1.2k, etc.)
+    formatCount(count) {
+        if (count < 1000) return count.toString();
+        if (count < 1000000) return (count / 1000).toFixed(1).replace('.0', '') + 'k';
+        return (count / 1000000).toFixed(1).replace('.0', '') + 'm';
+    }
 
     // ✅ THÊM: Create media HTML
     createMediaHTML(media) {
@@ -218,8 +322,210 @@ createPostHTML(post) {
         document.querySelectorAll('.comment-submit').forEach(btn => {
             btn.addEventListener('click', (e) => this.handleCommentSubmit(e));
         });
+
+        if (!this.feedContainer) return;
+
+        // ✅ SỬA: Sử dụng event delegation tốt hơn
+        this.feedContainer.addEventListener('click', this.handlePostInteraction.bind(this));
+        this.feedContainer.addEventListener('openLightbox', this.handleLightbox.bind(this));
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', this.handleKeyboardShortcuts.bind(this));
     }
 
+    // ✅ THÊM: Centralized post interaction handler
+    async handlePostInteraction(e) {
+        const target = e.target.closest('button, a');
+        if (!target) return;
+
+        // Like button
+        if (target.classList.contains('like-btn')) {
+            e.preventDefault();
+            await this.handleLike(e);
+            return;
+        }
+
+        // Comment button
+        if (target.classList.contains('comment-btn')) {
+            e.preventDefault();
+            this.toggleComments(e);
+            return;
+        }
+
+        // Share button
+        if (target.classList.contains('share-btn')) {
+            e.preventDefault();
+            await this.handleShare(e);
+            return;
+        }
+
+        // Comment submit
+        if (target.classList.contains('comment-submit')) {
+            e.preventDefault();
+            await this.handleCommentSubmit(e);
+            return;
+        }
+
+        // Bookmark button
+        if (target.classList.contains('bookmark-btn')) {
+            e.preventDefault();
+            await this.handleBookmark(e);
+            return;
+        }
+
+        // Post menu
+        if (target.classList.contains('post-menu-btn')) {
+            e.preventDefault();
+            this.showPostMenu(e);
+            return;
+        }
+
+        // Read more (allow default navigation)
+        if (target.classList.contains('read-more-btn')) {
+            // Let it navigate normally
+            return;
+        }
+    }
+
+    // ✅ THÊM: Lightbox for media
+    handleLightbox(e) {
+        const { index, media } = e.detail;
+        this.openLightbox(media, index);
+    }
+
+    // ✅ THÊM: Keyboard shortcuts
+    handleKeyboardShortcuts(e) {
+        // ESC to close lightbox
+        if (e.key === 'Escape') {
+            this.closeLightbox();
+        }
+        
+        // L to like focused post
+        if (e.key === 'l' && !e.target.matches('input, textarea')) {
+            const focusedPost = document.querySelector('.post-item:focus-within, .post-item:hover');
+            if (focusedPost) {
+                const likeBtn = focusedPost.querySelector('.like-btn');
+                likeBtn?.click();
+            }
+        }
+    }
+
+    // ✅ THÊM: Share handler
+    async handleShare(e) {
+        const button = e.target.closest('.share-btn');
+        const postId = button.dataset.postId;
+        
+        // Use ShareManager if available
+        if (window.shareManager) {
+            await window.shareManager.handleShare(e);
+        } else {
+            // Fallback
+            const postUrl = `${window.location.origin}/post/${postId}`;
+            await navigator.clipboard.writeText(postUrl);
+            this.showToast('Đã sao chép link!');
+        }
+    }
+
+    // ✅ THÊM: Bookmark handler
+    async handleBookmark(e) {
+        const button = e.target.closest('.bookmark-btn');
+        const postId = button.dataset.postId;
+        const user = authService.getCurrentUser();
+        
+        if (!user) {
+            const event = new CustomEvent('showAuthModal', {
+                detail: { message: 'Đăng nhập để lưu bài viết' }
+            });
+            document.dispatchEvent(event);
+            return;
+        }
+
+        try {
+            // Toggle bookmark (implement in DatabaseService)
+            const isBookmarked = button.classList.contains('bookmarked');
+            
+            if (isBookmarked) {
+                // Remove bookmark
+                button.classList.remove('bookmarked');
+                button.querySelector('i').className = 'far fa-bookmark';
+            } else {
+                // Add bookmark
+                button.classList.add('bookmarked');
+                button.querySelector('i').className = 'fas fa-bookmark';
+            }
+            
+            this.showToast(isBookmarked ? 'Đã bỏ lưu' : 'Đã lưu bài viết');
+            
+        } catch (error) {
+            console.error('Error toggling bookmark:', error);
+            this.showToast('Có lỗi xảy ra', 'error');
+        }
+    }
+
+    // ✅ THÊM: Post menu
+    showPostMenu(e) {
+        const button = e.target.closest('.post-menu-btn');
+        const postId = button.dataset.postId;
+        const user = authService.getCurrentUser();
+        
+        // Create context menu
+        const menu = document.createElement('div');
+        menu.className = 'post-context-menu';
+        menu.innerHTML = `
+            <button class="menu-item" data-action="copy-link">📋 Sao chép link</button>
+            <button class="menu-item" data-action="report">🚩 Báo cáo</button>
+            ${user ? `<button class="menu-item" data-action="hide">👁️ Ẩn bài viết</button>` : ''}
+        `;
+        
+        // Position menu
+        const rect = button.getBoundingClientRect();
+        menu.style.position = 'fixed';
+        menu.style.top = rect.bottom + 'px';
+        menu.style.right = (window.innerWidth - rect.right) + 'px';
+        menu.style.zIndex = '1000';
+        
+        document.body.appendChild(menu);
+        
+        // Handle menu actions
+        menu.addEventListener('click', async (e) => {
+            const action = e.target.dataset.action;
+            
+            switch (action) {
+                case 'copy-link':
+                    await navigator.clipboard.writeText(`${window.location.origin}/post/${postId}`);
+                    this.showToast('Đã sao chép link!');
+                    break;
+                case 'report':
+                    this.showReportDialog(postId);
+                    break;
+                case 'hide':
+                    this.hidePost(postId);
+                    break;
+            }
+            
+            menu.remove();
+        });
+        
+        // Close menu when clicking outside
+        setTimeout(() => {
+            document.addEventListener('click', () => menu.remove(), { once: true });
+        }, 0);
+    }
+
+    // ✅ THÊM: Toast notification
+    showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => toast.classList.add('show'), 100);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
 
     async handleLike(e) {
         const button = e.currentTarget;
