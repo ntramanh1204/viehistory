@@ -18,6 +18,9 @@ export class ComposeManager {
         this.mediaPreview = document.getElementById('media-preview');
         this.selectedMedia = [];
 
+        this.emojiBtn = document.getElementById('emoji-picker-btn');
+        this.emojiPopup = document.getElementById('emoji-picker-popup');
+
         // State
         this.isSubmitting = false;
         this.extractedHashtags = [];
@@ -109,6 +112,93 @@ export class ComposeManager {
                 this.removeMedia(index);
             }
         });
+
+        // ✅ Emoji picker logic
+        this.emojiBtn?.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.toggleEmojiPicker();
+        });
+
+        // Đóng popup khi click ngoài
+        document.addEventListener('click', (e) => {
+            if (
+                this.emojiPopup &&
+                !this.emojiPopup.contains(e.target) &&
+                e.target !== this.emojiBtn
+            ) {
+                this.hideEmojiPicker();
+            }
+        });
+
+        // Chèn emoji khi click vào emoji
+        this.emojiPopup?.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                const emoji = e.target.textContent;
+                this.insertEmojiAtCursor(emoji);
+                this.hideEmojiPicker();
+            }
+        });
+    }
+
+    // ✅ Hiển thị hoặc ẩn emoji picker
+    toggleEmojiPicker() {
+        if (!this.emojiPopup) return;
+        if (this.emojiPopup.classList.contains('hidden')) {
+            this.showEmojiPicker();
+        } else {
+            this.hideEmojiPicker();
+        }
+    }
+
+    showEmojiPicker() {
+        if (!this.emojiPopup || !this.emojiBtn) return;
+        this.renderEmojiPicker();
+        // Định vị popup gần nút emoji
+        const rect = this.emojiBtn.getBoundingClientRect();
+        this.emojiPopup.style.top = `${rect.bottom + window.scrollY + 6}px`;
+        this.emojiPopup.style.left = `${rect.left + window.scrollX}px`;
+        this.emojiPopup.classList.remove('hidden');
+    }
+
+    hideEmojiPicker() {
+        if (this.emojiPopup) {
+            this.emojiPopup.classList.add('hidden');
+        }
+    }
+
+    // ✅ Render emoji picker (danh sách emoji cơ bản)
+    renderEmojiPicker() {
+        if (!this.emojiPopup) return;
+        const emojis = [
+            "😀","😁","😂","🤣","😃","😄","😅","😆",
+            "😉","😊","😋","😎","😍","😘","🥰","😗",
+            "😙","😚","🙂","🤗","🤩","🤔","🤨","😐",
+            "😑","😶","🙄","😏","😣","😥","😮","🤐",
+            "😯","😪","😫","🥱","😴","😌","😛","😜",
+            "😝","🤤","😒","😓","😔","😕","🙃","🤑",
+            "😲","☹️","🙁","😖","😞","😟","😤","😢",
+            "😭","😦","😧","😨","😩","🤯","😬","😰",
+            "😱","🥵","🥶","😳","🤪","😵","😡","😠",
+            "🤬","😷","🤒","🤕","🤢","🤮","🥴","😇",
+            "🥳","🥺","🤠","🤡","🤥","🤫","🤭","🧐"
+        ];
+        this.emojiPopup.innerHTML = emojis
+            .map(e => `<button type="button">${e}</button>`)
+            .join('');
+    }
+
+    // ✅ Chèn emoji vào vị trí con trỏ trong textarea
+    insertEmojiAtCursor(emoji) {
+        if (!this.textarea) return;
+        const start = this.textarea.selectionStart;
+        const end = this.textarea.selectionEnd;
+        const value = this.textarea.value;
+        this.textarea.value = value.slice(0, start) + emoji + value.slice(end);
+        // Đặt lại con trỏ sau emoji
+        this.textarea.selectionStart = this.textarea.selectionEnd = start + emoji.length;
+        this.textarea.focus();
+        this.updateCharacterCounter?.();
+        this.updateSubmitButtonState?.();
     }
 
     handleTextInput(e) {

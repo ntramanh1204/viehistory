@@ -2328,3 +2328,37 @@
         min-height: 200px;
     }
 }
+
+/* ...existing code... */
+.emoji-picker-popup {
+    position: absolute;
+    z-index: 1000;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    box-shadow: var(--shadow-medium);
+    padding: 8px;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 6px;
+    max-width: 320px;
+    max-height: 220px;
+    overflow-y: auto;
+    font-size: 22px;
+}
+.emoji-picker-popup.hidden {
+    display: none;
+}
+.emoji-picker-popup button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 22px;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background 0.15s;
+}
+.emoji-picker-popup button:hover {
+    background: var(--state-hover);
+}
+/* ...existing code... */

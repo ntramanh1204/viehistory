@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -72,7 +73,8 @@
 
             <div class="auth-switch">
                 <span id="signin-switch">Chưa có tài khoản? <a href="#" id="show-signup">Đăng ký</a></span>
-                <span id="signup-switch" class="hidden">Đã có tài khoản? <a href="#" id="show-signin">Đăng nhập</a></span>
+                <span id="signup-switch" class="hidden">Đã có tài khoản? <a href="#" id="show-signin">Đăng
+                        nhập</a></span>
             </div>
         </div>
     </div>
@@ -103,11 +105,15 @@
 
                 <div class="compose-actions-bar">
                     <div class="compose-actions-left">
-                        <!-- ✅ THÊM: Media Upload Button -->
+                        <!-- Media Upload Button -->
                         <button type="button" id="media-upload-btn" class="compose-action-btn" title="Thêm ảnh/video">
                             <i class="fas fa-image"></i>
                         </button>
-                        
+                        <!-- ✅ Thêm nút emoji -->
+                        <button type="button" id="emoji-picker-btn" class="compose-action-btn" title="Chèn emoji">
+                            <i class="far fa-smile"></i>
+                        </button>
+                        <div id="emoji-picker-popup" class="emoji-picker-popup hidden"></div>
                         <div class="character-counter">
                             <span class="char-count">0/2000</span>
                         </div>
@@ -130,7 +136,8 @@
 
             <div class="empty-state">
                 <svg viewBox="0 0 24 24" width="48" height="48">
-                    <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
+                    <path
+                        d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
                 </svg>
                 <h3>Chưa có bài viết nào</h3>
                 <p>Hãy là người đầu tiên chia sẻ dòng thời gian</p>
@@ -150,4 +157,5 @@
     <!-- Scripts -->
     <script type="module" src="/src/main.js"></script>
 </body>
+
 </html>
