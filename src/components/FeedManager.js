@@ -102,48 +102,52 @@ export class FeedManager {
 
     createPostHTML(post) {
         const timeAgo = this.getTimeAgo(post.createdAt);
-        const avatarUrl = post.author.photoURL ||
-            `https://ui-avatars.com/api/?name=${encodeURIComponent(post.author.displayName)}&background=6366f1&color=fff`;
+        const avatar = post.author.photoURL ?
+            `<img src="${post.author.photoURL}" alt="${post.author.displayName}">` :
+            `<span class="avatar-text">${post.author.displayName.charAt(0).toUpperCase()}</span>`;
 
         return `
             <article class="post-item" data-post-id="${post.id}">
-                <div class="post-header">
+                <header class="post-header">
                     <div class="post-author">
-                        <img src="${avatarUrl}" alt="${post.author.displayName}" class="author-avatar">
+                        <div class="author-avatar">${avatar}</div>
                         <div class="author-info">
-                            <div class="author-name">${post.author.displayName}</div>
-                            <div class="post-time">${timeAgo}</div>
+                            <span class="author-name">${post.author.displayName}</span>
+                            <span class="post-time">${timeAgo}</span>
                         </div>
                     </div>
-                    ${post.topic ? `<span class="post-topic">${this.getTopicIcon(post.topic)} ${post.topic}</span>` : ''}
-                </div>
+                    ${post.topic ? `<span class="post-topic">${post.topic}</span>` : ''}
+                </header>
                 
                 <div class="post-content">
-                    <p>${this.formatContent(post.content)}</p>
-                     <a href="/post/${post.id}" class="read-more-link">Xem chi tiết</a>
+                    <p class="post-body-text">${this.formatContent(post.content)}</p>
+                    <a href="/post/${post.id}" class="read-more-link">Xem chi tiết</a>
                 </div>
                 
                 <div class="post-actions">
                     <button class="action-btn like-btn" data-post-id="${post.id}" data-liked="false">
-                        <span class="action-icon">❤️</span>
+                        <i class="far fa-heart"></i>
                         <span class="action-count">${post.stats.likes || 0}</span>
                     </button>
                     
                     <button class="action-btn comment-btn" data-post-id="${post.id}">
-                        <span class="action-icon">💬</span>
+                        <i class="far fa-comment"></i>
                         <span class="action-count">${post.stats.comments || 0}</span>
                     </button>
                     
                     <button class="action-btn share-btn" data-post-id="${post.id}">
-                        <span class="action-icon">🔗</span>
+                        <i class="fas fa-share"></i>
                         <span class="action-text">Chia sẻ</span>
                     </button>
                 </div>
-                
+
                 <div class="comments-section hidden" data-post-id="${post.id}">
                     <div class="comment-form">
                         <textarea class="comment-input" placeholder="Viết bình luận..." data-post-id="${post.id}"></textarea>
-                        <button class="comment-submit" data-post-id="${post.id}">Gửi</button>
+                        <button class="comment-submit" data-post-id="${post.id}">
+                            <i class="fas fa-paper-plane"></i>
+                            Gửi
+                        </button>
                     </div>
                     <div class="comments-list"></div>
                 </div>
@@ -211,6 +215,41 @@ export class FeedManager {
         } catch (error) {
             console.error('Error toggling like:', error);
             this.showError(error.message);
+        }
+    }
+
+    async toggleLike(postId, button) {
+        try {
+            const isLiked = button.dataset.liked === 'true';
+            const icon = button.querySelector('i');
+            const countElement = button.querySelector('.action-count');
+            
+            if (isLiked) {
+                // Unlike
+                await dbService.unlikePost(postId);
+                button.dataset.liked = 'false';
+                button.classList.remove('liked');
+                icon.className = 'far fa-heart'; // Outline heart
+                
+                // Update count
+                const currentCount = parseInt(countElement.textContent) || 0;
+                countElement.textContent = Math.max(0, currentCount - 1);
+                
+            } else {
+                // Like
+                await dbService.likePost(postId);
+                button.dataset.liked = 'true';
+                button.classList.add('liked');
+                icon.className = 'fas fa-heart'; // Filled heart
+                
+                // Update count
+                const currentCount = parseInt(countElement.textContent) || 0;
+                countElement.textContent = currentCount + 1;
+            }
+            
+        } catch (error) {
+            console.error('Error toggling like:', error);
+            // Revert UI changes if needed
         }
     }
 

@@ -1,0 +1,327 @@
+/* CSS cải thiện cho index.html để đẹp như color-palette-demo */
+
+/* ==================== GENERAL IMPROVEMENTS ==================== */
+
+/* Nền chính tốt hơn */
+body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.app-container {
+    background: transparent;
+    /* Để nền tự nhiên */
+}
+
+/* ==================== COMPOSE AREA - GIỮ NGUYÊN STYLE CŨ ==================== */
+
+.compose-area {
+    /* Giữ nguyên style từ components.css - không override */
+    transition: all 0.2s ease;
+}
+
+.compose-area:hover {
+    /* Chỉ thêm hover effect nhẹ */
+    box-shadow: var(--shadow-medium);
+}
+
+/* User Avatar cải thiện nhẹ */
+.user-avatar {
+    transition: all 0.2s ease;
+}
+
+.user-avatar:hover {
+    transform: scale(1.05);
+}
+
+/* Textarea - chỉ cải thiện focus state */
+.compose-textarea:focus {
+    box-shadow: 0 0 0 2px var(--state-focus);
+    outline: none;
+}
+
+/* Character counter - GIỮ NGUYÊN */
+/* Không override .character-counter và .char-count */
+
+/* Submit button cải thiện */
+.submit-button {
+    background: var(--gradient-primary);
+    color: var(--text-primary);
+    font-weight: 700;
+    border: 2px solid var(--border-primary);
+    box-shadow: var(--shadow-soft);
+    transition: all 0.2s ease;
+}
+
+.submit-button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+    background: var(--accent-primary-hover);
+}
+
+.submit-button:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-soft);
+}
+
+/* ==================== AUTH REQUIRED IMPROVEMENTS ==================== */
+
+.auth-required {
+    background: var(--bg-canvas);
+    border: 2px solid var(--accent-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    margin: var(--spacing-lg);
+    text-align: center;
+    box-shadow: var(--shadow-soft);
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-required::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--gradient-primary);
+}
+
+.auth-required p {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+/* ==================== EMPTY STATE IMPROVEMENTS ==================== */
+
+.empty-state {
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-2xl);
+    margin: var(--spacing-lg);
+    text-align: center;
+    box-shadow: var(--shadow-soft);
+    transition: all 0.2s ease;
+}
+
+.empty-state:hover {
+    box-shadow: var(--shadow-medium);
+    transform: translateY(-2px);
+}
+
+.empty-state svg {
+    color: var(--accent-primary);
+    filter: drop-shadow(0 2px 4px rgba(255, 214, 186, 0.3));
+    margin-bottom: var(--spacing-lg);
+}
+
+.empty-state h3 {
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-md);
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    font-size: var(--font-size-md);
+    margin-bottom: var(--spacing-xl);
+    line-height: 1.6;
+}
+
+/* ==================== FAB IMPROVEMENTS ==================== */
+
+.fab-compose {
+    background: var(--gradient-primary);
+    box-shadow: var(--shadow-strong);
+    border: 2px solid var(--border-primary);
+    transition: all 0.3s ease;
+}
+
+.fab-compose:hover {
+    transform: scale(1.1) translateY(-2px);
+    box-shadow: 0 8px 32px rgba(255, 214, 186, 0.4);
+}
+
+.fab-compose svg {
+    color: var(--text-primary);
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+/* ==================== MODAL IMPROVEMENTS ==================== */
+
+.auth-modal-content {
+    background: var(--bg-canvas);
+    border: 2px solid var(--border-soft);
+    box-shadow: var(--shadow-strong);
+    border-radius: var(--radius-xl);
+}
+
+.auth-header h2 {
+    color: var(--text-primary);
+    font-weight: 800;
+    font-size: var(--font-size-2xl);
+}
+
+.modal-message {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+}
+
+/* Form improvements */
+.form-group label {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+}
+
+.form-group input {
+    background: var(--bg-primary);
+    border: 2px solid var(--border-primary);
+    color: var(--text-primary);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    font-size: var(--font-size-md);
+    transition: all 0.2s ease;
+}
+
+.form-group input:focus {
+    border-color: var(--accent-primary-hover);
+    box-shadow: 0 0 0 3px var(--state-focus);
+    background: var(--bg-canvas);
+}
+
+.auth-submit-btn {
+    background: var(--gradient-primary);
+    color: var(--text-primary);
+    font-weight: 700;
+    border: 2px solid var(--border-primary);
+    padding: 16px 24px;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-md);
+    box-shadow: var(--shadow-soft);
+    transition: all 0.2s ease;
+}
+
+.auth-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+.auth-switch a {
+    color: var(--accent-primary-hover);
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.auth-switch a:hover {
+    color: var(--text-primary);
+}
+
+/* ==================== POST ITEMS IMPROVEMENTS ==================== */
+
+.post-item {
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    margin: 0 var(--spacing-lg) var(--spacing-lg) var(--spacing-lg);
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow-soft);
+    transition: all 0.2s ease;
+}
+
+.post-item:hover {
+    box-shadow: var(--shadow-medium);
+    transform: translateY(-2px);
+    border-color: var(--border-primary);
+}
+
+/* Author avatar trong posts */
+.author-avatar {
+    background: var(--gradient-primary);
+    border: 2px solid var(--border-primary);
+    box-shadow: var(--shadow-soft);
+}
+
+/* Post actions */
+.action-btn {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-full);
+    padding: var(--spacing-sm) var(--spacing-md);
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+    background: var(--state-hover);
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+    transform: translateY(-1px);
+}
+
+/* ==================== RESPONSIVE IMPROVEMENTS ==================== */
+
+@media (max-width: 768px) {
+    .empty-state,
+    .auth-required,
+    .post-item {
+        margin-left: var(--spacing-md);
+        margin-right: var(--spacing-md);
+        padding: var(--spacing-lg);
+    }
+    
+    .submit-button {
+        padding: 12px 20px;
+        font-size: var(--font-size-sm);
+    }
+}
+
+@media (max-width: 480px) {
+    .empty-state {
+        padding: var(--spacing-xl);
+    }
+    
+    .auth-required {
+        padding: var(--spacing-lg);
+    }
+}
+
+/* ==================== DARK THEME SUPPORT ==================== */
+
+.dark-theme .empty-state,
+.dark-theme .auth-required,
+.dark-theme .post-item {
+    background: var(--bg-canvas);
+    border-color: var(--border-primary);
+}
+
+.dark-theme .form-group input {
+    background: var(--bg-primary);
+    border-color: var(--border-primary);
+    color: var(--text-primary);
+}
+
+/* ==================== FOCUS STATES ==================== */
+
+*:focus {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
+}
+
+/* Better button press effects */
+.submit-button:active,
+.auth-submit-btn:active,
+.action-btn:active {
+    transform: scale(0.98);
+}

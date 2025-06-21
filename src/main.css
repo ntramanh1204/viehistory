@@ -1,0 +1,8 @@
+/* Main CSS file - imports all stylesheets */
+
+@import url('./styles/variables.css');
+@import url('./styles/base.css');
+@import url('./styles/layout.css');
+@import url('./styles/components.css');
+@import url('./styles/auth.css');
+@import url('./styles/responsive.css');
