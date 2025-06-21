@@ -9,7 +9,9 @@
     "deploy": "npm run build && npx wrangler deploy"
   },
   "dependencies": {
-    "firebase": "^11.9.1"
+    "firebase": "^11.9.1",
+    "@dicebear/collection": "^7.0.0",
+    "@dicebear/core": "^7.0.0"
   },
   "devDependencies": {
     "vite": "^6.3.5",

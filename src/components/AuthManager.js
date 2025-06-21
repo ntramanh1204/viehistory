@@ -1,4 +1,5 @@
 import { authService } from '../services/AuthService.js';
+import { AvatarService } from '../services/AvatarService.js';
 
 export class AuthManager {
     constructor() {
@@ -96,78 +97,49 @@ export class AuthManager {
         });
     }
 
-    updateUIForAuthState(user) {
+ updateUIForAuthState(user) {
         const composeTextarea = document.getElementById('composeTextarea');
         const postSubmitBtn = document.getElementById('post-submit-btn');
         const authRequired = document.getElementById('auth-required');
         const fabBtn = document.getElementById('fab-compose-btn');
 
-        // TÌM ĐÚNG ELEMENTS TRONG HEADER
         const headerSigninBtn = document.getElementById('header-signin-btn');
         const userMenu = document.getElementById('user-menu');
 
-        console.log('🔍 Debugging header elements:', {
-            headerSigninBtn: !!headerSigninBtn,
-            userMenu: !!userMenu,
-            user: !!user
-        });
-
-        if (user) {
-            // User is signed in
+        if (user && !user.isAnonymous) {
+            // ✅ User đã đăng nhập thật sự - sử dụng Avataaars
             this.hideAuthModal();
 
-            // Update header - SỬA LẠI LOGIC NÀY
             if (headerSigninBtn) {
                 headerSigninBtn.classList.add('hidden');
-                console.log('✅ Hidden signin button');
             }
 
             if (userMenu) {
                 userMenu.classList.remove('hidden');
-                console.log('✅ Shown user menu');
             }
 
-            // Update user info
-const userAvatarImg = document.getElementById('user-avatar-img'); // Xóa dòng này
-        const userAvatarHeaderText = document.getElementById('user-avatar-header-text'); // Thêm dòng này
-        const userDisplayName = document.getElementById('user-display-name');
-        const sidebarUserName = document.getElementById('user-name');
-        const sidebarUserStatus = document.getElementById('user-status');
-        const sidebarAvatar = document.getElementById('user-avatar-text');
-        
-        const userInfo = authService.getUserDisplayInfo();
-        
-        // Update header user info - SỬA LẠI
-        const userInitial = userInfo.displayName?.charAt(0)?.toUpperCase() || 'U';
-        
-        if (userAvatarHeaderText) {
-            userAvatarHeaderText.textContent = userInitial;
-            console.log('✅ Updated header avatar text:', userInitial);
-        }
-        
-        if (userDisplayName) {
-            userDisplayName.textContent = userInfo.displayName;
-            console.log('✅ Updated header user name:', userDisplayName.textContent);
-        }
-        
-        // Update sidebar user info - ĐỒNG BỘ AVATAR
-        if (sidebarUserName) {
-            sidebarUserName.textContent = userInfo.displayName;
-            sidebarUserName.style.setProperty('color', 'var(--text-primary)', 'important');
-            sidebarUserName.style.setProperty('font-weight', '600', 'important');
-            console.log('✅ Updated sidebar user name:', sidebarUserName.textContent);
-        }
+            // ✅ SỬA: Update header avatar giống như compose-area
+            this.updateHeaderAvatar(user);
+            this.updateSidebarAvatar(user);
 
-        if (sidebarUserStatus) {
-            sidebarUserStatus.textContent = 'Đã đăng nhập';
-            sidebarUserStatus.style.setProperty('color', 'var(--text-secondary)', 'important');
-            console.log('✅ Updated sidebar status');
-        }
+            const userDisplayName = document.getElementById('user-display-name');
+            const sidebarUserName = document.getElementById('user-name');
+            const sidebarUserStatus = document.getElementById('user-status');
 
-        if (sidebarAvatar) {
-            sidebarAvatar.textContent = userInitial; // ĐỒNG BỘ CÙNG INITIAL
-            console.log('✅ Updated sidebar avatar:', sidebarAvatar.textContent);
-        }
+            const userInfo = authService.getUserDisplayInfo();
+
+            // Update names
+            if (userDisplayName) {
+                userDisplayName.textContent = userInfo.displayName;
+            }
+
+            if (sidebarUserName) {
+                sidebarUserName.textContent = userInfo.displayName;
+            }
+
+            if (sidebarUserStatus) {
+                sidebarUserStatus.textContent = 'Đã đăng nhập';
+            }
 
             // Enable compose
             if (composeTextarea) {
@@ -179,50 +151,126 @@ const userAvatarImg = document.getElementById('user-avatar-img'); // Xóa dòng 
                 postSubmitBtn.disabled = false;
             }
 
-            // Hide auth required message
             authRequired?.classList.add('hidden');
-
-            // Show FAB
             fabBtn?.classList.remove('hidden');
 
         } else {
-            // User is signed out - SỬA LẠI LOGIC NÀY
+            // ✅ User chưa đăng nhập hoặc anonymous - giữ chữ "A"
             if (headerSigninBtn) {
                 headerSigninBtn.classList.remove('hidden');
-                console.log('✅ Shown signin button');
             }
 
             if (userMenu) {
                 userMenu.classList.add('hidden');
-                console.log('✅ Hidden user menu');
             }
 
-            // Reset sidebar to anonymous
-const userAvatarHeaderText = document.getElementById('user-avatar-header-text');
-        const sidebarUserName = document.getElementById('user-name');
-        const sidebarUserStatus = document.getElementById('user-status');
-        const sidebarAvatar = document.getElementById('user-avatar-text');
+            // ✅ SỬA: Reset header avatar
+            this.resetHeaderAvatar();
+            this.resetSidebarAvatar();
 
-        if (userAvatarHeaderText) userAvatarHeaderText.textContent = 'A';
-        if (sidebarUserName) sidebarUserName.textContent = 'Anonymous';
-        if (sidebarUserStatus) sidebarUserStatus.textContent = 'Chưa đăng nhập';
-        if (sidebarAvatar) sidebarAvatar.textContent = 'A';
-        
+            // Reset other UI elements
+            const sidebarUserName = document.getElementById('user-name');
+            const sidebarUserStatus = document.getElementById('user-status');
 
-            // Allow compose but show different placeholder
+            if (sidebarUserName) {
+                sidebarUserName.textContent = 'Anonymous';
+            }
+
+            if (sidebarUserStatus) {
+                sidebarUserStatus.textContent = 'Chưa đăng nhập';
+            }
+
+            // Disable compose
             if (composeTextarea) {
-                composeTextarea.disabled = false;
-                composeTextarea.placeholder = 'Chia sẻ dòng thời gian của bạn...';
+                composeTextarea.disabled = true;
+                composeTextarea.placeholder = 'Đăng nhập để chia sẻ...';
             }
 
             if (postSubmitBtn) {
-                postSubmitBtn.disabled = false;
-                postSubmitBtn.textContent = 'Đăng dòng';
+                postSubmitBtn.disabled = true;
             }
 
-            authRequired?.classList.add('hidden');
-            fabBtn?.classList.remove('hidden');
+            authRequired?.classList.remove('hidden');
+            fabBtn?.classList.add('hidden');
         }
+    }
+
+    // ✅ THÊM: Method riêng để update header avatar
+    updateHeaderAvatar(user) {
+        const userAvatarHeader = document.getElementById('user-avatar-header');
+        
+        if (!userAvatarHeader) return;
+
+        // Xóa nội dung cũ
+        userAvatarHeader.innerHTML = '';
+
+        if (AvatarService.shouldUseAvataaars(user)) {
+            // ✅ User đã đăng nhập - sử dụng Avataaars
+            const avatarUrl = AvatarService.getUserAvatar(user, 40);
+            const img = document.createElement('img');
+            img.src = avatarUrl;
+            img.alt = 'Avatar';
+            img.className = 'user-avatar-img';
+            userAvatarHeader.appendChild(img);
+        } else {
+            // ✅ User chưa đăng nhập - hiển thị chữ "A"
+            const span = document.createElement('span');
+            span.className = 'user-avatar-text';
+            span.textContent = 'A';
+            userAvatarHeader.appendChild(span);
+        }
+    }
+
+    // ✅ THÊM: Method riêng để update sidebar avatar
+    updateSidebarAvatar(user) {
+        const sidebarAvatarContainer = document.querySelector('.user-avatar-sidebar');
+        
+        if (!sidebarAvatarContainer) return;
+
+        // Xóa nội dung cũ
+        sidebarAvatarContainer.innerHTML = '';
+
+        if (AvatarService.shouldUseAvataaars(user)) {
+            // ✅ User đã đăng nhập - sử dụng Avataaars
+            const avatarUrl = AvatarService.getUserAvatar(user, 50);
+            const img = document.createElement('img');
+            img.src = avatarUrl;
+            img.alt = 'Avatar';
+            img.className = 'user-avatar-img';
+            sidebarAvatarContainer.appendChild(img);
+        } else {
+            // ✅ User chưa đăng nhập - hiển thị chữ "A"
+            const span = document.createElement('span');
+            span.className = 'user-avatar-text';
+            span.textContent = 'A';
+            sidebarAvatarContainer.appendChild(span);
+        }
+    }
+
+    // ✅ THÊM: Method để reset header avatar
+    resetHeaderAvatar() {
+        const userAvatarHeader = document.getElementById('user-avatar-header');
+        
+        if (!userAvatarHeader) return;
+
+        userAvatarHeader.innerHTML = '';
+        const span = document.createElement('span');
+        span.className = 'user-avatar-text';
+        span.textContent = 'A';
+        userAvatarHeader.appendChild(span);
+    }
+
+    // ✅ THÊM: Method để reset sidebar avatar
+    resetSidebarAvatar() {
+        const sidebarAvatarContainer = document.querySelector('.user-avatar-sidebar');
+        
+        if (!sidebarAvatarContainer) return;
+
+        sidebarAvatarContainer.innerHTML = '';
+        const span = document.createElement('span');
+        span.id = 'user-avatar-text';
+        span.textContent = 'A';
+        sidebarAvatarContainer.appendChild(span);
     }
 
     async handleEmailSignIn(e) {

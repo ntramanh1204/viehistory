@@ -1,6 +1,7 @@
 import { authService } from '../services/AuthService.js';
 import { dbService } from '../services/DatabaseService.js';
-import { cloudinaryService } from '../services/CloudinaryService.js'; 
+import { cloudinaryService } from '../services/CloudinaryService.js';
+import { AvatarService } from '../services/AvatarService.js';
 
 export class ComposeManager {
     constructor() {
@@ -170,17 +171,17 @@ export class ComposeManager {
     renderEmojiPicker() {
         if (!this.emojiPopup) return;
         const emojis = [
-            "😀","😁","😂","🤣","😃","😄","😅","😆",
-            "😉","😊","😋","😎","😍","😘","🥰","😗",
-            "😙","😚","🙂","🤗","🤩","🤔","🤨","😐",
-            "😑","😶","🙄","😏","😣","😥","😮","🤐",
-            "😯","😪","😫","🥱","😴","😌","😛","😜",
-            "😝","🤤","😒","😓","😔","😕","🙃","🤑",
-            "😲","☹️","🙁","😖","😞","😟","😤","😢",
-            "😭","😦","😧","😨","😩","🤯","😬","😰",
-            "😱","🥵","🥶","😳","🤪","😵","😡","😠",
-            "🤬","😷","🤒","🤕","🤢","🤮","🥴","😇",
-            "🥳","🥺","🤠","🤡","🤥","🤫","🤭","🧐"
+            "😀", "😁", "😂", "🤣", "😃", "😄", "😅", "😆",
+            "😉", "😊", "😋", "😎", "😍", "😘", "🥰", "😗",
+            "😙", "😚", "🙂", "🤗", "🤩", "🤔", "🤨", "😐",
+            "😑", "😶", "🙄", "😏", "😣", "😥", "😮", "🤐",
+            "😯", "😪", "😫", "🥱", "😴", "😌", "😛", "😜",
+            "😝", "🤤", "😒", "😓", "😔", "😕", "🙃", "🤑",
+            "😲", "☹️", "🙁", "😖", "😞", "😟", "😤", "😢",
+            "😭", "😦", "😧", "😨", "😩", "🤯", "😬", "😰",
+            "😱", "🥵", "🥶", "😳", "🤪", "😵", "😡", "😠",
+            "🤬", "😷", "🤒", "🤕", "🤢", "🤮", "🥴", "😇",
+            "🥳", "🥺", "🤠", "🤡", "🤥", "🤫", "🤭", "🧐"
         ];
         this.emojiPopup.innerHTML = emojis
             .map(e => `<button type="button">${e}</button>`)
@@ -481,19 +482,19 @@ export class ComposeManager {
         }
 
         this.mediaPreview.classList.remove('hidden');
-        
+
         const html = this.selectedMedia.map((media, index) => `
             <div class="media-item" data-index="${index}">
                 <div class="media-thumbnail">
-                    ${media.type === 'image' 
-                        ? `<img src="${media.preview}" alt="Preview">`
-                        : `<div class="video-thumbnail">
+                    ${media.type === 'image'
+                ? `<img src="${media.preview}" alt="Preview">`
+                : `<div class="video-thumbnail">
                             <img src="${media.preview}" alt="Video preview">
                             <div class="video-overlay">
                                 <i class="fas fa-play"></i>
                             </div>
                            </div>`
-                    }
+            }
                     ${media.uploading ? '<div class="upload-progress"></div>' : ''}
                 </div>
                 <button type="button" class="remove-media-btn" data-index="${index}">
@@ -625,15 +626,15 @@ export class ComposeManager {
         }
     }
 
-  // ✅ SỬA: Upload media files to Cloudinary
+    // ✅ SỬA: Upload media files to Cloudinary
     async uploadMediaFiles() {
         if (this.selectedMedia.length === 0) return [];
 
         const mediaUrls = [];
-        
+
         for (let i = 0; i < this.selectedMedia.length; i++) {
             const media = this.selectedMedia[i];
-            
+
             try {
                 // Update UI to show uploading
                 media.uploading = true;
@@ -649,7 +650,7 @@ export class ComposeManager {
                     const folder = 'posts/videos';
                     url = await cloudinaryService.uploadMedia(media.file, folder);
                 }
-                
+
                 mediaUrls.push({
                     type: media.type,
                     url: url,
@@ -706,17 +707,28 @@ export class ComposeManager {
     }
 
     updateUserAvatar() {
-        if (this.userAvatar) {
-            const userInfo = authService.getUserDisplayInfo();
+        const user = authService.currentUser;
+        const userAvatar = document.querySelector('.compose-area .user-avatar');
 
-            if (userInfo.photoURL) {
-                this.userAvatar.style.backgroundImage = `url(${userInfo.photoURL})`;
-                this.userAvatar.style.backgroundSize = 'cover';
-                this.userAvatar.textContent = '';
-            } else {
-                this.userAvatar.style.backgroundImage = 'none';
-                this.userAvatar.textContent = userInfo.avatar;
-            }
+        if (!userAvatar) return;
+
+        // Xóa nội dung cũ
+        userAvatar.innerHTML = '';
+
+        if (AvatarService.shouldUseAvataaars(user)) {
+            // ✅ User đã đăng nhập - sử dụng Avataaars
+            const avatarUrl = AvatarService.getUserAvatar(user, 50);
+            const img = document.createElement('img');
+            img.src = avatarUrl;
+            img.alt = 'Avatar';
+            img.className = 'user-avatar-img';
+            userAvatar.appendChild(img);
+        } else {
+            // ✅ User chưa đăng nhập - giữ chữ "A"
+            const span = document.createElement('span');
+            span.className = 'user-avatar-text';
+            span.textContent = 'A'; // Luôn hiển thị "A" cho anonymous
+            userAvatar.appendChild(span);
         }
     }
 
@@ -812,7 +824,7 @@ export class ComposeManager {
         this.showToast('Vui lòng nhập nội dung bài viết', 'error');
     }
 
-// ✅ SỬA: Update resetForm để reset media
+    // ✅ SỬA: Update resetForm để reset media
     resetForm() {
         this.textarea.value = '';
         this.selectedMedia = [];
@@ -821,7 +833,7 @@ export class ComposeManager {
         this.updateSubmitButtonState();
         this.updateMediaPreview();
         this.hideSuggestions();
-        
+
         if (this.mediaInput) {
             this.mediaInput.value = '';
         }
