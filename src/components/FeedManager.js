@@ -100,58 +100,98 @@ export class FeedManager {
         this.attachPostEventListeners();
     }
 
-    createPostHTML(post) {
-        const timeAgo = this.getTimeAgo(post.createdAt);
-        const avatar = post.author.photoURL ?
-            `<img src="${post.author.photoURL}" alt="${post.author.displayName}">` :
-            `<span class="avatar-text">${post.author.displayName.charAt(0).toUpperCase()}</span>`;
+createPostHTML(post) {
+    const timeAgo = this.getTimeAgo(post.createdAt);
+    const avatar = post.author.photoURL ?
+        `<img src="${post.author.photoURL}" alt="${post.author.displayName}">` :
+        `<span class="avatar-text">${post.author.displayName.charAt(0).toUpperCase()}</span>`;
+
+    // ✅ THÊM: Render media nhưng không làm hỏng cấu trúc cũ
+    const mediaHTML = this.createMediaHTML(post.media || []);
+
+    return `
+        <article class="post-item" data-post-id="${post.id}">
+            <header class="post-header">
+                <div class="post-author">
+                    <div class="author-avatar">${avatar}</div>
+                    <div class="author-info">
+                        <span class="author-name">${post.author.displayName}</span>
+                        <span class="post-time">${timeAgo}</span>
+                    </div>
+                </div>
+                ${post.topic ? `<span class="post-topic">${post.topic}</span>` : ''}
+            </header>
+            
+            <div class="post-content">
+                <p class="post-body-text">${this.formatContent(post.content)}</p>
+                ${mediaHTML}
+                <a href="/post/${post.id}" class="read-more-link">Xem chi tiết</a>
+            </div>
+            
+            <div class="post-actions">
+                <button class="action-btn like-btn" data-post-id="${post.id}" data-liked="false">
+                    <i class="far fa-heart"></i>
+                    <span class="action-count">${post.stats.likes || 0}</span>
+                </button>
+                
+                <button class="action-btn comment-btn" data-post-id="${post.id}">
+                    <i class="far fa-comment"></i>
+                    <span class="action-count">${post.stats.comments || 0}</span>
+                </button>
+                
+                <button class="action-btn share-btn" data-post-id="${post.id}">
+                    <i class="fas fa-share"></i>
+                    <span class="action-text">Chia sẻ</span>
+                </button>
+            </div>
+
+            <div class="comments-section hidden" data-post-id="${post.id}">
+                <div class="comment-form">
+                    <textarea class="comment-input" placeholder="Viết bình luận..." data-post-id="${post.id}"></textarea>
+                    <button class="comment-submit" data-post-id="${post.id}">
+                        <i class="fas fa-paper-plane"></i>
+                        Gửi
+                    </button>
+                </div>
+                <div class="comments-list"></div>
+            </div>
+        </article>
+    `;
+}
+
+    // ✅ THÊM: Create media HTML
+    createMediaHTML(media) {
+        if (!media || media.length === 0) return '';
+
+        const mediaItems = media.map(item => {
+            if (item.type === 'image') {
+                return `
+                    <div class="post-media-item">
+                        <img src="${item.url}" alt="${item.originalName || 'Ảnh'}" 
+                             class="post-media-image" loading="lazy">
+                    </div>
+                `;
+            } else if (item.type === 'video') {
+                return `
+                    <div class="post-media-item">
+                        <video controls class="post-media-video" preload="metadata">
+                            <source src="${item.url}" type="video/mp4">
+                            Trình duyệt không hỗ trợ video.
+                        </video>
+                    </div>
+                `;
+            }
+            return '';
+        }).join('');
+
+        const gridClass = media.length === 1 ? 'single' :
+            media.length === 2 ? 'double' :
+                media.length === 3 ? 'triple' : 'quad';
 
         return `
-            <article class="post-item" data-post-id="${post.id}">
-                <header class="post-header">
-                    <div class="post-author">
-                        <div class="author-avatar">${avatar}</div>
-                        <div class="author-info">
-                            <span class="author-name">${post.author.displayName}</span>
-                            <span class="post-time">${timeAgo}</span>
-                        </div>
-                    </div>
-                    ${post.topic ? `<span class="post-topic">${post.topic}</span>` : ''}
-                </header>
-                
-                <div class="post-content">
-                    <p class="post-body-text">${this.formatContent(post.content)}</p>
-                    <a href="/post/${post.id}" class="read-more-link">Xem chi tiết</a>
-                </div>
-                
-                <div class="post-actions">
-                    <button class="action-btn like-btn" data-post-id="${post.id}" data-liked="false">
-                        <i class="far fa-heart"></i>
-                        <span class="action-count">${post.stats.likes || 0}</span>
-                    </button>
-                    
-                    <button class="action-btn comment-btn" data-post-id="${post.id}">
-                        <i class="far fa-comment"></i>
-                        <span class="action-count">${post.stats.comments || 0}</span>
-                    </button>
-                    
-                    <button class="action-btn share-btn" data-post-id="${post.id}">
-                        <i class="fas fa-share"></i>
-                        <span class="action-text">Chia sẻ</span>
-                    </button>
-                </div>
-
-                <div class="comments-section hidden" data-post-id="${post.id}">
-                    <div class="comment-form">
-                        <textarea class="comment-input" placeholder="Viết bình luận..." data-post-id="${post.id}"></textarea>
-                        <button class="comment-submit" data-post-id="${post.id}">
-                            <i class="fas fa-paper-plane"></i>
-                            Gửi
-                        </button>
-                    </div>
-                    <div class="comments-list"></div>
-                </div>
-            </article>
+            <div class="post-media ${gridClass}">
+                ${mediaItems}
+            </div>
         `;
     }
 
@@ -223,30 +263,30 @@ export class FeedManager {
             const isLiked = button.dataset.liked === 'true';
             const icon = button.querySelector('i');
             const countElement = button.querySelector('.action-count');
-            
+
             if (isLiked) {
                 // Unlike
                 await dbService.unlikePost(postId);
                 button.dataset.liked = 'false';
                 button.classList.remove('liked');
                 icon.className = 'far fa-heart'; // Outline heart
-                
+
                 // Update count
                 const currentCount = parseInt(countElement.textContent) || 0;
                 countElement.textContent = Math.max(0, currentCount - 1);
-                
+
             } else {
                 // Like
                 await dbService.likePost(postId);
                 button.dataset.liked = 'true';
                 button.classList.add('liked');
                 icon.className = 'fas fa-heart'; // Filled heart
-                
+
                 // Update count
                 const currentCount = parseInt(countElement.textContent) || 0;
                 countElement.textContent = currentCount + 1;
             }
-            
+
         } catch (error) {
             console.error('Error toggling like:', error);
             // Revert UI changes if needed

@@ -38,6 +38,7 @@ export class DatabaseService {
             const post = {
                 content: postData.content,
                 topic: postData.topic || null,
+                media: postData.media || [], // ✅ THÊM: Media array
                 author: {
                     uid: user.uid,
                     displayName: user.displayName || 'User',
@@ -53,7 +54,8 @@ export class DatabaseService {
                 metadata: {
                     hashtags: this.extractHashtags(postData.content),
                     mentions: this.extractMentions(postData.content),
-                    wordCount: postData.content.split(' ').length
+                    wordCount: postData.content.split(' ').length,
+                    mediaCount: postData.media ? postData.media.length : 0 // ✅ THÊM: Media count
                 },
                 status: 'published',
                 createdAt: serverTimestamp(),

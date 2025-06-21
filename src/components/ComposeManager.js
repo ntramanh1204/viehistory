@@ -1,5 +1,6 @@
 import { authService } from '../services/AuthService.js';
 import { dbService } from '../services/DatabaseService.js';
+import { cloudinaryService } from '../services/CloudinaryService.js'; 
 
 export class ComposeManager {
     constructor() {
@@ -10,6 +11,12 @@ export class ComposeManager {
         this.userAvatar = document.querySelector('.compose-area .user-avatar');
         this.hashtagSuggestions = document.getElementById('hashtag-suggestions');
         this.characterCounter = document.querySelector('.character-counter');
+
+        // ✅ THÊM: Media upload elements
+        this.mediaUploadBtn = document.getElementById('media-upload-btn');
+        this.mediaInput = document.getElementById('media-input');
+        this.mediaPreview = document.getElementById('media-preview');
+        this.selectedMedia = [];
 
         // State
         this.isSubmitting = false;
@@ -83,6 +90,23 @@ export class ComposeManager {
         document.addEventListener('click', (e) => {
             if (!this.textarea?.contains(e.target) && !this.hashtagSuggestions?.contains(e.target)) {
                 this.hideSuggestions();
+            }
+        });
+
+        // ✅ THÊM: Media upload listeners
+        this.mediaUploadBtn?.addEventListener('click', () => {
+            this.mediaInput?.click();
+        });
+
+        this.mediaInput?.addEventListener('change', (e) => {
+            this.handleMediaSelect(e.target.files);
+        });
+
+        // Media preview remove buttons
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('remove-media-btn')) {
+                const index = parseInt(e.target.dataset.index);
+                this.removeMedia(index);
             }
         });
     }
@@ -254,21 +278,160 @@ export class ComposeManager {
         this.textarea.classList.toggle('has-hashtags', hasHashtags);
     }
 
+    // ✅ SỬA: Validate media file với thông báo lỗi rõ ràng hơn
+    validateMediaFile(file) {
+        const maxSize = 50 * 1024 * 1024; // 50MB
+        const allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        const allowedVideoTypes = ['video/mp4', 'video/webm', 'video/mov'];
+        const allowedTypes = [...allowedImageTypes, ...allowedVideoTypes];
+
+        if (file.size > maxSize) {
+            throw new Error(`File "${file.name}" quá lớn. Kích thước tối đa là 50MB.`);
+        }
+
+        if (!allowedTypes.includes(file.type)) {
+            throw new Error(`File "${file.name}" có định dạng không được hỗ trợ. Chỉ chấp nhận JPG, PNG, GIF, WebP, MP4, WebM, MOV.`);
+        }
+
+        return true;
+    }
+
+    // ✅ SỬA: Handle media selection với error handling tốt hơn
+    async handleMediaSelect(files) {
+        if (!files || files.length === 0) return;
+
+        const maxFiles = 4; // Giới hạn 4 file
+        const remainingSlots = maxFiles - this.selectedMedia.length;
+
+        if (remainingSlots <= 0) {
+            this.showError('Chỉ được upload tối đa 4 media');
+            return;
+        }
+
+        const filesToProcess = Array.from(files).slice(0, remainingSlots);
+        let successCount = 0;
+        let errorCount = 0;
+
+        for (const file of filesToProcess) {
+            try {
+                this.validateMediaFile(file);
+                await this.addMediaToPreview(file);
+                successCount++;
+            } catch (error) {
+                console.error('Error processing file:', file.name, error);
+                this.showError(error.message);
+                errorCount++;
+            }
+        }
+
+        this.updateMediaPreview();
+
+        // Show summary message
+        if (successCount > 0) {
+            this.showSuccess(`Đã thêm ${successCount} file thành công`);
+        }
+    }
+    // ✅ THÊM: Add media to preview
+    async addMediaToPreview(file) {
+        const mediaItem = {
+            file: file,
+            type: file.type.startsWith('image/') ? 'image' : 'video',
+            preview: null,
+            uploading: false,
+            uploaded: false,
+            url: null
+        };
+
+        // Create preview
+        if (mediaItem.type === 'image') {
+            mediaItem.preview = await this.createImagePreview(file);
+        } else {
+            mediaItem.preview = await this.createVideoPreview(file);
+        }
+
+        this.selectedMedia.push(mediaItem);
+    }
+
+    // ✅ THÊM: Create image preview
+    createImagePreview(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // ✅ THÊM: Create video preview
+    createVideoPreview(file) {
+        return new Promise((resolve) => {
+            const video = document.createElement('video');
+            video.preload = 'metadata';
+            video.onloadedmetadata = () => {
+                video.currentTime = 0.5; // Capture frame at 0.5s
+            };
+            video.onseeked = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0);
+                resolve(canvas.toDataURL());
+            };
+            video.src = URL.createObjectURL(file);
+        });
+    }
+
+    // ✅ THÊM: Update media preview display
+    updateMediaPreview() {
+        if (!this.mediaPreview) return;
+
+        if (this.selectedMedia.length === 0) {
+            this.mediaPreview.classList.add('hidden');
+            return;
+        }
+
+        this.mediaPreview.classList.remove('hidden');
+        
+        const html = this.selectedMedia.map((media, index) => `
+            <div class="media-item" data-index="${index}">
+                <div class="media-thumbnail">
+                    ${media.type === 'image' 
+                        ? `<img src="${media.preview}" alt="Preview">`
+                        : `<div class="video-thumbnail">
+                            <img src="${media.preview}" alt="Video preview">
+                            <div class="video-overlay">
+                                <i class="fas fa-play"></i>
+                            </div>
+                           </div>`
+                    }
+                    ${media.uploading ? '<div class="upload-progress"></div>' : ''}
+                </div>
+                <button type="button" class="remove-media-btn" data-index="${index}">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `).join('');
+
+        this.mediaPreview.innerHTML = html;
+    }
+
+    // ✅ THÊM: Remove media
+    removeMedia(index) {
+        this.selectedMedia.splice(index, 1);
+        this.updateMediaPreview();
+        this.mediaInput.value = ''; // Reset input
+    }
+
+    // ✅ SỬA: Update handlePostSubmit để upload media
     async handlePostSubmit() {
         console.log('🚀 Post submit triggered');
 
         const content = this.textarea.value.trim();
 
         // Validation
-        if (!content) {
-            this.showError('Vui lòng nhập nội dung bài viết');
+        if (!content && this.selectedMedia.length === 0) {
+            this.showError('Vui lòng nhập nội dung hoặc chọn media');
             this.shakeTextarea();
-            return;
-        }
-
-        if (content.length < 3) {
-            this.showError('Nội dung phải có ít nhất 3 ký tự');
-            this.focusTextarea();
             return;
         }
 
@@ -304,18 +467,23 @@ export class ComposeManager {
                 throw new Error('Không thể xác thực người dùng');
             }
 
+            // ✅ THÊM: Upload media files
+            const mediaUrls = await this.uploadMediaFiles();
+
             // Extract content without hashtags for main content
             const plainContent = content.replace(/#[\w\u00C0-\u024F\u1E00-\u1EFF]+/g, '').trim();
 
             // Prepare enhanced post data
             const postData = {
-                content: content, // Full content with hashtags
-                plainContent: plainContent, // Content without hashtags for search
+                content: content,
+                plainContent: plainContent,
                 hashtags: this.extractedHashtags,
+                media: mediaUrls, // ✅ THÊM: Media URLs
                 metadata: {
                     characterCount: content.length,
                     wordCount: content.split(/\s+/).filter(word => word.length > 0).length,
-                    hashtagCount: this.extractedHashtags.length
+                    hashtagCount: this.extractedHashtags.length,
+                    mediaCount: mediaUrls.length // ✅ THÊM: Media count
                 }
             };
 
@@ -337,6 +505,7 @@ export class ComposeManager {
                     content: content,
                     plainContent: plainContent,
                     hashtags: this.extractedHashtags,
+                    media: mediaUrls, // ✅ THÊM: Media URLs
                     author: {
                         uid: user.uid,
                         displayName: userInfo.displayName,
@@ -364,6 +533,51 @@ export class ComposeManager {
         } finally {
             this.setSubmitLoading(false);
         }
+    }
+
+  // ✅ SỬA: Upload media files to Cloudinary
+    async uploadMediaFiles() {
+        if (this.selectedMedia.length === 0) return [];
+
+        const mediaUrls = [];
+        
+        for (let i = 0; i < this.selectedMedia.length; i++) {
+            const media = this.selectedMedia[i];
+            
+            try {
+                // Update UI to show uploading
+                media.uploading = true;
+                this.updateMediaPreview();
+
+                // ✅ SỬA: Sử dụng method phù hợp cho từng loại media
+                let url;
+                if (media.type === 'image') {
+                    const folder = 'posts/images';
+                    url = await cloudinaryService.uploadImage(media.file, folder);
+                } else if (media.type === 'video') {
+                    // ✅ SỬA: Dùng method riêng cho video hoặc generic upload
+                    const folder = 'posts/videos';
+                    url = await cloudinaryService.uploadMedia(media.file, folder);
+                }
+                
+                mediaUrls.push({
+                    type: media.type,
+                    url: url,
+                    originalName: media.file.name
+                });
+
+                media.uploaded = true;
+                media.uploading = false;
+                media.url = url;
+
+            } catch (error) {
+                console.error('❌ Error uploading media:', error);
+                media.uploading = false;
+                throw new Error(`Không thể upload ${media.file.name}: ${error.message}`);
+            }
+        }
+
+        return mediaUrls;
     }
 
     updateCharacterCounter() {
@@ -508,31 +722,18 @@ export class ComposeManager {
         this.showToast('Vui lòng nhập nội dung bài viết', 'error');
     }
 
+// ✅ SỬA: Update resetForm để reset media
     resetForm() {
-        // Clear textarea
         this.textarea.value = '';
-        this.textarea.style.height = 'auto';
-
-        // Clear hashtag state
+        this.selectedMedia = [];
         this.extractedHashtags = [];
-
-        // Hide suggestions if showing
-        this.hideSuggestions();
-
-        // Remove hashtag highlighting
-        this.textarea.classList.remove('has-hashtags');
-
-        // Reset old topic pills (if any exist)
-        document.querySelectorAll('.pill-button').forEach(btn =>
-            btn.classList.remove('active')
-        );
-
-        // Reset character counter
         this.updateCharacterCounter();
-
-        // Update submit button state
         this.updateSubmitButtonState();
-
-        console.log('✅ Form reset completed');
+        this.updateMediaPreview();
+        this.hideSuggestions();
+        
+        if (this.mediaInput) {
+            this.mediaInput.value = '';
+        }
     }
 }

@@ -98,8 +98,16 @@
                 <textarea id="composeTextarea" class="compose-textarea"
                     placeholder="Chia sẻ dòng thời gian của bạn..."></textarea>
 
+                <!-- ✅ THÊM: Media Preview -->
+                <div id="media-preview" class="media-preview hidden"></div>
+
                 <div class="compose-actions-bar">
                     <div class="compose-actions-left">
+                        <!-- ✅ THÊM: Media Upload Button -->
+                        <button type="button" id="media-upload-btn" class="compose-action-btn" title="Thêm ảnh/video">
+                            <i class="fas fa-image"></i>
+                        </button>
+                        
                         <div class="character-counter">
                             <span class="char-count">0/2000</span>
                         </div>
@@ -108,6 +116,9 @@
                         <button class="submit-button" id="post-submit-btn">Đăng dòng</button>
                     </div>
                 </div>
+
+                <!-- ✅ THÊM: Hidden Media Input -->
+                <input type="file" id="media-input" accept="image/*,video/*" multiple style="display: none;">
             </div>
         </section>
 
@@ -129,8 +140,8 @@
 
         <!-- FAB -->
         <button class="fab-compose hidden" aria-label="Soạn bài mới" id="fab-compose-btn">
-    <i class="fas fa-pen"></i>
-</button>
+            <i class="fas fa-pen"></i>
+        </button>
     </div>
 
     <!-- Mobile Navigation -->

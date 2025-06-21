@@ -2,6 +2,10 @@
 import './config/firebase.js';
 import './components/AppComponents.js'
 
+import { authService } from './services/AuthService.js';
+import { dbService } from './services/DatabaseService.js';
+import { cloudinaryService } from './services/CloudinaryService.js';
+
 import { AuthManager } from './components/AuthManager.js';
 import { OnboardingManager } from './components/OnboardingManager.js';
 import { ComposeManager } from './components/ComposeManager.js';

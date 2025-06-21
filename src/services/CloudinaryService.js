@@ -8,6 +8,47 @@ export class CloudinaryService {
         }
     }
 
+        /**
+     * Upload media (ảnh hoặc video) lên Cloudinary
+     */
+    async uploadMedia(file, folder = 'media') {
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', this.uploadPreset);
+            formData.append('folder', `viehistory/${folder}`);
+            
+            // Tạo tên file unique
+            const timestamp = Date.now();
+            const fileName = `${timestamp}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+            formData.append('public_id', `${folder}/${fileName}`);
+
+            // ✅ THÊM: Xác định endpoint dựa trên loại file
+            const isVideo = file.type.startsWith('video/');
+            const endpoint = isVideo ? 'video/upload' : 'image/upload';
+
+            const response = await fetch(
+                `https://api.cloudinary.com/v1_1/${this.cloudName}/${endpoint}`,
+                {
+                    method: 'POST',
+                    body: formData
+                }
+            );
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error?.message || 'Upload failed');
+            }
+
+            const result = await response.json();
+            return result.secure_url;
+
+        } catch (error) {
+            console.error('❌ Cloudinary upload error:', error);
+            throw new Error(`Không thể upload ${file.type.startsWith('video/') ? 'video' : 'hình ảnh'}. ${error.message}`);
+        }
+    }
+
     /**
      * Upload hình ảnh lên Cloudinary
      */
