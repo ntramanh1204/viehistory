@@ -105,15 +105,21 @@
 
                 <div class="compose-actions-bar">
                     <div class="compose-actions-left">
-                        <!-- Media Upload Button -->
-                        <button type="button" id="media-upload-btn" class="compose-action-btn" title="Thêm ảnh/video">
-                            <i class="fas fa-image"></i>
-                        </button>
-                        <!-- ✅ Thêm nút emoji -->
-                        <button type="button" id="emoji-picker-btn" class="compose-action-btn" title="Chèn emoji">
-                            <i class="far fa-smile"></i>
-                        </button>
-                        <div id="emoji-picker-popup" class="emoji-picker-popup hidden"></div>
+                        <!-- Group buttons together -->
+                        <div class="compose-buttons-group">
+                            <!-- Media Upload Button -->
+                            <button type="button" id="media-upload-btn" class="compose-action-btn"
+                                title="Thêm ảnh/video">
+                                <i class="fas fa-image"></i>
+                            </button>
+                            <!-- Emoji picker button -->
+                            <button type="button" id="emoji-picker-btn" class="compose-action-btn" title="Chèn emoji">
+                                <i class="far fa-smile"></i>
+                            </button>
+                            <div id="emoji-picker-popup" class="emoji-picker-popup hidden"></div>
+                        </div>
+
+                        <!-- Character counter on its own line -->
                         <div class="character-counter">
                             <span class="char-count">0/2000</span>
                         </div>

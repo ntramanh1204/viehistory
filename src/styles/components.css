@@ -812,11 +812,26 @@
     gap: 12px;
 }
 
+/* Updated compose actions layout */
 .compose-actions-left {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    flex: 1;
+    align-items: flex-start;
+    width: 75%; /* Ensure full width of parent */
+}
+
+.compose-buttons-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.character-counter {
+    margin-top: 4px;
+    width: 100%; /* Make character counter take full width */
+    align-self: stretch; /* Stretch to fill parent width */
+    border-top: 1px solid #e1e8ed; /* Add back the divider line if needed */
+    padding-top: 4px;
 }
 
 .compose-actions-right {
@@ -831,7 +846,7 @@
 }
 
 /* Mobile responsiveness for hashtag system */
-@media (max-width: 700px) {
+@media (max-width: 768px) {
     .hashtag-suggestions {
         max-height: 150px;
         left: 12px !important;
@@ -850,10 +865,22 @@
         gap: 4px;
     }
 
+    /* Remove the column layout for compose-actions-bar to keep buttons on same row */
     .compose-actions-bar {
-        flex-direction: column;
-        align-items: stretch;
+        flex-direction: row;
+        align-items: flex-end;
         gap: 8px;
+    }
+    
+    /* Make compose-actions-left take less width to accommodate button */
+    .compose-actions-left {
+        width: 65%;
+    }
+    
+    /* Make sure compose-actions-right stays on same line */
+    .compose-actions-right {
+        width: auto;
+        flex-shrink: 0;
     }
 }
 
