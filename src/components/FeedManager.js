@@ -310,13 +310,13 @@ export class FeedManager {
         });
 
         // Comment buttons
-        document.querySelectorAll('.comment-btn').forEach(btn => {
-            btn.replaceWith(btn.cloneNode(true));
-        });
+        // document.querySelectorAll('.comment-btn').forEach(btn => {
+        //     btn.replaceWith(btn.cloneNode(true));
+        // });
 
-        document.querySelectorAll('.comment-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.toggleComments(e));
-        });
+        // document.querySelectorAll('.comment-btn').forEach(btn => {
+        //     btn.addEventListener('click', (e) => this.toggleComments(e));
+        // });
 
         // Comment submission
         document.querySelectorAll('.comment-submit').forEach(btn => {
@@ -328,7 +328,7 @@ export class FeedManager {
         // ✅ SỬA: Sử dụng event delegation tốt hơn
         this.feedContainer.addEventListener('click', this.handlePostInteraction.bind(this));
         this.feedContainer.addEventListener('openLightbox', this.handleLightbox.bind(this));
-        
+
         // Keyboard shortcuts
         document.addEventListener('keydown', this.handleKeyboardShortcuts.bind(this));
     }
@@ -348,7 +348,7 @@ export class FeedManager {
         // Comment button
         if (target.classList.contains('comment-btn')) {
             e.preventDefault();
-            this.toggleComments(e);
+            this.toggleComments(target);
             return;
         }
 
@@ -399,7 +399,7 @@ export class FeedManager {
         if (e.key === 'Escape') {
             this.closeLightbox();
         }
-        
+
         // L to like focused post
         if (e.key === 'l' && !e.target.matches('input, textarea')) {
             const focusedPost = document.querySelector('.post-item:focus-within, .post-item:hover');
@@ -414,7 +414,7 @@ export class FeedManager {
     async handleShare(e) {
         const button = e.target.closest('.share-btn');
         const postId = button.dataset.postId;
-        
+
         // Use ShareManager if available
         if (window.shareManager) {
             await window.shareManager.handleShare(e);
@@ -431,7 +431,7 @@ export class FeedManager {
         const button = e.target.closest('.bookmark-btn');
         const postId = button.dataset.postId;
         const user = authService.getCurrentUser();
-        
+
         if (!user) {
             const event = new CustomEvent('showAuthModal', {
                 detail: { message: 'Đăng nhập để lưu bài viết' }
@@ -443,7 +443,7 @@ export class FeedManager {
         try {
             // Toggle bookmark (implement in DatabaseService)
             const isBookmarked = button.classList.contains('bookmarked');
-            
+
             if (isBookmarked) {
                 // Remove bookmark
                 button.classList.remove('bookmarked');
@@ -453,9 +453,9 @@ export class FeedManager {
                 button.classList.add('bookmarked');
                 button.querySelector('i').className = 'fas fa-bookmark';
             }
-            
+
             this.showToast(isBookmarked ? 'Đã bỏ lưu' : 'Đã lưu bài viết');
-            
+
         } catch (error) {
             console.error('Error toggling bookmark:', error);
             this.showToast('Có lỗi xảy ra', 'error');
@@ -467,7 +467,7 @@ export class FeedManager {
         const button = e.target.closest('.post-menu-btn');
         const postId = button.dataset.postId;
         const user = authService.getCurrentUser();
-        
+
         // Create context menu
         const menu = document.createElement('div');
         menu.className = 'post-context-menu';
@@ -476,20 +476,20 @@ export class FeedManager {
             <button class="menu-item" data-action="report">🚩 Báo cáo</button>
             ${user ? `<button class="menu-item" data-action="hide">👁️ Ẩn bài viết</button>` : ''}
         `;
-        
+
         // Position menu
         const rect = button.getBoundingClientRect();
         menu.style.position = 'fixed';
         menu.style.top = rect.bottom + 'px';
         menu.style.right = (window.innerWidth - rect.right) + 'px';
         menu.style.zIndex = '1000';
-        
+
         document.body.appendChild(menu);
-        
+
         // Handle menu actions
         menu.addEventListener('click', async (e) => {
             const action = e.target.dataset.action;
-            
+
             switch (action) {
                 case 'copy-link':
                     await navigator.clipboard.writeText(`${window.location.origin}/post/${postId}`);
@@ -502,10 +502,10 @@ export class FeedManager {
                     this.hidePost(postId);
                     break;
             }
-            
+
             menu.remove();
         });
-        
+
         // Close menu when clicking outside
         setTimeout(() => {
             document.addEventListener('click', () => menu.remove(), { once: true });
@@ -517,9 +517,9 @@ export class FeedManager {
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
         toast.textContent = message;
-        
+
         document.body.appendChild(toast);
-        
+
         setTimeout(() => toast.classList.add('show'), 100);
         setTimeout(() => {
             toast.classList.remove('show');
@@ -599,33 +599,149 @@ export class FeedManager {
         }
     }
 
-    toggleComments(e) {
-        const button = e.currentTarget;
-        const postId = button.dataset.postId;
-        const commentsSection = document.querySelector(`.comments-section[data-post-id="${postId}"]`);
-
-        if (commentsSection) {
-            commentsSection.classList.toggle('hidden');
-
-            if (!commentsSection.classList.contains('hidden')) {
-                this.loadComments(postId);
-            }
-        }
-    }
-
+    // ✅ SỬA: Load và render comments với avatar service
     async loadComments(postId) {
         try {
-            const comments = await dbService.getComments(postId);
-            const commentsContainer = document.querySelector(`.comments-section[data-post-id="${postId}"] .comments-list`);
+            const commentsSection = document.querySelector(`.comments-list[data-post-id="${postId}"]`);
+            if (!commentsSection) return;
 
-            if (commentsContainer) {
-                commentsContainer.innerHTML = comments.map(comment => this.createCommentHTML(comment)).join('');
-            }
+            // Show loading
+            commentsSection.innerHTML = '<div class="comments-loading">Đang tải bình luận...</div>';
+
+            // Load comments from database
+            const comments = await dbService.getComments(postId);
+
+            // Render comments
+            this.renderComments(commentsSection, comments);
+
         } catch (error) {
             console.error('Error loading comments:', error);
+            const commentsSection = document.querySelector(`.comments-list[data-post-id="${postId}"]`);
+            if (commentsSection) {
+                commentsSection.innerHTML = '<div class="comments-error">Không thể tải bình luận</div>';
+            }
         }
     }
 
+    // ✅ THÊM: Render comments với avatar service
+    renderComments(container, comments) {
+        if (!container) return;
+
+        if (!comments || comments.length === 0) {
+            container.innerHTML = '<div class="no-comments">Chưa có bình luận nào</div>';
+            return;
+        }
+
+        const commentsHTML = comments.map(comment => this.createCommentHTML(comment)).join('');
+        container.innerHTML = commentsHTML;
+    }
+
+    // ✅ SỬA: Update createCommentHTML để sử dụng AvatarService
+    createCommentHTML(comment) {
+        const timeAgo = this.getTimeAgo(comment.createdAt);
+
+        // ✅ SỬA: Sử dụng AvatarService giống như post author
+        const avatar = AvatarService.shouldUseAvataaars(comment.author) ?
+            `<img src="${AvatarService.getUserAvatar(comment.author, 32)}" alt="${comment.author.displayName}" class="comment-avatar-img">` :
+            `<span class="comment-avatar-text">${comment.author.displayName.charAt(0).toUpperCase()}</span>`;
+
+        return `
+            <div class="comment-item" data-comment-id="${comment.id}">
+                <div class="comment-avatar">
+                    ${avatar}
+                </div>
+                <div class="comment-content">
+                    <div class="comment-header">
+                        <span class="comment-author-name">${comment.author.displayName}</span>
+                        <span class="comment-time">${timeAgo}</span>
+                        ${comment.author.isVerified ? '<span class="verified-badge">✓</span>' : ''}
+                    </div>
+                    <div class="comment-text">${this.formatCommentContent(comment.content)}</div>
+                    <div class="comment-actions">
+                        <button class="comment-like-btn" data-comment-id="${comment.id}">
+                            <i class="far fa-heart"></i>
+                            <span class="like-count">${comment.stats?.likes || 0}</span>
+                        </button>
+                        <button class="comment-reply-btn" data-comment-id="${comment.id}">
+                            <i class="far fa-comment"></i>
+                            Trả lời
+                        </button>
+                    </div>
+                    
+                    ${comment.replies && comment.replies.length > 0 ? `
+                        <div class="comment-replies">
+                            ${comment.replies.map(reply => this.createReplyHTML(reply)).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }
+
+    // ✅ THÊM: Create reply HTML với avatar service
+    createReplyHTML(reply) {
+        const timeAgo = this.getTimeAgo(reply.createdAt);
+
+        // ✅ SỬA: Sử dụng AvatarService cho replies
+        const avatar = AvatarService.shouldUseAvataaars(reply.author) ?
+            `<img src="${AvatarService.getUserAvatar(reply.author, 28)}" alt="${reply.author.displayName}" class="reply-avatar-img">` :
+            `<span class="reply-avatar-text">${reply.author.displayName.charAt(0).toUpperCase()}</span>`;
+
+        return `
+            <div class="comment-reply" data-comment-id="${reply.id}">
+                <div class="reply-avatar">
+                    ${avatar}
+                </div>
+                <div class="reply-content">
+                    <div class="reply-header">
+                        <span class="reply-author-name">${reply.author.displayName}</span>
+                        <span class="reply-time">${timeAgo}</span>
+                    </div>
+                    <div class="reply-text">${this.formatCommentContent(reply.content)}</div>
+                    <div class="reply-actions">
+                        <button class="comment-like-btn" data-comment-id="${reply.id}">
+                            <i class="far fa-heart"></i>
+                            <span class="like-count">${reply.stats?.likes || 0}</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // ✅ THÊM: Format comment content
+    formatCommentContent(content) {
+        if (!content) return '';
+
+        // Convert line breaks
+        let formatted = content.replace(/\n/g, '<br>');
+
+        // Convert URLs to links
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        formatted = formatted.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+
+        // Convert mentions
+        const mentionRegex = /@(\w+)/g;
+        formatted = formatted.replace(mentionRegex, '<span class="mention">@$1</span>');
+
+        return formatted;
+    }
+
+    toggleComments(button) { // Nhận button trực tiếp
+        const postId = button.dataset.postId;
+        const commentsSection = document.querySelector(`.comments-section[data-post-id="${postId}"]`);
+        
+        if (!commentsSection) return;
+        
+        if (commentsSection.classList.contains('hidden')) {
+            commentsSection.classList.remove('hidden');
+            this.loadComments(postId);
+        } else {
+            commentsSection.classList.add('hidden');
+        }
+    }
+
+    // ✅ SỬA: Update handleCommentSubmit để reload comments với avatar
     async handleCommentSubmit(e) {
         const button = e.currentTarget;
         const postId = button.dataset.postId;
@@ -634,13 +750,10 @@ export class FeedManager {
 
         if (!content) return;
 
-        const user = authService.currentUser;
+        const user = authService.getCurrentUser();
         if (!user) {
-            // Show auth modal
             const event = new CustomEvent('showAuthModal', {
-                detail: {
-                    message: 'Đăng nhập để bình luận'
-                }
+                detail: { message: 'Đăng nhập để bình luận' }
             });
             document.dispatchEvent(event);
             return;
@@ -648,7 +761,7 @@ export class FeedManager {
 
         try {
             button.disabled = true;
-            button.textContent = 'Đang gửi...';
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
             await dbService.createComment({
                 postId: postId,
@@ -656,7 +769,9 @@ export class FeedManager {
             }, user);
 
             textarea.value = '';
-            this.loadComments(postId);
+
+            // ✅ SỬA: Reload comments để hiển thị comment mới với avatar
+            await this.loadComments(postId);
 
             // Update comment count
             const commentBtn = document.querySelector(`.comment-btn[data-post-id="${postId}"]`);
@@ -668,36 +783,11 @@ export class FeedManager {
 
         } catch (error) {
             console.error('Error submitting comment:', error);
-            this.showError(error.message);
+            this.showToast('Không thể gửi bình luận', 'error');
         } finally {
             button.disabled = false;
-            button.textContent = 'Gửi';
+            button.innerHTML = '<i class="fas fa-paper-plane"></i>';
         }
-    }
-
-    createCommentHTML(comment) {
-        const timeAgo = this.getTimeAgo(comment.createdAt);
-        const avatarUrl = comment.author.photoURL ||
-            `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.author.displayName)}&background=6366f1&color=fff`;
-
-        return `
-            <div class="comment-item" data-comment-id="${comment.id}">
-                <div class="comment-author">
-                    <img src="${avatarUrl}" alt="${comment.author.displayName}" class="comment-avatar">
-                    <div class="comment-info">
-                        <div class="comment-author-name">${comment.author.displayName}</div>
-                        <div class="comment-time">${timeAgo}</div>
-                    </div>
-                </div>
-                <div class="comment-content">${this.formatContent(comment.content)}</div>
-                
-                ${comment.replies && comment.replies.length > 0 ? `
-                    <div class="comment-replies">
-                        ${comment.replies.map(reply => this.createCommentHTML(reply)).join('')}
-                    </div>
-                ` : ''}
-            </div>
-        `;
     }
 
     formatContent(content) {

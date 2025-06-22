@@ -91,24 +91,29 @@ export class PostDetailManager {
         }
     }
 
+    // ✅ SỬA: Update createCommentsHTML để sử dụng AvatarService
     createCommentsHTML(comments) {
         if (!comments || comments.length === 0) {
-            return '<p>Chưa có bình luận nào.</p>';
+            return '<p class="no-comments">Chưa có bình luận nào.</p>';
         }
 
         return comments.map(comment => {
             const timeAgo = this.getTimeAgo(comment.createdAt);
-            const avatar = comment.author.photoURL ?
-                `<img src="${comment.author.photoURL}" alt="${comment.author.displayName}">` :
-                `<span class="avatar-text">${comment.author.displayName.charAt(0).toUpperCase()}</span>`;
+
+            // ✅ SỬA: Sử dụng AvatarService giống FeedManager
+            const avatar = AvatarService.shouldUseAvataaars(comment.author) ?
+                `<img src="${AvatarService.getUserAvatar(comment.author, 32)}" alt="${comment.author.displayName}" class="comment-avatar-img">` :
+                `<span class="comment-avatar-text">${comment.author.displayName.charAt(0).toUpperCase()}</span>`;
 
             return `
                 <div class="comment-item">
                     <div class="comment-avatar">${avatar}</div>
                     <div class="comment-content">
-                        <div class="comment-author">${comment.author.displayName}</div>
-                        <div class="comment-text">${comment.content}</div>
-                        <div class="comment-time">${timeAgo}</div>
+                        <div class="comment-header">
+                            <span class="comment-author-name">${comment.author.displayName}</span>
+                            <span class="comment-time">${timeAgo}</span>
+                        </div>
+                        <div class="comment-text">${this.formatContent(comment.content)}</div>
                     </div>
                 </div>
             `;
