@@ -2410,6 +2410,7 @@
     max-height: 220px;
     overflow-y: auto;
     font-size: 22px;
+    transition: opacity 0.1s ease; /* ✅ THÊM: Transition nhanh hơn */
 }
 
 .emoji-picker-popup.hidden {
@@ -2423,7 +2424,8 @@
     font-size: 22px;
     padding: 4px;
     border-radius: 4px;
-    transition: background 0.15s;
+    transition: background 0.1s ease; /* ✅ SỬA: Giảm từ 0.15s xuống 0.1s */
+    will-change: background; /* ✅ THÊM: Tối ưu GPU */
 }
 
 .emoji-picker-popup button:hover {

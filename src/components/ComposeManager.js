@@ -24,6 +24,7 @@ export class ComposeManager {
 
         // State
         this.isSubmitting = false;
+        this.emojiPickerRendered = false;
         this.extractedHashtags = [];
         this.suggestedHashtags = [
             'lịchsửViệt', 'NguyễnTrãi', 'HồChíMinh', 'LêLợi', 'TrầnHưngĐạo',
@@ -141,8 +142,14 @@ export class ComposeManager {
         });
     }
 
-    // ✅ Hiển thị hoặc ẩn emoji picker
+// ✅ SỬA: Debounce toggle để tránh spam click
     toggleEmojiPicker() {
+        if (this.emojiToggleTimeout) return; // Tránh spam click
+        
+        this.emojiToggleTimeout = setTimeout(() => {
+            this.emojiToggleTimeout = null;
+        }, 150);
+
         if (!this.emojiPopup) return;
         if (this.emojiPopup.classList.contains('hidden')) {
             this.showEmojiPicker();
@@ -153,7 +160,9 @@ export class ComposeManager {
 
     showEmojiPicker() {
         if (!this.emojiPopup || !this.emojiBtn) return;
-        this.renderEmojiPicker();
+        if (!this.emojiPickerRendered) {
+            this.renderEmojiPicker();
+        }
         // Định vị popup gần nút emoji
         const rect = this.emojiBtn.getBoundingClientRect();
         this.emojiPopup.style.top = `${rect.bottom + window.scrollY + 6}px`;
@@ -169,7 +178,7 @@ export class ComposeManager {
 
     // ✅ Render emoji picker (danh sách emoji cơ bản)
     renderEmojiPicker() {
-        if (!this.emojiPopup) return;
+        if (!this.emojiPopup || this.emojiPickerRendered) return;
         const emojis = [
             "😀", "😁", "😂", "🤣", "😃", "😄", "😅", "😆",
             "😉", "😊", "😋", "😎", "😍", "😘", "🥰", "😗",
@@ -186,6 +195,8 @@ export class ComposeManager {
         this.emojiPopup.innerHTML = emojis
             .map(e => `<button type="button">${e}</button>`)
             .join('');
+            
+        this.emojiPickerRendered = true;
     }
 
     // ✅ Chèn emoji vào vị trí con trỏ trong textarea

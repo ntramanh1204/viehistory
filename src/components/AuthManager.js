@@ -144,7 +144,7 @@ export class AuthManager {
             // Enable compose
             if (composeTextarea) {
                 composeTextarea.disabled = false;
-                composeTextarea.placeholder = `Chia sẻ dòng thời gian của bạn, ${userInfo.displayName}...`;
+                composeTextarea.placeholder = `Chia sẻ câu chuyện lịch sử của bạn, ${userInfo.displayName}...`;
             }
 
             if (postSubmitBtn) {
