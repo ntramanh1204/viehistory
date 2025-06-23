@@ -299,39 +299,34 @@ export class FeedManager {
         `;
     }
 
-    attachPostEventListeners() {
-        // Like buttons
-        document.querySelectorAll('.like-btn').forEach(btn => {
-            btn.replaceWith(btn.cloneNode(true)); // Remove old listeners
-        });
+ attachPostEventListeners() {
+    if (!this.feedContainer) return;
 
-        document.querySelectorAll('.like-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.handleLike(e));
-        });
+    // ✅ SỬA: Xóa tất cả listeners cũ trước
+    this.feedContainer.removeEventListener('click', this.handlePostInteraction);
+    this.feedContainer.removeEventListener('openLightbox', this.handleLightbox);
 
-        // Comment buttons
-        // document.querySelectorAll('.comment-btn').forEach(btn => {
-        //     btn.replaceWith(btn.cloneNode(true));
-        // });
+    // ✅ SỬA: Chỉ sử dụng event delegation, không gán trực tiếp
+    this.feedContainer.addEventListener('click', (e) => this.handlePostInteraction(e));
+    this.feedContainer.addEventListener('openLightbox', (e) => this.handleLightbox(e));
 
-        // document.querySelectorAll('.comment-btn').forEach(btn => {
-        //     btn.addEventListener('click', (e) => this.toggleComments(e));
-        // });
+    // ✅ XÓA: Bỏ hết phần gán listeners trực tiếp này
+    // document.querySelectorAll('.like-btn').forEach(btn => {
+    //     btn.replaceWith(btn.cloneNode(true)); // Remove old listeners
+    // });
 
-        // Comment submission
-        document.querySelectorAll('.comment-submit').forEach(btn => {
-            btn.addEventListener('click', (e) => this.handleCommentSubmit(e));
-        });
+    // document.querySelectorAll('.like-btn').forEach(btn => {
+    //     btn.addEventListener('click', (e) => this.handleLike(e));
+    // });
 
-        if (!this.feedContainer) return;
+    // document.querySelectorAll('.comment-submit').forEach(btn => {
+    //     btn.addEventListener('click', (e) => this.handleCommentSubmit(e));
+    // });
 
-        // ✅ SỬA: Sử dụng event delegation tốt hơn
-        this.feedContainer.addEventListener('click', this.handlePostInteraction.bind(this));
-        this.feedContainer.addEventListener('openLightbox', this.handleLightbox.bind(this));
-
-        // Keyboard shortcuts
-        document.addEventListener('keydown', this.handleKeyboardShortcuts.bind(this));
-    }
+    // Keyboard shortcuts - chỉ gán một lần
+    document.removeEventListener('keydown', this.handleKeyboardShortcuts);
+    document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
+}
 
     // ✅ THÊM: Centralized post interaction handler
     async handlePostInteraction(e) {

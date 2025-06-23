@@ -116,22 +116,24 @@ export class ComposeManager {
             }
         });
 
-        // ✅ Emoji picker logic
-        this.emojiBtn?.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.toggleEmojiPicker();
-        });
+        // ✅ SỬA: Đảm bảo emoji button event được bind đúng cách
+    this.emojiBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation(); // ✅ THÊM: Ngăn event bubbling
+        console.log('🔘 Emoji button clicked');
+        this.toggleEmojiPicker();
+    });
 
-        // Đóng popup khi click ngoài
-        document.addEventListener('click', (e) => {
-            if (
-                this.emojiPopup &&
-                !this.emojiPopup.contains(e.target) &&
-                e.target !== this.emojiBtn
-            ) {
-                this.hideEmojiPicker();
-            }
-        });
+    // ✅ SỬA: Đóng popup khi click outside - sử dụng event delegation
+    document.addEventListener('click', (e) => {
+        if (
+            this.emojiPopup &&
+            !this.emojiPopup.contains(e.target) &&
+            !e.target.closest('#emoji-picker-btn') // ✅ SỬA: Sử dụng closest thay vì ===
+        ) {
+            this.hideEmojiPicker();
+        }
+    });
 
         // Chèn emoji khi click vào emoji
         this.emojiPopup?.addEventListener('click', (e) => {
@@ -143,39 +145,43 @@ export class ComposeManager {
         });
     }
 
-    // ✅ SỬA: Debounce toggle để tránh spam click
-    toggleEmojiPicker() {
-        if (this.emojiToggleTimeout) return; // Tránh spam click
-
-        this.emojiToggleTimeout = setTimeout(() => {
-            this.emojiToggleTimeout = null;
-        }, 150);
-
-        if (!this.emojiPopup) return;
-        if (this.emojiPopup.classList.contains('hidden')) {
-            this.showEmojiPicker();
-        } else {
-            this.hideEmojiPicker();
-        }
+// ...existing code...
+// ✅ SỬA: Bỏ debounce logic gây lỗi, sử dụng logic đơn giản hơn
+toggleEmojiPicker() {
+    if (!this.emojiPopup) return;
+    
+    const isHidden = this.emojiPopup.classList.contains('hidden');
+    
+    if (isHidden) {
+        this.showEmojiPicker();
+    } else {
+        this.hideEmojiPicker();
     }
+}
 
-    showEmojiPicker() {
-        if (!this.emojiPopup || !this.emojiBtn) return;
-        if (!this.emojiPickerRendered) {
-            this.renderEmojiPicker();
-        }
-        // Định vị popup gần nút emoji
-        const rect = this.emojiBtn.getBoundingClientRect();
-        this.emojiPopup.style.top = `${rect.bottom + window.scrollY + 6}px`;
-        this.emojiPopup.style.left = `${rect.left + window.scrollX}px`;
-        this.emojiPopup.classList.remove('hidden');
+showEmojiPicker() {
+    if (!this.emojiPopup || !this.emojiBtn) return;
+    
+    if (!this.emojiPickerRendered) {
+        this.renderEmojiPicker();
     }
+    
+    // Định vị popup gần nút emoji
+    const rect = this.emojiBtn.getBoundingClientRect();
+    this.emojiPopup.style.top = `${rect.bottom + window.scrollY + 6}px`;
+    this.emojiPopup.style.left = `${rect.left + window.scrollX}px`;
+    this.emojiPopup.classList.remove('hidden');
+    
+    console.log('✅ Emoji picker opened');
+}
 
-    hideEmojiPicker() {
-        if (this.emojiPopup) {
-            this.emojiPopup.classList.add('hidden');
-        }
+hideEmojiPicker() {
+    if (this.emojiPopup) {
+        this.emojiPopup.classList.add('hidden');
+        console.log('✅ Emoji picker closed');
     }
+}
+// ...existing code...
 
     // ✅ Render emoji picker (danh sách emoji cơ bản)
     renderEmojiPicker() {
