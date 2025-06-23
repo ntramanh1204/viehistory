@@ -3205,3 +3205,32 @@
         transform: translateY(0);
     }
 }
+
+.compose-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 24px;
+    border-radius: var(--radius-md);
+    color: white;
+    font-weight: 500;
+    z-index: 9999;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+.compose-toast--show {
+    transform: translateX(0);
+}
+
+.compose-toast--error {
+    background: var(--accent-error);
+}
+
+.compose-toast--success {
+    background: var(--accent-success);
+}
+
+.compose-toast--info {
+    background: var(--accent-info);
+}

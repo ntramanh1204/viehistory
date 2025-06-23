@@ -103,9 +103,10 @@ export class ComposeManager {
             this.mediaInput?.click();
         });
 
-        this.mediaInput?.addEventListener('change', (e) => {
-            this.handleMediaSelect(e.target.files);
-        });
+        // ✅ Đảm bảo event được pass vào handleMediaSelect
+    this.mediaInput.addEventListener('change', (event) => {
+        this.handleMediaSelect(event);
+    });
 
         // Media preview remove buttons
         document.addEventListener('click', (e) => {
@@ -142,10 +143,10 @@ export class ComposeManager {
         });
     }
 
-// ✅ SỬA: Debounce toggle để tránh spam click
+    // ✅ SỬA: Debounce toggle để tránh spam click
     toggleEmojiPicker() {
         if (this.emojiToggleTimeout) return; // Tránh spam click
-        
+
         this.emojiToggleTimeout = setTimeout(() => {
             this.emojiToggleTimeout = null;
         }, 150);
@@ -195,7 +196,7 @@ export class ComposeManager {
         this.emojiPopup.innerHTML = emojis
             .map(e => `<button type="button">${e}</button>`)
             .join('');
-            
+
         this.emojiPickerRendered = true;
     }
 
@@ -398,41 +399,48 @@ export class ComposeManager {
         return true;
     }
 
-    // ✅ SỬA: Handle media selection với error handling tốt hơn
-    async handleMediaSelect(files) {
-        if (!files || files.length === 0) return;
+async handleMediaSelect(event) {
+    // ✅ Kiểm tra event và files trước khi xử lý
+    if (!event || !event.target || !event.target.files) {
+        console.error('Invalid event or no files selected');
+        this.showToast('Không thể đọc file. Vui lòng thử lại.', 'error');
+        return;
+    }
 
-        const maxFiles = 4; // Giới hạn 4 file
-        const remainingSlots = maxFiles - this.selectedMedia.length;
+    const files = Array.from(event.target.files);
 
-        if (remainingSlots <= 0) {
-            this.showError('Chỉ được upload tối đa 4 media');
-            return;
-        }
+    // ✅ Kiểm tra có file nào được chọn không
+    if (files.length === 0) {
+        return;
+    }
 
-        const filesToProcess = Array.from(files).slice(0, remainingSlots);
-        let successCount = 0;
-        let errorCount = 0;
+    for (const file of files) {
+        try {
+            await this.validateMediaFile(file);
 
-        for (const file of filesToProcess) {
-            try {
-                this.validateMediaFile(file);
-                await this.addMediaToPreview(file);
-                successCount++;
-            } catch (error) {
-                console.error('Error processing file:', file.name, error);
-                this.showError(error.message);
-                errorCount++;
-            }
-        }
+            const mediaItem = {
+                id: Date.now() + Math.random(),
+                file: file,
+                type: file.type.startsWith('image/') ? 'image' : 'video',
+                url: URL.createObjectURL(file),
+                name: file.name,
+                size: file.size
+            };
 
-        this.updateMediaPreview();
+            this.selectedMedia.push(mediaItem);
+            this.renderMediaPreview();
 
-        // Show summary message
-        if (successCount > 0) {
-            this.showSuccess(`Đã thêm ${successCount} file thành công`);
+        } catch (error) {
+            console.error(`Error processing file: ${file.name}`, error);
+            // ✅ SỬA: Hiển thị lỗi lên toast thay vì chỉ console log
+            this.showToast(error.message, 'error');
         }
     }
+
+    // Reset input để có thể chọn lại cùng file
+    event.target.value = '';
+}
+
     // ✅ THÊM: Add media to preview
     async addMediaToPreview(file) {
         const mediaItem = {
@@ -768,51 +776,30 @@ export class ComposeManager {
         this.showToast(message, 'error');
     }
 
-    showToast(message, type = 'info') {
-        // Remove existing toasts
-        document.querySelectorAll('.toast').forEach(toast => toast.remove());
-
-        // Create toast notification
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
-        toast.textContent = message;
-
-        // Style toast
-        Object.assign(toast.style, {
-            position: 'fixed',
-            top: '20px',
-            right: '20px',
-            padding: '12px 20px',
-            borderRadius: '8px',
-            color: 'white',
-            backgroundColor: type === 'success' ? '#4CAF50' : type === 'error' ? '#F44336' : '#2196F3',
-            zIndex: '9999',
-            fontSize: '14px',
-            fontWeight: '500',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-            transform: 'translateX(300px)',
-            transition: 'transform 0.3s ease',
-            maxWidth: '300px',
-            wordWrap: 'break-word'
-        });
-
-        document.body.appendChild(toast);
-
-        // Animate in
+showToast(message, type = 'info') {
+    console.log('🍞 Showing toast:', message, type);
+    
+    // Tạo toast element
+    const toast = document.createElement('div');
+    toast.className = `compose-toast compose-toast--${type}`;
+    toast.textContent = message;
+    
+    // Thêm vào DOM
+    document.body.appendChild(toast);
+    
+    // Hiện toast
+    setTimeout(() => toast.classList.add('compose-toast--show'), 100);
+    
+    // Ẩn toast sau 3 giây
+    setTimeout(() => {
+        toast.classList.remove('compose-toast--show');
         setTimeout(() => {
-            toast.style.transform = 'translateX(0)';
-        }, 100);
-
-        // Auto remove
-        setTimeout(() => {
-            toast.style.transform = 'translateX(300px)';
-            setTimeout(() => {
-                if (document.body.contains(toast)) {
-                    document.body.removeChild(toast);
-                }
-            }, 300);
-        }, 3000);
-    }
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
+    }, 3000);
+}
 
     focusCompose() {
         this.textarea.focus();

@@ -432,7 +432,6 @@ export class AuthManager {
         this.showToast(message, 'error');
     }
 
-// ...existing code...
 showToast(message, type = 'info') {
     console.log('🍞 Showing toast:', message, type); // Debug log
     
@@ -457,5 +456,4 @@ showToast(message, type = 'info') {
         }, 300);
     }, 3000);
 }
-// ...existing code...
 }
