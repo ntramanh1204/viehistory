@@ -9,7 +9,7 @@ export class AvatarService {
             size: size,
             radius: 10
         });
-        
+
         return `${baseUrl}?${params.toString()}`;
     }
 
@@ -21,8 +21,9 @@ export class AvatarService {
         if (!user || user.isAnonymous) {
             return null; // Trả về null để sử dụng text avatar
         }
-        
-        const seed = user.displayName || user.email || 'user';
+
+        // ✅ SỬA: Sử dụng UID làm seed để đảm bảo unique
+        const seed = user.uid || user.email || 'user';
         return this.generateAvatar(seed, size);
     }
 
