@@ -432,49 +432,30 @@ export class AuthManager {
         this.showToast(message, 'error');
     }
 
-    showToast(message, type = 'info') {
-        // Remove existing toasts
-        document.querySelectorAll('.toast').forEach(toast => toast.remove());
-
-        // Create toast notification
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
-        toast.textContent = message;
-
-        // Style toast
-        Object.assign(toast.style, {
-            position: 'fixed',
-            top: '20px',
-            right: '20px',
-            padding: '12px 20px',
-            borderRadius: '8px',
-            color: 'white',
-            backgroundColor: type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6',
-            zIndex: '10000',
-            fontSize: '14px',
-            fontWeight: '500',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-            transform: 'translateX(300px)',
-            transition: 'transform 0.3s ease',
-            maxWidth: '300px',
-            wordWrap: 'break-word'
-        });
-
-        document.body.appendChild(toast);
-
-        // Animate in
+// ...existing code...
+showToast(message, type = 'info') {
+    console.log('🍞 Showing toast:', message, type); // Debug log
+    
+    // Tạo toast element
+    const toast = document.createElement('div');
+    toast.className = `auth-toast auth-toast--${type}`;
+    toast.textContent = message;
+    
+    // Thêm vào DOM
+    document.body.appendChild(toast);
+    
+    // Hiện toast
+    setTimeout(() => toast.classList.add('auth-toast--show'), 100);
+    
+    // Ẩn toast sau 3 giây
+    setTimeout(() => {
+        toast.classList.remove('auth-toast--show');
         setTimeout(() => {
-            toast.style.transform = 'translateX(0)';
-        }, 100);
-
-        // Auto remove
-        setTimeout(() => {
-            toast.style.transform = 'translateX(300px)';
-            setTimeout(() => {
-                if (document.body.contains(toast)) {
-                    document.body.removeChild(toast);
-                }
-            }, 300);
-        }, 4000);
-    }
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
+    }, 3000);
+}
+// ...existing code...
 }

@@ -91,10 +91,14 @@ export class AuthService {
                     throw new Error('Không tìm thấy tài khoản với email này.');
                 case 'auth/wrong-password':
                     throw new Error('Mật khẩu không đúng.');
+                case 'auth/invalid-credential':
+                    throw new Error('Email hoặc mật khẩu không đúng.');
                 case 'auth/invalid-email':
                     throw new Error('Email không hợp lệ.');
                 case 'auth/too-many-requests':
                     throw new Error('Quá nhiều lần thử. Vui lòng thử lại sau.');
+                case 'auth/user-disabled':
+                    throw new Error('Tài khoản này đã bị vô hiệu hóa.');
                 default:
                     throw new Error('Đăng nhập thất bại. Vui lòng thử lại.');
             }
