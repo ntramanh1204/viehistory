@@ -97,7 +97,7 @@ export class AuthManager {
         });
     }
 
- updateUIForAuthState(user) {
+    updateUIForAuthState(user) {
         const composeTextarea = document.getElementById('composeTextarea');
         const postSubmitBtn = document.getElementById('post-submit-btn');
         const authRequired = document.getElementById('auth-required');
@@ -105,6 +105,8 @@ export class AuthManager {
 
         const headerSigninBtn = document.getElementById('header-signin-btn');
         const userMenu = document.getElementById('user-menu');
+
+        const composeArea = document.querySelector('.compose-area');
 
         if (user && !user.isAnonymous) {
             // ✅ User đã đăng nhập thật sự - sử dụng Avataaars
@@ -117,6 +119,8 @@ export class AuthManager {
             if (userMenu) {
                 userMenu.classList.remove('hidden');
             }
+
+            if (composeArea) composeArea.classList.remove('hidden');
 
             // ✅ SỬA: Update header avatar giống như compose-area
             this.updateHeaderAvatar(user);
@@ -164,6 +168,8 @@ export class AuthManager {
                 userMenu.classList.add('hidden');
             }
 
+            if (composeArea) composeArea.classList.add('hidden');
+
             // ✅ SỬA: Reset header avatar
             this.resetHeaderAvatar();
             this.resetSidebarAvatar();
@@ -198,7 +204,7 @@ export class AuthManager {
     // ✅ THÊM: Method riêng để update header avatar
     updateHeaderAvatar(user) {
         const userAvatarHeader = document.getElementById('user-avatar-header');
-        
+
         if (!userAvatarHeader) return;
 
         // Xóa nội dung cũ
@@ -224,7 +230,7 @@ export class AuthManager {
     // ✅ THÊM: Method riêng để update sidebar avatar
     updateSidebarAvatar(user) {
         const sidebarAvatarContainer = document.querySelector('.user-avatar-sidebar');
-        
+
         if (!sidebarAvatarContainer) return;
 
         // Xóa nội dung cũ
@@ -250,7 +256,7 @@ export class AuthManager {
     // ✅ THÊM: Method để reset header avatar
     resetHeaderAvatar() {
         const userAvatarHeader = document.getElementById('user-avatar-header');
-        
+
         if (!userAvatarHeader) return;
 
         userAvatarHeader.innerHTML = '';
@@ -263,7 +269,7 @@ export class AuthManager {
     // ✅ THÊM: Method để reset sidebar avatar
     resetSidebarAvatar() {
         const sidebarAvatarContainer = document.querySelector('.user-avatar-sidebar');
-        
+
         if (!sidebarAvatarContainer) return;
 
         sidebarAvatarContainer.innerHTML = '';
@@ -432,28 +438,28 @@ export class AuthManager {
         this.showToast(message, 'error');
     }
 
-showToast(message, type = 'info') {
-    console.log('🍞 Showing toast:', message, type); // Debug log
-    
-    // Tạo toast element
-    const toast = document.createElement('div');
-    toast.className = `auth-toast auth-toast--${type}`;
-    toast.textContent = message;
-    
-    // Thêm vào DOM
-    document.body.appendChild(toast);
-    
-    // Hiện toast
-    setTimeout(() => toast.classList.add('auth-toast--show'), 100);
-    
-    // Ẩn toast sau 3 giây
-    setTimeout(() => {
-        toast.classList.remove('auth-toast--show');
+    showToast(message, type = 'info') {
+        console.log('🍞 Showing toast:', message, type); // Debug log
+
+        // Tạo toast element
+        const toast = document.createElement('div');
+        toast.className = `auth-toast auth-toast--${type}`;
+        toast.textContent = message;
+
+        // Thêm vào DOM
+        document.body.appendChild(toast);
+
+        // Hiện toast
+        setTimeout(() => toast.classList.add('auth-toast--show'), 100);
+
+        // Ẩn toast sau 3 giây
         setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, 300);
-    }, 3000);
-}
+            toast.classList.remove('auth-toast--show');
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 300);
+        }, 3000);
+    }
 }
