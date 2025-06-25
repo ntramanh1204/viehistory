@@ -428,13 +428,13 @@ async handleMediaSelect(event) {
                 id: Date.now() + Math.random(),
                 file: file,
                 type: file.type.startsWith('image/') ? 'image' : 'video',
-                url: URL.createObjectURL(file),
+                preview: URL.createObjectURL(file),
                 name: file.name,
                 size: file.size
             };
 
             this.selectedMedia.push(mediaItem);
-            this.renderMediaPreview();
+            this.updateMediaPreview();
 
         } catch (error) {
             console.error(`Error processing file: ${file.name}`, error);
