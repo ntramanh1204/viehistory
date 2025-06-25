@@ -105,6 +105,7 @@ export class AuthManager {
 
         const headerSigninBtn = document.getElementById('header-signin-btn');
         const userMenu = document.getElementById('user-menu');
+        const notificationBtn = document.getElementById('notification-btn');
 
         const composeArea = document.querySelector('.compose-area');
 
@@ -118,6 +119,10 @@ export class AuthManager {
 
             if (userMenu) {
                 userMenu.classList.remove('hidden');
+            }
+
+            if (notificationBtn) {
+                notificationBtn.style.display = 'inline-flex';
             }
 
             if (composeArea) composeArea.classList.remove('hidden');
@@ -166,6 +171,10 @@ export class AuthManager {
 
             if (userMenu) {
                 userMenu.classList.add('hidden');
+            }
+
+            if (notificationBtn) {
+                notificationBtn.style.display = 'none';
             }
 
             if (composeArea) composeArea.classList.add('hidden');

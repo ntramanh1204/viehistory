@@ -16,7 +16,7 @@
 }
 
 .app-header .logo {
-    font-size: 22px;
+    font-size: 16px;
     font-weight: 700;
     color: var(--accent-primary);
     margin-left: 16px;
@@ -31,7 +31,9 @@
 .header-actions button {
     background: none;
     border: none;
-    color: var(--text-secondary);
+    /* color: var(--text-secondary); */
+    color: var(--text-primary);
+    font-weight: 600;
     padding: 8px;
     cursor: pointer;
     border-radius: var(--radius-full);
@@ -1358,7 +1360,7 @@
 
 .read-more-btn:hover {
     background: var(--accent-secondary);
-}
+}   
 
 .load-more-section {
     text-align: center;
@@ -4383,4 +4385,10 @@
 
 .modal-footer .btn-primary:hover i {
     transform: scale(1.1);
+}
+
+
+
+#notification-btn {
+    display: none;
 }
