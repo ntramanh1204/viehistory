@@ -4408,3 +4408,63 @@
     background: var(--accent-soft, #f5f5f5); /* Hiệu ứng hover nếu muốn */
     text-decoration: none;
 }
+
+@keyframes heartFloat {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: translateY(-20px) scale(1.2);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(-40px) scale(0.8);
+        opacity: 0;
+    }
+}
+
+/* ✅ SỬA: Better like button states với màu đỏ */
+.like-btn {
+    transition: all 0.2s ease;
+    position: relative;
+    color: var(--text-muted);
+}
+
+.like-btn:hover {
+    color: #e91e63;
+}
+
+.like-btn.liked {
+    color: #e91e63 !important;
+    transform: scale(1);
+}
+
+.like-btn.liked i {
+    color: #e91e63 !important;
+}
+
+.like-btn:active {
+    transform: scale(0.95);
+}
+
+.like-btn.pending {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+/* Heart animation remains the same */
+@keyframes heartFloat {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: translateY(-20px) scale(1.2);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(-40px) scale(0.8);
+        opacity: 0;
+    }
+}

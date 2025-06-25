@@ -321,8 +321,8 @@ export class DatabaseService {
     }
 
     /**
-     * Check if user liked item
-     */
+         * Check if user liked item - Optimized version
+         */
     async checkUserLike(itemType, itemId, userId) {
         if (!userId) return false;
 
@@ -331,7 +331,8 @@ export class DatabaseService {
                 collection(db, 'likes'),
                 where('userId', '==', userId),
                 where('itemId', '==', itemId),
-                where('itemType', '==', itemType)
+                where('itemType', '==', itemType),
+                limit(1) // ✅ THÊM: Limit 1 để tối ưu
             );
 
             const likeSnapshot = await getDocs(likeQuery);
@@ -339,6 +340,45 @@ export class DatabaseService {
         } catch (error) {
             console.error('❌ Error checking like:', error);
             return false;
+        }
+    }
+
+    // ✅ THÊM: Batch check likes cho multiple posts
+    async checkMultipleLikes(itemType, itemIds, userId) {
+        if (!userId || !itemIds.length) return {};
+
+        try {
+            const results = {};
+
+            // Batch check trong chunks of 10 (Firestore limitation)
+            const chunks = [];
+            for (let i = 0; i < itemIds.length; i += 10) {
+                chunks.push(itemIds.slice(i, i + 10));
+            }
+
+            for (const chunk of chunks) {
+                const likeQuery = query(
+                    collection(db, 'likes'),
+                    where('userId', '==', userId),
+                    where('itemId', 'in', chunk),
+                    where('itemType', '==', itemType)
+                );
+
+                const likeSnapshot = await getDocs(likeQuery);
+
+                // Initialize all as false
+                chunk.forEach(id => results[id] = false);
+
+                // Mark liked ones as true
+                likeSnapshot.forEach(doc => {
+                    results[doc.data().itemId] = true;
+                });
+            }
+
+            return results;
+        } catch (error) {
+            console.error('❌ Error batch checking likes:', error);
+            return {};
         }
     }
 

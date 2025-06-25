@@ -9,11 +9,40 @@ export class FeedManager {
         this.isLoading = false;
         this.lastDoc = null;
         this.hasMore = true;
+        this.likeCache = new Map();
+        this.pendingLikes = new Set();
+        this.currentUserId = null;
+
+        this.setupUserChangeListener();
     }
 
     init() {
         this.setupEventListeners();
         this.loadInitialPosts();
+    }
+
+    // ✅ THÊM: Setup listener cho user change
+    setupUserChangeListener() {
+        document.addEventListener('userChanged', async (e) => {
+            const newUserId = e.detail.userId;
+
+            // ✅ Clear cache và reload nếu user thay đổi
+            if (newUserId !== this.currentUserId) {
+                console.log('🔄 User changed, reloading feed...', {
+                    from: this.currentUserId,
+                    to: newUserId
+                });
+
+                this.likeCache.clear();
+                this.pendingLikes.clear();
+                this.currentUserId = newUserId;
+
+                // ✅ Re-render posts với like status mới
+                if (this.posts.length > 0) {
+                    await this.renderPosts();
+                }
+            }
+        });
     }
 
     setupEventListeners() {
@@ -72,16 +101,52 @@ export class FeedManager {
         }
     }
 
-    renderPosts() {
+    // ✅ SỬA: Load like status khi render posts
+    async renderPosts() {
         if (!this.feedContainer) return;
+
+        const user = authService.getCurrentUser();
+
+        // ✅ THÊM: Clear cache nếu user thay đổi
+        if (user?.uid !== this.currentUserId) {
+            this.likeCache.clear();
+            this.currentUserId = user?.uid || null;
+        }
 
         if (this.posts.length === 0) {
             this.feedContainer.innerHTML = this.getEmptyState();
             return;
         }
 
-        this.feedContainer.innerHTML = this.posts.map(post => this.createPostHTML(post)).join('');
+        // ✅ SỬA: Load like status cho tất cả posts
+        if (user) {
+            await this.loadLikeStatuses(this.posts.map(p => p.id));
+        }
+
+        const postsHTML = this.posts.map(post => this.createPostHTML(post)).join('');
+        this.feedContainer.innerHTML = postsHTML;
+
         this.attachPostEventListeners();
+    }
+
+    // ✅ SỬA: Optimize batch loading likes
+    async loadLikeStatuses(postIds) {
+        const user = authService.getCurrentUser();
+        if (!user || postIds.length === 0) return;
+
+        try {
+            // ✅ Use batch check instead of individual checks
+            const likeStatuses = await dbService.checkMultipleLikes('post', postIds, user.uid);
+
+            // Update cache with results
+            Object.entries(likeStatuses).forEach(([postId, isLiked]) => {
+                this.likeCache.set(postId, isLiked);
+            });
+
+            console.log('✅ Loaded like statuses for', postIds.length, 'posts');
+        } catch (error) {
+            console.error('❌ Error loading like statuses:', error);
+        }
     }
 
     appendPosts(newPosts) {
@@ -103,86 +168,72 @@ export class FeedManager {
 
     createPostHTML(post) {
         const timeAgo = this.getTimeAgo(post.createdAt);
-
-        // ✅ SỬA: Sử dụng AvatarService để hiển thị avatar nhất quán
         const avatar = AvatarService.shouldUseAvataaars(post.author) ?
             `<img src="${AvatarService.getUserAvatar(post.author, 40)}" alt="${post.author.displayName}" class="author-avatar-img">` :
             `<span class="author-avatar-text">${post.author.displayName.charAt(0).toUpperCase()}</span>`;
 
-        // ✅ THÊM: Format content tốt hơn
         const formattedContent = this.formatPostContent(post.content);
-
-        // ✅ THÊM: Render media với preview tốt hơn
         const mediaHTML = this.createEnhancedMediaHTML(post.media || []);
-
-        // ✅ THÊM: Hashtag rendering
         const hashtagsHTML = this.createHashtagsHTML(post.hashtags || []);
+
+        // ✅ THÊM: Check like status from cache
+        const user = authService.getCurrentUser();
+        const isLiked = user ? this.likeCache.get(post.id) || false : false;
+        const likedClass = isLiked ? 'liked' : '';
+        const heartIcon = isLiked ? 'fas fa-heart' : 'far fa-heart';
 
         return `
             <article class="post-item" data-post-id="${post.id}">
-                <header class="post-header">
+                <div class="post-header">
                     <div class="post-author">
                         <div class="author-avatar">${avatar}</div>
                         <div class="author-info">
                             <span class="author-name">${post.author.displayName}</span>
                             <span class="post-time">${timeAgo}</span>
-                            ${post.author.isVerified ? '<span class="verified-badge">✓</span>' : ''}
                         </div>
                     </div>
-                    ${post.topic ? `<span class="post-topic">${post.topic}</span>` : ''}
-                    <div class="post-menu">
-                        <button class="post-menu-btn" data-post-id="${post.id}">⋯</button>
-                    </div>
-                </header>
-                
+                    <button class="post-menu-btn" data-post-id="${post.id}">⋯</button>
+                </div>
+
                 <div class="post-content">
                     <div class="post-text">${formattedContent}</div>
                     ${mediaHTML}
                     ${hashtagsHTML}
                 </div>
-                
-                <footer class="post-actions">
-                    <button class="action-btn like-btn ${post.isLiked ? 'liked' : ''}" data-post-id="${post.id}">
-                        <i class="${post.isLiked ? 'fas fa-heart' : 'far fa-heart'}"></i>
-                        <span class="action-count">${this.formatCount(post.stats.likes || 0)}</span>
+
+                <div class="post-actions">
+                    <button class="action-btn like-btn ${likedClass}" data-post-id="${post.id}">
+                        <i class="${heartIcon}"></i>
+                        <span class="action-count">${post.stats?.likes || 0}</span>
                     </button>
                     
                     <button class="action-btn comment-btn" data-post-id="${post.id}">
                         <i class="far fa-comment"></i>
-                        <span class="action-count">${this.formatCount(post.stats.comments || 0)}</span>
+                        <span class="action-count">${post.stats?.comments || 0}</span>
                     </button>
                     
                     <button class="action-btn share-btn" data-post-id="${post.id}">
                         <i class="fas fa-share"></i>
-                        <span class="action-count">${this.formatCount(post.stats.shares || 0)}</span>
+                        <span class="action-count">${post.stats?.shares || 0}</span>
                     </button>
+                </div>
 
-                    <button class="action-btn bookmark-btn" data-post-id="${post.id}">
-                        <i class="far fa-bookmark"></i>
-                    </button>
-
-                    <a href="/post/${post.id}" class="read-more-btn">Chi tiết</a>
-                </footer>
-
-                <div class="comments-section hidden" data-post-id="${post.id}">
+                <!-- Comments section -->
+                <div class="comments-section hidden" data-post-id="${post.id}" style="display: none;">
                     <div class="comment-form">
                         <div class="comment-avatar">
-                            ${authService.isSignedIn() ?
-                AvatarService.shouldUseAvataaars(authService.getCurrentUser()) ?
-                    `<img src="${AvatarService.getUserAvatar(authService.getCurrentUser(), 32)}" alt="Your avatar">` :
-                    `<span class="comment-avatar-text">A</span>` :
-                `<span class="comment-avatar-text">A</span>`
-            }
+                            <span class="comment-avatar-text">A</span>
                         </div>
                         <div class="comment-input-container">
-                            <textarea class="comment-input" placeholder="Viết bình luận..." data-post-id="${post.id}"></textarea>
-                            <button class="comment-submit" data-post-id="${post.id}">
+                            <textarea class="comment-input" data-post-id="${post.id}" 
+                                    placeholder="Viết bình luận..."></textarea>
+                            <button class="comment-submit-btn" data-post-id="${post.id}">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="comments-list" data-post-id="${post.id}">
-                        <div class="comments-loading hidden">Đang tải bình luận...</div>
+                    <div class="comments-list" data-post-id="${post.id}" data-loaded="false">
+                        <!-- Comments will be loaded here -->
                     </div>
                 </div>
             </article>
@@ -299,34 +350,159 @@ export class FeedManager {
         `;
     }
 
- attachPostEventListeners() {
-    if (!this.feedContainer) return;
+    // ✅ SỬA: Fix event delegation - chỉ dùng 1 listener
+    attachPostEventListeners() {
+        if (!this.feedContainer) return;
 
-    // ✅ SỬA: Xóa tất cả listeners cũ trước
-    this.feedContainer.removeEventListener('click', this.handlePostInteraction);
-    this.feedContainer.removeEventListener('openLightbox', this.handleLightbox);
+        // Remove old listeners
+        this.feedContainer.removeEventListener('click', this.handlePostClick);
 
-    // ✅ SỬA: Chỉ sử dụng event delegation, không gán trực tiếp
-    this.feedContainer.addEventListener('click', (e) => this.handlePostInteraction(e));
-    this.feedContainer.addEventListener('openLightbox', (e) => this.handleLightbox(e));
+        // Add single delegated listener
+        this.handlePostClick = this.handlePostClick.bind(this);
+        this.feedContainer.addEventListener('click', this.handlePostClick);
+    }
 
-    // ✅ XÓA: Bỏ hết phần gán listeners trực tiếp này
-    // document.querySelectorAll('.like-btn').forEach(btn => {
-    //     btn.replaceWith(btn.cloneNode(true)); // Remove old listeners
-    // });
+    // ✅ SỬA: Centralized click handler with optimistic updates
+    async handlePostClick(e) {
+        const target = e.target.closest('button');
+        if (!target) return;
 
-    // document.querySelectorAll('.like-btn').forEach(btn => {
-    //     btn.addEventListener('click', (e) => this.handleLike(e));
-    // });
+        e.preventDefault();
+        e.stopPropagation();
 
-    // document.querySelectorAll('.comment-submit').forEach(btn => {
-    //     btn.addEventListener('click', (e) => this.handleCommentSubmit(e));
-    // });
+        const postId = target.dataset.postId;
+        if (!postId) return;
 
-    // Keyboard shortcuts - chỉ gán một lần
-    document.removeEventListener('keydown', this.handleKeyboardShortcuts);
-    document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
-}
+        // Route to specific handlers
+        if (target.classList.contains('like-btn')) {
+            await this.handleLikeOptimistic(target, postId);
+        } else if (target.classList.contains('comment-btn')) {
+            this.toggleComments(target);
+        } else if (target.classList.contains('share-btn')) {
+            // Let ShareManager handle this
+            return;
+        } else if (target.classList.contains('comment-submit-btn')) {
+            await this.handleCommentSubmit(e);
+        }
+    }
+
+    // ✅ SỬA: Update optimistic like để sync cache
+    async handleLikeOptimistic(button, postId) {
+        // Prevent spam clicking
+        if (this.pendingLikes.has(postId)) {
+            console.log('⚠️ Like action already pending for post:', postId);
+            return;
+        }
+
+        const user = authService.getCurrentUser();
+        if (!user) {
+            const event = new CustomEvent('showAuthModal', {
+                detail: { message: 'Đăng nhập để thích bài viết' }
+            });
+            document.dispatchEvent(event);
+            return;
+        }
+
+        const countSpan = button.querySelector('.action-count');
+        const currentCount = parseInt(countSpan.textContent) || 0;
+        const isLiked = button.classList.contains('liked');
+        const icon = button.querySelector('i');
+
+        // ✅ OPTIMISTIC UPDATE - Update UI immediately
+        this.pendingLikes.add(postId);
+
+        if (isLiked) {
+            // Optimistically unlike
+            button.classList.remove('liked');
+            icon.className = 'far fa-heart'; // Outline heart
+            countSpan.textContent = Math.max(0, currentCount - 1);
+            button.style.transform = 'scale(0.95)';
+
+            // ✅ Update cache optimistically
+            this.likeCache.set(postId, false);
+        } else {
+            // Optimistically like
+            button.classList.add('liked');
+            icon.className = 'fas fa-heart'; // Filled heart
+            countSpan.textContent = currentCount + 1;
+            button.style.transform = 'scale(1.1)';
+
+            // ✅ Update cache optimistically
+            this.likeCache.set(postId, true);
+
+            // Add heart animation
+            this.showHeartAnimation(button);
+        }
+
+        // Reset transform
+        setTimeout(() => {
+            button.style.transform = 'scale(1)';
+        }, 150);
+
+        try {
+            // Make API call
+            const result = await dbService.toggleLike('post', postId, user);
+
+            // ✅ Verify and update cache with server result
+            this.likeCache.set(postId, result.liked);
+
+            // ✅ Verify optimistic update was correct
+            if (result.liked !== !isLiked) {
+                // Rollback if server state differs
+                console.warn('⚠️ Rolling back optimistic like update');
+                this.rollbackLikeUpdate(button, isLiked, currentCount);
+            }
+
+        } catch (error) {
+            console.error('❌ Like failed, rolling back:', error);
+            // Rollback optimistic update
+            this.rollbackLikeUpdate(button, isLiked, currentCount);
+            // ✅ Rollback cache
+            this.likeCache.set(postId, isLiked);
+            this.showToast('Không thể thích bài viết. Thử lại sau.', 'error');
+        } finally {
+            this.pendingLikes.delete(postId);
+        }
+    }
+
+    // ✅ SỬA: Improved rollback with icon update
+    rollbackLikeUpdate(button, wasLiked, originalCount) {
+        const countSpan = button.querySelector('.action-count');
+        const icon = button.querySelector('i');
+
+        if (wasLiked) {
+            button.classList.add('liked');
+            icon.className = 'fas fa-heart'; // Filled heart
+        } else {
+            button.classList.remove('liked');
+            icon.className = 'far fa-heart'; // Outline heart
+        }
+
+        countSpan.textContent = originalCount;
+    }
+
+    // ✅ THÊM: Heart animation
+    showHeartAnimation(button) {
+        const heart = document.createElement('div');
+        heart.innerHTML = '❤️';
+        heart.style.cssText = `
+            position: absolute;
+            font-size: 20px;
+            pointer-events: none;
+            animation: heartFloat 1s ease-out forwards;
+            z-index: 1000;
+        `;
+
+        const rect = button.getBoundingClientRect();
+        heart.style.left = rect.left + rect.width / 2 - 10 + 'px';
+        heart.style.top = rect.top - 10 + 'px';
+
+        document.body.appendChild(heart);
+
+        setTimeout(() => {
+            heart.remove();
+        }, 1000);
+    }
 
     // ✅ THÊM: Centralized post interaction handler
     async handlePostInteraction(e) {
@@ -725,9 +901,9 @@ export class FeedManager {
     toggleComments(button) { // Nhận button trực tiếp
         const postId = button.dataset.postId;
         const commentsSection = document.querySelector(`.comments-section[data-post-id="${postId}"]`);
-        
+
         if (!commentsSection) return;
-        
+
         if (commentsSection.classList.contains('hidden')) {
             commentsSection.classList.remove('hidden');
             this.loadComments(postId);

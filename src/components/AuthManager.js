@@ -163,6 +163,8 @@ export class AuthManager {
             authRequired?.classList.add('hidden');
             fabBtn?.classList.remove('hidden');
 
+            this.reloadFeedForNewUser();
+
         } else {
             // ✅ User chưa đăng nhập hoặc anonymous - giữ chữ "A"
             if (headerSigninBtn) {
@@ -207,7 +209,20 @@ export class AuthManager {
 
             authRequired?.classList.remove('hidden');
             fabBtn?.classList.add('hidden');
+
+            this.reloadFeedForNewUser();
         }
+    }
+
+    // ✅ THÊM: Method để reload feed khi user thay đổi
+    reloadFeedForNewUser() {
+        // Dispatch event để FeedManager reload
+        const event = new CustomEvent('userChanged', {
+            detail: {
+                userId: authService.getCurrentUser()?.uid || null
+            }
+        });
+        document.dispatchEvent(event);
     }
 
     // ✅ THÊM: Method riêng để update header avatar
