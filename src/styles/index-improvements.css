@@ -6,11 +6,28 @@
 body {
     background: var(--bg-primary);
     color: var(--text-primary);
+    background-image: url('/public/assets/background/background.jpeg');
+    background-size: cover; /* hoặc thử contain, 100vw 100vh */
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-attachment: fixed;
 }
 
 .app-container {
     background: transparent;
     /* Để nền tự nhiên */
+}
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255,255,255,0.7); /* hoặc rgba(245,245,245,0.8) */
+    z-index: 0;
+    pointer-events: none;
+}
+.app-container, .post-item, .empty-state, .auth-required {
+    position: relative;
+    z-index: 1;
 }
 
 /* ==================== COMPOSE AREA - GIỮ NGUYÊN STYLE CŨ ==================== */
