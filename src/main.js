@@ -88,6 +88,10 @@ async function handleRouting() {
             await showPostDetail(postId);
         }
     }
+    else if (path === '/profile' || path.startsWith('/profile/')) {
+        const userId = path.split('/')[2] || null;
+        await showProfile(userId);
+    }
     else if (path === '/' || path === '') {
         showHomePage();
     }
@@ -129,6 +133,48 @@ async function handleRouting() {
             });
         }
     }, 200);
+}
+
+async function showProfile(userId = null) {
+    try {
+        // Ẩn TẤT CẢ các container khác
+        hideAllContainers();
+
+        // Show profile page
+        let profileContainer = document.getElementById('profile-container');
+
+        if (!profileContainer) {
+            profileContainer = document.createElement('div');
+            profileContainer.id = 'profile-container';
+
+            // Load template
+            try {
+                const response = await fetch('/src/page/Profile.html');
+                const template = await response.text();
+                profileContainer.innerHTML = template;
+                document.body.appendChild(profileContainer);
+            } catch (error) {
+                console.error('Error loading profile template:', error);
+                profileContainer.innerHTML = '<div class="error">Không thể tải trang cá nhân</div>';
+            }
+        }
+
+        profileContainer.style.display = 'block';
+
+        // Initialize ProfileManager
+        const { ProfileManager } = await import('./components/ProfileManager.js');
+        const profileManager = new ProfileManager();
+        await profileManager.init(userId);
+
+        // Update navigation active state
+        document.querySelectorAll('.nav-item, .mobile-nav-item').forEach(item => {
+            item.classList.toggle('active', item.dataset.page === 'profile');
+        });
+
+    } catch (error) {
+        console.error('Error showing profile:', error);
+        window.navigate('/');
+    }
 }
 
 // ✅ Helper function để navigate
@@ -300,7 +346,8 @@ function hideAllContainers() {
         '#post-detail-container',
         '#blog-detail-container',
         '#blog-page-container',
-        '#blog-editor-container'
+        '#blog-editor-container',
+        '#profile-container'
     ];
 
     containers.forEach(selector => {

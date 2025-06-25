@@ -1,0 +1,168 @@
+<div class="profile-page">
+    <div class="profile-header">
+        <div class="profile-cover">
+            <div class="profile-avatar-section">
+                <div class="profile-avatar" id="profile-avatar">
+                    <span class="profile-avatar-text">A</span>
+                </div>
+                <button class="edit-avatar-btn hidden" id="edit-avatar-btn" title="Thay đổi avatar">
+                    <i class="fas fa-camera"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="profile-info">
+            <h1 class="profile-name" id="profile-name">User</h1>
+            <!-- ✅ THÊM: Username hiển thị -->
+            <p class="profile-username" id="profile-username">@username</p>
+            <p class="profile-bio" id="profile-bio">Chưa có tiểu sử</p>
+
+            <!-- ✅ THÊM: Extended profile meta info -->
+            <div class="profile-meta-info" id="profile-meta-info">
+                <!-- Location, website, etc sẽ được render động -->
+            </div>
+
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="posts-count">0</span>
+                    <span class="stat-label">Bài viết</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="followers-count">0</span>
+                    <span class="stat-label">Người theo dõi</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="following-count">0</span>
+                    <span class="stat-label">Đang theo dõi</span>
+                </div>
+            </div>
+
+            <div class="profile-actions">
+                <button class="btn-primary edit-profile-btn hidden" id="edit-profile-btn">
+                    <i class="fas fa-edit"></i> Chỉnh sửa
+                </button>
+                <button class="btn-secondary follow-btn hidden" id="follow-btn">
+                    <i class="fas fa-user-plus"></i> Theo dõi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-content">
+        <div class="profile-tabs">
+            <button class="tab-btn active" data-tab="posts">Bài viết</button>
+            <!-- <button class="tab-btn" data-tab="blogs">Blog</button> -->
+            <!-- <button class="tab-btn" data-tab="media">Media</button> -->
+        </div>
+
+        <div class="tab-content">
+            <div class="tab-pane active" id="posts-tab">
+                <div class="profile-posts" id="profile-posts">
+                    <div class="loading">Đang tải bài viết...</div>
+                </div>
+            </div>
+
+            <!-- <div class="tab-pane" id="blogs-tab">
+                <div class="profile-blogs" id="profile-blogs">
+                    <div class="loading">Đang tải blog...</div>
+                </div>
+            </div> -->
+
+            <!-- <div class="tab-pane" id="media-tab">
+                <div class="profile-media" id="profile-media">
+                    <div class="loading">Đang tải media...</div>
+                </div>
+            </div> -->
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal hidden" id="edit-profile-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Chỉnh sửa trang cá nhân</h3>
+            <button class="modal-close" id="close-edit-modal">×</button>
+        </div>
+        
+        <div class="modal-body">
+            <form id="edit-profile-form" class="edit-profile-form">
+                <!-- Avatar Section -->
+                <div class="form-group">
+                    <label>Ảnh đại diện</label>
+                    <div class="avatar-edit-section">
+                        <div class="avatar-preview" id="modal-avatar-preview">
+                            <span class="profile-avatar-text">A</span>
+                        </div>
+                        <div class="avatar-actions">
+                            <button type="button" class="btn-secondary btn-sm" id="change-avatar-btn">
+                                <i class="fas fa-camera"></i> Thay đổi
+                            </button>
+                            <button type="button" class="btn-outline btn-sm" id="remove-avatar-btn">
+                                <i class="fas fa-trash"></i> Xóa
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Basic Info -->
+                <div class="form-group">
+                    <label for="edit-display-name">Tên hiển thị <span class="required">*</span></label>
+                    <input type="text" id="edit-display-name" name="displayName" maxlength="50" required>
+                </div>
+                
+                <!-- <div class="form-group">
+                    <label for="edit-username">Tên người dùng</label>
+                    <input type="text" id="edit-username" name="username" maxlength="30" 
+                           placeholder="username" pattern="^[a-zA-Z0-9_]+$">
+                    <small class="field-hint">Chỉ chữ cái, số và dấu gạch dưới</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-location">Địa điểm</label>
+                    <input type="text" id="edit-location" name="location" maxlength="50" 
+                           placeholder="Thành phố, Quốc gia">
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-website">Website</label>
+                    <input type="url" id="edit-website" name="website" maxlength="100" 
+                           placeholder="https://yourwebsite.com">
+                </div> -->
+            
+                <div class="form-group">
+                    <label for="edit-bio">Tiểu sử</label>
+                    <textarea id="edit-bio" name="bio" maxlength="160" 
+                              placeholder="Viết vài dòng về bản thân..." rows="4"></textarea>
+                    <div class="char-counter">
+                        <span id="bio-char-count">0</span>/160
+                    </div>
+                </div>
+
+                <!-- Privacy Settings -->
+                <!-- <div class="form-group">
+                    <label>Cài đặt riêng tư</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="profile-public" name="isPublic">
+                            <span class="checkbox-custom"></span>
+                            <span class="checkbox-label">Trang cá nhân công khai</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="show-email" name="showEmail">
+                            <span class="checkbox-custom"></span>
+                            <span class="checkbox-label">Hiển thị email</span>
+                        </label>
+                    </div>
+                </div>
+            </form>
+        </div> -->
+        
+        <div class="modal-footer">
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" id="cancel-edit">Hủy</button>
+                <button type="submit" class="btn-primary" form="edit-profile-form">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+</div>

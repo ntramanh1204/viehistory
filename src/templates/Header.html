@@ -21,18 +21,22 @@
         <!-- ...existing code... -->
         <div id="user-menu" class="user-menu hidden">
             <button id="user-avatar-btn" class="user-avatar-btn">
-                <!-- Thay img bằng div với text avatar giống sidebar -->
                 <div id="user-avatar-header" class="user-avatar-header">
-            <span class="user-avatar-text">A</span>
-        </div>
+                    <span class="user-avatar-text">A</span>
+                </div>
             </button>
             <div id="user-dropdown" class="user-dropdown hidden">
                 <div class="user-info">
                     <span id="user-display-name">User</span>
                 </div>
-                <button id="signout-btn" class="dropdown-item">Đăng xuất</button>
+                <button class="dropdown-item" onclick="window.navigate('/profile')">
+                    <i class="fas fa-user"></i> Trang cá nhân
+                </button>
+                <button id="signout-btn" class="dropdown-item">
+                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                </button>
             </div>
         </div>
-<!-- ...existing code... -->
+        <!-- ...existing code... -->
     </div>
 </header>

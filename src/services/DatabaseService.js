@@ -1,21 +1,22 @@
-import { 
-    getFirestore, 
-    collection, 
-    addDoc, 
-    getDocs, 
-    doc, 
-    getDoc, 
+import {
+    getFirestore,
+    collection,
+    addDoc,
+    getDocs,
+    doc,
+    getDoc,
     updateDoc,
     deleteDoc,
-    query, 
-    where, 
-    orderBy, 
-    limit, 
-    startAfter, 
+    query,
+    where,
+    orderBy,
+    limit,
+    startAfter,
     serverTimestamp,
     increment
 } from 'firebase/firestore';
 import { db } from '../config/firebase.js';
+import { authService } from './AuthService.js';
 
 export class DatabaseService {
     constructor() {
@@ -492,153 +493,321 @@ export class DatabaseService {
         }
     }
 
-// ...existing code...
+    // ...existing code...
 
-/**
- * Lấy blogs nổi bật
- */
-async getFeaturedBlogs(limitCount = 1) {
-    try {
-        console.log('🔍 Getting featured blogs with limit:', limitCount);
-        
-        const q = query(
-            collection(db, 'blogs'),
-            where('featured', '==', true),
-            where('status', '==', 'published'),
-            orderBy('createdAt', 'desc'),
-            limit(limitCount)  // Dòng 575 - nơi xảy ra lỗi
-        );
+    /**
+     * Lấy blogs nổi bật
+     */
+    async getFeaturedBlogs(limitCount = 1) {
+        try {
+            console.log('🔍 Getting featured blogs with limit:', limitCount);
 
-        const querySnapshot = await getDocs(q);
-        const blogs = [];
-
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            blogs.push({
-                id: doc.id,
-                ...data,
-                createdAt: data.createdAt?.toDate() || new Date()
-            });
-        });
-
-        console.log('✅ Featured blogs loaded:', blogs.length);
-        return blogs;
-    } catch (error) {
-        console.error('Error getting featured blogs:', error);
-        return [];
-    }
-}
-
-/**
- * Lấy danh sách blogs với filter
- */
-async getBlogs({ category = null, searchQuery = '', limit: limitCount = 6, lastVisible = null }) {
-    try {
-        console.log('🔍 Getting blogs with params:', { category, searchQuery, limitCount });
-        
-        let blogsRef = collection(db, 'blogs');
-        let blogsQuery;
-
-        // Xây dựng query dựa trên bộ lọc
-        if (category) {
-            blogsQuery = query(
-                blogsRef,
-                where('category', '==', category),
+            const q = query(
+                collection(db, 'blogs'),
+                where('featured', '==', true),
                 where('status', '==', 'published'),
-                orderBy('createdAt', 'desc')
+                orderBy('createdAt', 'desc'),
+                limit(limitCount)  // Dòng 575 - nơi xảy ra lỗi
             );
-        } else {
-            blogsQuery = query(
-                blogsRef,
+
+            const querySnapshot = await getDocs(q);
+            const blogs = [];
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                blogs.push({
+                    id: doc.id,
+                    ...data,
+                    createdAt: data.createdAt?.toDate() || new Date()
+                });
+            });
+
+            console.log('✅ Featured blogs loaded:', blogs.length);
+            return blogs;
+        } catch (error) {
+            console.error('Error getting featured blogs:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Lấy danh sách blogs với filter
+     */
+    async getBlogs({ category = null, searchQuery = '', limit: limitCount = 6, lastVisible = null }) {
+        try {
+            console.log('🔍 Getting blogs with params:', { category, searchQuery, limitCount });
+
+            let blogsRef = collection(db, 'blogs');
+            let blogsQuery;
+
+            // Xây dựng query dựa trên bộ lọc
+            if (category) {
+                blogsQuery = query(
+                    blogsRef,
+                    where('category', '==', category),
+                    where('status', '==', 'published'),
+                    orderBy('createdAt', 'desc')
+                );
+            } else {
+                blogsQuery = query(
+                    blogsRef,
+                    where('status', '==', 'published'),
+                    orderBy('createdAt', 'desc')
+                );
+            }
+
+            // Thêm điều kiện lastVisible cho phân trang
+            if (lastVisible) {
+                blogsQuery = query(
+                    blogsQuery,
+                    startAfter(lastVisible),
+                    limit(limitCount)  // Dòng 527 - nơi xảy ra lỗi
+                );
+            } else {
+                blogsQuery = query(
+                    blogsQuery,
+                    limit(limitCount)  // Dòng 527 - nơi xảy ra lỗi
+                );
+            }
+
+            const snapshot = await getDocs(blogsQuery);
+            const blogs = [];
+
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                blogs.push({
+                    id: doc.id,
+                    ...data,
+                    createdAt: data.createdAt?.toDate() || new Date()
+                });
+            });
+
+            // Filter by search query if provided
+            let filteredBlogs = blogs;
+            if (searchQuery) {
+                const lowerQuery = searchQuery.toLowerCase();
+                filteredBlogs = blogs.filter(blog =>
+                    blog.title?.toLowerCase().includes(lowerQuery) ||
+                    blog.content?.toLowerCase().includes(lowerQuery)
+                );
+            }
+
+            const lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1];
+
+            console.log('✅ Blogs loaded:', filteredBlogs.length);
+            return {
+                blogs: filteredBlogs,
+                lastVisible: lastVisibleDoc
+            };
+        } catch (error) {
+            console.error('Error getting blogs:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Lấy blogs phổ biến
+     */
+    async getPopularBlogs(limitCount = 5) {
+        try {
+            console.log('🔍 Getting popular blogs with limit:', limitCount);
+
+            const q = query(
+                collection(db, 'blogs'),
                 where('status', '==', 'published'),
-                orderBy('createdAt', 'desc')
+                orderBy('stats.views', 'desc'),
+                limit(limitCount)  // Dòng 606 - nơi xảy ra lỗi
             );
-        }
 
-        // Thêm điều kiện lastVisible cho phân trang
-        if (lastVisible) {
-            blogsQuery = query(
-                blogsQuery,
-                startAfter(lastVisible),
-                limit(limitCount)  // Dòng 527 - nơi xảy ra lỗi
-            );
-        } else {
-            blogsQuery = query(
-                blogsQuery,
-                limit(limitCount)  // Dòng 527 - nơi xảy ra lỗi
-            );
-        }
+            const querySnapshot = await getDocs(q);
+            const blogs = [];
 
-        const snapshot = await getDocs(blogsQuery);
-        const blogs = [];
-
-        snapshot.forEach((doc) => {
-            const data = doc.data();
-            blogs.push({
-                id: doc.id,
-                ...data,
-                createdAt: data.createdAt?.toDate() || new Date()
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                blogs.push({
+                    id: doc.id,
+                    ...data,
+                    createdAt: data.createdAt?.toDate() || new Date()
+                });
             });
-        });
 
-        // Filter by search query if provided
-        let filteredBlogs = blogs;
-        if (searchQuery) {
-            const lowerQuery = searchQuery.toLowerCase();
-            filteredBlogs = blogs.filter(blog => 
-                blog.title?.toLowerCase().includes(lowerQuery) ||
-                blog.content?.toLowerCase().includes(lowerQuery)
+            console.log('✅ Popular blogs loaded:', blogs.length);
+            return blogs;
+        } catch (error) {
+            console.error('Error getting popular blogs:', error);
+            return [];
+        }
+    }
+
+    // ...existing code...
+
+    // ==================== USER PROFILE ====================
+
+    /**
+     * Lấy thông tin profile của user
+     */
+    async getUserProfile(userId) {
+        try {
+            const userDoc = await getDoc(doc(db, 'users', userId));
+
+            if (!userDoc.exists()) {
+                return null;
+            }
+
+            return {
+                uid: userId,
+                ...userDoc.data()
+            };
+        } catch (error) {
+            console.error('Error getting user profile:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Cập nhật thông tin profile
+     */
+    async updateUserProfile(userId, profileData) {
+        try {
+            const currentUser = authService.getCurrentUser();
+
+            // Kiểm tra quyền
+            if (!currentUser || currentUser.uid !== userId) {
+                throw new Error('Không có quyền cập nhật profile này');
+            }
+
+            const userRef = doc(db, 'users', userId);
+
+            // ✅ THÊM: Lọc bỏ các field undefined/null
+            const cleanData = {};
+            Object.keys(profileData).forEach(key => {
+                if (profileData[key] !== undefined && profileData[key] !== null) {
+                    cleanData[key] = profileData[key];
+                }
+            });
+
+            // ✅ THÊM: Thêm timestamp
+            cleanData.updatedAt = serverTimestamp();
+
+            await updateDoc(userRef, cleanData);
+
+            console.log('✅ Profile updated successfully:', cleanData);
+
+        } catch (error) {
+            console.error('Error updating user profile:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Lấy thống kê của user
+     */
+    async getUserStats(userId) {
+        try {
+            // Count posts
+            const postsQuery = query(
+                collection(db, this.postsCollection),
+                where('author.uid', '==', userId)
             );
+            const postsSnapshot = await getDocs(postsQuery);
+            const postsCount = postsSnapshot.size;
+
+            // TODO: Implement followers/following count
+
+            return {
+                postsCount,
+                followersCount: 0,
+                followingCount: 0
+            };
+        } catch (error) {
+            console.error('Error getting user stats:', error);
+            return {
+                postsCount: 0,
+                followersCount: 0,
+                followingCount: 0
+            };
+        }
+    }
+
+    /**
+     * Lấy bài viết của user
+     */
+    async getUserPosts(userId, limitCount = 20) {
+        try {
+            const q = query(
+                collection(db, this.postsCollection),
+                where('author.uid', '==', userId),
+                where('status', '==', 'published'),
+                orderBy('createdAt', 'desc'),
+                limit(limitCount)
+            );
+
+            const querySnapshot = await getDocs(q);
+            const posts = [];
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                posts.push({
+                    id: doc.id,
+                    ...data,
+                    createdAt: data.createdAt?.toDate() || new Date()
+                });
+            });
+
+            return posts;
+        } catch (error) {
+            console.error('Error getting user posts:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Toggle follow user
+     */
+    async toggleFollow(followerId, followingId) {
+        if (followerId === followingId) {
+            throw new Error('Không thể theo dõi chính mình');
         }
 
-        const lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1];
+        try {
+            // Check current follow status
+            const followRef = doc(db, 'follows', `${followerId}_${followingId}`);
+            const followDoc = await getDoc(followRef);
 
-        console.log('✅ Blogs loaded:', filteredBlogs.length);
-        return {
-            blogs: filteredBlogs,
-            lastVisible: lastVisibleDoc
-        };
-    } catch (error) {
-        console.error('Error getting blogs:', error);
-        throw error;
+            if (followDoc.exists()) {
+                // Unfollow
+                await deleteDoc(followRef);
+                return { isFollowing: false };
+            } else {
+                // Follow
+                await setDoc(followRef, {
+                    followerId,
+                    followingId,
+                    createdAt: serverTimestamp()
+                });
+                return { isFollowing: true };
+            }
+        } catch (error) {
+            console.error('Error toggling follow:', error);
+            throw error;
+        }
     }
-}
 
-/**
- * Lấy blogs phổ biến
- */
-async getPopularBlogs(limitCount = 5) {
-    try {
-        console.log('🔍 Getting popular blogs with limit:', limitCount);
-        
-        const q = query(
-            collection(db, 'blogs'),
-            where('status', '==', 'published'),
-            orderBy('stats.views', 'desc'),
-            limit(limitCount)  // Dòng 606 - nơi xảy ra lỗi
-        );
-
-        const querySnapshot = await getDocs(q);
-        const blogs = [];
-
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            blogs.push({
-                id: doc.id,
-                ...data,
-                createdAt: data.createdAt?.toDate() || new Date()
-            });
-        });
-
-        console.log('✅ Popular blogs loaded:', blogs.length);
-        return blogs;
-    } catch (error) {
-        console.error('Error getting popular blogs:', error);
-        return [];
+    /**
+     * Check if user is following another user
+     */
+    async checkFollowStatus(followerId, followingId) {
+        try {
+            const followRef = doc(db, 'follows', `${followerId}_${followingId}`);
+            const followDoc = await getDoc(followRef);
+            return followDoc.exists();
+        } catch (error) {
+            console.error('Error checking follow status:', error);
+            return false;
+        }
     }
-}
 
-// ...existing code...
+    // ...existing code...
 
 }
 
