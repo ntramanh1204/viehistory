@@ -4392,3 +4392,19 @@
 #notification-btn {
     display: none;
 }
+
+.sidebar-user {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    text-decoration: none;      /* Bỏ gạch chân */
+    color: inherit;             /* Giữ màu chữ như cũ */
+    background: inherit;        /* Giữ nền như cũ */
+    cursor: pointer;
+    border-radius: 12px;
+    transition: background 0.2s;
+}
+.sidebar-user:hover {
+    background: var(--accent-soft, #f5f5f5); /* Hiệu ứng hover nếu muốn */
+    text-decoration: none;
+}

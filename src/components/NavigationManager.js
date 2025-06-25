@@ -120,15 +120,29 @@ export class NavigationManager {
         }
 
         this.navItems?.forEach(item => {
-            const itemPage = item.dataset.page;
-            console.log(`Item: ${itemPage}, Target: ${page}`);
-
-            if (itemPage === page) {
-                item.classList.add('active');
-                console.log(`✅ Added active to ${itemPage}`);
-            } else {
-                item.classList.remove('active');
-            }
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const page = item.dataset.page;
+                if (page) {
+                    // Xử lý riêng cho Đăng bài
+                    if (page === 'compose') {
+                        // Nếu đang ở trang chủ, scroll tới compose-area
+                        if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+                            const compose = document.querySelector('.compose-area');
+                            if (compose) {
+                                compose.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                const textarea = compose.querySelector('textarea');
+                                if (textarea) textarea.focus();
+                            }
+                        } else {
+                            // Nếu không ở trang chủ, chuyển về trang chủ và thêm hash
+                            window.location.href = '/#compose';
+                        }
+                        return; // Không gọi navigateToPage cho compose
+                    }
+                    this.navigateToPage(page);
+                }
+            });
         });
 
         // Update page title if element exists
