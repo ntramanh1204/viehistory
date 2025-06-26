@@ -20,7 +20,7 @@ export class BlogManager {
         this.articlesGrid = document.getElementById('articles-grid');
         this.popularArticles = document.getElementById('popular-articles');
         this.loadMoreBtn = document.getElementById('load-more-btn');
-        this.searchInput = document.getElementById('blog-search');
+        this.searchInput = document.getElementById('search-input');
 
         // Set up event listeners
         this.setupEventListeners();
@@ -34,27 +34,49 @@ export class BlogManager {
     }
 
     setupEventListeners() {
-        // Category filter buttons
-        document.querySelectorAll('.category-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const btns = document.querySelectorAll('.category-btn');
-                btns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                this.currentCategory = btn.dataset.category;
+        // ✅ Category filter giống post filter
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                // Remove active from all
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                // Add active to clicked
+                e.target.classList.add('active');
+                
+                const category = e.target.dataset.category;
+                this.currentCategory = category;
                 this.resetAndLoad();
             });
         });
 
-        // Load more button
-        this.loadMoreBtn?.addEventListener('click', () => {
-            this.loadMoreArticles();
-        });
+        // ✅ Search functionality
+        const searchForm = document.querySelector('.search-form');
+        const searchInput = document.getElementById('search-input');
+        
+        if (searchForm && searchInput) {
+            searchForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.searchQuery = searchInput.value.trim();
+                this.resetAndLoad();
+            });
+            
+            // Real-time search (debounced)
+            let searchTimeout;
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    this.searchQuery = e.target.value.trim();
+                    this.resetAndLoad();
+                }, 500);
+            });
+        }
 
-        // Search
-        this.searchInput?.addEventListener('input', this.throttle(() => {
-            this.searchQuery = this.searchInput.value.trim();
-            this.resetAndLoad();
-        }, 500));
+        // ✅ Load more với style đồng bộ
+        const loadMoreBtn = document.getElementById('load-more-btn');
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', () => {
+                this.loadMoreArticles();
+            });
+        }
     }
 
     async loadFeaturedArticle() {
@@ -80,14 +102,20 @@ export class BlogManager {
                 lastVisible: null
             });
 
-            this.blogs = result.blogs;
+            // Nếu đã có featuredBlog, loại bỏ nó khỏi danh sách grid
+            let articles = result.blogs;
+            if (this.featuredBlog) {
+                articles = articles.filter(article => article.id !== this.featuredBlog.id);
+            }
+
+            this.blogs = articles;
             this.lastVisible = result.lastVisible;
 
             this.renderArticles(this.blogs);
 
             // Toggle load more button visibility
             if (this.loadMoreBtn) {
-                this.loadMoreBtn.style.display = result.blogs.length < this.perPage ? 'none' : 'block';
+                this.loadMoreBtn.style.display = articles.length < this.perPage ? 'none' : 'block';
             }
         } catch (error) {
             console.error('Error loading articles:', error);
@@ -160,18 +188,19 @@ export class BlogManager {
         }
     }
 
+    // ✅ SỬA: renderFeaturedArticle để giống post-item
     renderFeaturedArticle(article) {
         if (!this.featuredArticleEl) return;
 
         const truncatedContent = this.truncateText(article.content, 200);
-
-        // Sử dụng Cloudinary để tối ưu ảnh featured
         const featuredImage = article.thumbnail
             ? cloudinaryService.getFeaturedImage(article.thumbnail)
             : '/assets/default-blog-cover.jpg';
 
+        const formattedDate = this.formatDate(article.createdAt);
+
         this.featuredArticleEl.innerHTML = `
-            <div class="featured-article-card">
+            <article class="featured-article-card" onclick="navigate('/blog/${article.id}')">
                 <img src="${featuredImage}" 
                      alt="${article.title}" 
                      class="featured-article-img"
@@ -180,11 +209,13 @@ export class BlogManager {
                     <h3 class="featured-article-title">${article.title}</h3>
                     <p class="featured-article-excerpt">${truncatedContent}</p>
                     <div class="featured-article-meta">
-                        <span>${this.formatDate(article.createdAt)}</span>
-                        <a href="/blog/${article.id}" class="read-more-btn">Đọc tiếp</a>
+                        <span class="article-date">${formattedDate}</span>
+                        <button class="read-more-btn" onclick="event.stopPropagation(); navigate('/blog/${article.id}')">
+                            Đọc tiếp
+                        </button>
                     </div>
                 </div>
-            </div>
+            </article>
         `;
     }
 
@@ -251,17 +282,20 @@ export class BlogManager {
         });
     }
 
+   // ✅ SỬA: createArticleCard để giống post-item
     createArticleCard(article) {
         const title = article.title || this.truncateText(article.content, 80);
-        const excerpt = this.truncateText(article.content, 120);
-
+        const excerpt = this.truncateText(article.content, 150);
+        
         // Sử dụng Cloudinary để tối ưu thumbnail
         const thumbnail = article.thumbnail
             ? cloudinaryService.getBlogThumbnail(article.thumbnail)
             : '/assets/default-thumb.jpg';
 
+        const formattedDate = this.formatDate(article.createdAt);
+
         return `
-            <div class="blog-article-card">
+            <article class="blog-article-card" onclick="navigate('/blog/${article.id}')">
                 <img src="${thumbnail}" 
                      alt="${title}" 
                      class="article-thumbnail"
@@ -270,11 +304,13 @@ export class BlogManager {
                     <h3 class="article-title">${title}</h3>
                     <p class="article-excerpt">${excerpt}</p>
                     <div class="article-meta">
-                        <span>${this.formatDate(article.createdAt)}</span>
-                        <a href="/blog/${article.id}" class="read-more-btn">Đọc tiếp</a>
+                        <span class="article-date">${formattedDate}</span>
+                        <button class="read-more-btn" onclick="event.stopPropagation(); navigate('/blog/${article.id}')">
+                            Đọc tiếp
+                        </button>
                     </div>
                 </div>
-            </div>
+            </article>
         `;
     }
 
@@ -311,16 +347,21 @@ export class BlogManager {
             : text;
     }
 
-    formatDate(timestamp) {
-        if (!timestamp) return '';
-
-        const date = timestamp instanceof Date
-            ? timestamp
-            : new Date(timestamp.seconds ? timestamp.seconds * 1000 : timestamp);
-
-        return date.toLocaleDateString('vi-VN', {
+     // ✅ THÊM: Helper method format date đồng bộ
+    formatDate(date) {
+        const dateObj = date instanceof Date ? date : 
+                       new Date(date.seconds ? date.seconds * 1000 : date);
+        
+        const now = new Date();
+        const diffTime = Math.abs(now - dateObj);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 1) return 'Hôm qua';
+        if (diffDays < 7) return `${diffDays} ngày trước`;
+        
+        return dateObj.toLocaleDateString('vi-VN', {
             day: '2-digit',
-            month: '2-digit',
+            month: '2-digit', 
             year: 'numeric'
         });
     }

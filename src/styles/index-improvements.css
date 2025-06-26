@@ -6,7 +6,7 @@
 body {
     background: var(--bg-primary);
     color: var(--text-primary);
-    background-image: url('/public/assets/background/background.jpeg');
+    background-image: url('/assets/background/background.jpeg');
     background-size: cover; /* hoặc thử contain, 100vw 100vh */
     background-repeat: no-repeat;
     background-position: center center;

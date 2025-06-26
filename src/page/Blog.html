@@ -1,13 +1,10 @@
 <div class="blog-page">
     <header class="blog-header">
-        <!-- Thêm vào phần blog-hero -->
         <div class="blog-hero">
             <h1 class="blog-title">Blog Lịch Sử</h1>
-            <p class="blog-subtitle">Khám phá những câu chuyện lịch sử thú vị</p>
-
-            <!-- Thêm nút tạo bài viết -->
+            <p class="blog-subtitle">Khám phá những câu chuyện lịch sử thú vị và huyền bí</p>
             <div class="blog-actions">
-                <a href="/blog/create" class="create-blog-btn">
+                <a href="/blog/create" class="create-blog-btn pulse">
                     <span>✏️</span> Viết bài mới
                 </a>
             </div>
@@ -15,53 +12,105 @@
     </header>
 
     <div class="blog-container">
-        <!-- Featured Article -->
-        <section class="featured-section">
-            <h2 class="section-title">Bài viết nổi bật</h2>
-            <div class="featured-article" id="featured-article"></div>
-        </section>
-
-        <!-- Main Content -->
-        <div class="blog-main-content">
+        <div class="blog-main">
             <!-- Categories Filter -->
             <div class="blog-categories">
-                <button class="category-btn active" data-category="all">Tất cả</button>
-                <button class="category-btn" data-category="viet-nam">Lịch sử Việt Nam</button>
-                <button class="category-btn" data-category="the-gioi">Lịch sử Thế giới</button>
-                <button class="category-btn" data-category="co-dai">Thời cổ đại</button>
+                <button class="category-btn active" data-category="all">🌟 Tất cả</button>
+                <button class="category-btn" data-category="viet-nam">🇻🇳 Lịch sử Việt Nam</button>
+                <button class="category-btn" data-category="the-gioi">🌍 Lịch sử Thế giới</button>
+                <button class="category-btn" data-category="co-dai">🏛️ Thời cổ đại</button>
             </div>
 
+            <!-- Featured Article -->
+            <section class="featured-section fade-in">
+                <h2 class="section-title">📰 Bài viết nổi bật</h2>
+                <div class="featured-article" id="featured-article">
+                    <!-- Featured article will be populated here -->
+                </div>
+            </section>
+
             <!-- Articles Grid -->
-            <div class="articles-grid" id="articles-grid"></div>
+            <div class="articles-grid" id="articles-grid">
+                <!-- Articles will be populated here -->
+            </div>
+
+            <!-- Empty State (when no articles) -->
+            <div class="empty-state" id="empty-state" style="display: none;">
+                <div class="empty-state-icon">📝</div>
+                <h3 class="empty-state-title">Chưa có bài viết nào</h3>
+                <p class="empty-state-message">Hãy tạo bài viết đầu tiên để chia sẻ những câu chuyện lịch sử thú vị!</p>
+                <a href="/blog/create" class="create-blog-btn">
+                    <span>✏️</span> Viết bài đầu tiên
+                </a>
+            </div>
 
             <!-- Load More -->
-            <div class="load-more-section">
-                <button class="load-more-btn" id="load-more-btn">Xem thêm</button>
+            <div class="load-more-section" id="load-more-section" style="display: none;">
+                <button class="load-more-btn" id="load-more-btn">Xem thêm bài viết</button>
             </div>
         </div>
 
         <!-- Sidebar -->
         <aside class="blog-sidebar">
             <div class="sidebar-widget search-widget">
-                <h3>Tìm kiếm</h3>
-                <div class="search-box">
-                    <input type="text" id="blog-search" placeholder="Tìm kiếm bài viết...">
-                    <button class="search-btn">🔍</button>
+                <form class="search-form" autocomplete="off">
+                    <input type="text" class="search-input" id="search-input" placeholder="Tìm kiếm bài viết...">
+                    <button type="submit" class="search-btn">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- <div class="sidebar-widget popular-widget">
+                <h3>🔥 Bài viết phổ biến</h3>
+                <div class="popular-articles" id="popular-articles">
+                    Popular articles will be populated here
                 </div>
-            </div>
+            </div> -->
 
-            <div class="sidebar-widget popular-widget">
-                <h3>Bài viết phổ biến</h3>
-                <div class="popular-articles" id="popular-articles"></div>
-            </div>
-
-            <div class="sidebar-widget categories-widget">
-                <h3>Danh mục</h3>
+            <!-- <div class="sidebar-widget categories-widget">
+                <h3>📚 Danh mục</h3>
                 <ul class="sidebar-categories">
                     <li><a href="/blog?category=viet-nam">Lịch sử Việt Nam</a></li>
                     <li><a href="/blog?category=the-gioi">Lịch sử Thế giới</a></li>
                     <li><a href="/blog?category=co-dai">Thời cổ đại</a></li>
+                    <li><a href="/blog?category=hien-dai">Lịch sử hiện đại</a></li>
                 </ul>
+            </div> -->
+
+            <!-- Block "Bạn có biết?" -->
+            <div class="sidebar-widget funfact-widget">
+                <h3>🤔 Bạn có biết?</h3>
+                <div class="funfact-content" style="color: var(--text-secondary); font-size: 0.95rem;">
+                    <ul style="padding-left: 18px; margin: 0;">
+                        <li>Nhà Trần từng 3 lần đánh bại quân Nguyên Mông.</li>
+                        <li>Ai Cập cổ đại có hơn 200 vị thần khác nhau.</li>
+                        <li>La Mã cổ đại từng tổ chức đấu trường với sức chứa hơn 50.000 người.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Block "Giới thiệu tác giả" -->
+            <!-- <div class="sidebar-widget author-widget">
+                <h3>👤 Giới thiệu tác giả</h3>
+                <div class="author-info" style="display: flex; align-items: center; gap: 12px;">
+                    <img src="/assets/avatar.png" alt="Tác giả"
+                        style="width:48px; height:48px; border-radius:50%; object-fit:cover;">
+                    <div>
+                        <div style="font-weight:600;">Nguyễn Văn A</div>
+                        <div style="color: var(--text-tertiary); font-size:0.95rem;">Yêu thích lịch sử, chia sẻ kiến
+                            thức và cảm hứng về quá khứ.</div>
+                    </div>
+                </div>
+            </div> -->
+
+            <div class="sidebar-widget">
+                <h3>📊 Thống kê</h3>
+                <div style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8;">
+                    <div>📝 Tổng bài viết: <strong id="total-posts">0</strong></div>
+                    <div>👥 Tác giả: <strong>1</strong></div>
+                    <div>📅 Cập nhật: <strong>Hôm nay</strong></div>
+                </div>
             </div>
         </aside>
     </div>
