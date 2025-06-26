@@ -4468,3 +4468,217 @@
         opacity: 0;
     }
 }
+
+/* ✅ RESTORE: Enhanced comment styles từ commit 2919f63 */
+.comment-item {
+    display: flex;
+    gap: 12px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.comment-item:last-child {
+    border-bottom: none;
+}
+
+.comment-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-primary);
+    flex-shrink: 0;
+}
+
+.comment-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.comment-avatar-text {
+    color: white;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.comment-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.comment-author-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.comment-time {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.comment-text {
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.4;
+    margin-bottom: 8px;
+    word-wrap: break-word;
+}
+
+.comment-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.comment-like-btn,
+.comment-reply-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    transition: all 0.2s ease;
+}
+
+.comment-like-btn:hover,
+.comment-reply-btn:hover {
+    color: var(--text-secondary);
+    background: var(--bg-hover);
+}
+
+/* Loading và error states */
+.comments-loading,
+.comments-error,
+.no-comments {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.comments-error {
+    color: var(--accent-error);
+}
+
+/* Comment submit button */
+.comment-submit-btn {
+    background: var(--accent-primary);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    transition: all 0.2s ease;
+}
+
+.comment-submit-btn:hover {
+    background: var(--accent-primary-hover);
+    transform: scale(1.05);
+}
+
+.comment-submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Fix cho comment input container */
+.comment-input-container {
+    flex: 1;
+    position: relative;
+    border: 1px solid var(--border-soft);
+    border-radius: 20px;
+    padding: 8px 40px 8px 16px;
+    background: var(--bg-canvas);
+}
+
+.comment-input {
+    width: 100%;
+    height: 36px;
+    border: none;
+    background: transparent;
+    resize: none;
+    outline: none;
+    font-size: 14px;
+    color: var(--text-primary);
+    font-family: inherit;
+    padding: 0;
+}
+
+.comment-input:focus {
+    outline: none;
+}
+
+/* Comment form */
+.comment-form {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    align-items: flex-start;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+/* ✅ FIX: Comment submit button */
+.comment-submit-btn {
+    background: var(--accent-primary);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    transition: all 0.2s ease;
+    z-index: 10; /* ✅ Đảm bảo nút hiển thị trên các element khác */
+}
+
+.comment-submit-btn:hover {
+    background: var(--accent-primary-hover);
+    transform: scale(1.05);
+}
+
+.comment-submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ✅ FIX: Đảm bảo comment input container không che phủ button */
+.comment-input-container {
+    position: relative;
+    width: 100%;
+    padding-right: 40px; /* Để có không gian cho button */
+}
+
+.comment-input {
+    width: 100%;
+    padding-right: 30px; /* Đảm bảo text không bị che bởi button */
+}

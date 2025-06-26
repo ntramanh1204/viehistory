@@ -172,11 +172,19 @@ export class FeedManager {
             `<img src="${AvatarService.getUserAvatar(post.author, 40)}" alt="${post.author.displayName}" class="author-avatar-img">` :
             `<span class="author-avatar-text">${post.author.displayName.charAt(0).toUpperCase()}</span>`;
 
-        const formattedContent = this.formatPostContent(post.content);
+        // ✅ FIX: Đảm bảo xuất hiện nội dung ngay cả khi formatPostContent fail
+        let formattedContent;
+        try {
+            formattedContent = this.formatPostContent(post.content);
+        } catch (error) {
+            console.error('Error formatting post content:', error);
+            formattedContent = post.content || '<p>Không thể hiển thị nội dung</p>';
+        }
+
         const mediaHTML = this.createEnhancedMediaHTML(post.media || []);
         const hashtagsHTML = this.createHashtagsHTML(post.hashtags || []);
 
-        // ✅ THÊM: Check like status from cache
+        // ✅ Check like status from cache
         const user = authService.getCurrentUser();
         const isLiked = user ? this.likeCache.get(post.id) || false : false;
         const likedClass = isLiked ? 'liked' : '';
@@ -194,13 +202,12 @@ export class FeedManager {
                     </div>
                     <button class="post-menu-btn" data-post-id="${post.id}">⋯</button>
                 </div>
-
                 <div class="post-content">
                     <div class="post-text">${formattedContent}</div>
                     ${mediaHTML}
                     ${hashtagsHTML}
                 </div>
-
+                
                 <div class="post-actions">
                     <button class="action-btn like-btn ${likedClass}" data-post-id="${post.id}">
                         <i class="${heartIcon}"></i>
@@ -218,7 +225,7 @@ export class FeedManager {
                     </button>
                 </div>
 
-                <!-- Comments section -->
+                <!-- ✅ QUAN TRỌNG: Comments section structure từ commit e9c744a -->
                 <div class="comments-section hidden" data-post-id="${post.id}" style="display: none;">
                     <div class="comment-form">
                         <div class="comment-avatar">
@@ -240,13 +247,16 @@ export class FeedManager {
         `;
     }
 
-    // ✅ THÊM: Format content với link detection
+    // ✅ SỬA: Cải thiện formatPostContent để đảm bảo hiển thị đúng
     formatPostContent(content) {
-        if (!content) return '';
+        if (!content) return '<p>Nội dung trống</p>';
+
+        // ✅ FIX: Đảm bảo content là string
+        const safeContent = String(content || '');
 
         // Convert URLs to links
         const urlRegex = /(https?:\/\/[^\s]+)/g;
-        let formatted = content.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+        let formatted = safeContent.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener">$1</a>');
 
         // Convert mentions to links (if you have user profiles)
         const mentionRegex = /@(\w+)/g;
@@ -362,8 +372,8 @@ export class FeedManager {
         this.feedContainer.addEventListener('click', this.handlePostClick);
     }
 
-    // ✅ SỬA: Centralized click handler with optimistic updates
-    async handlePostClick(e) {
+    // ✅ SỬA: Fix event delegation từ commit 2919f63
+    handlePostClick(e) {
         const target = e.target.closest('button');
         if (!target) return;
 
@@ -375,14 +385,14 @@ export class FeedManager {
 
         // Route to specific handlers
         if (target.classList.contains('like-btn')) {
-            await this.handleLikeOptimistic(target, postId);
+            this.handleLikeOptimistic(target, postId);
         } else if (target.classList.contains('comment-btn')) {
-            this.toggleComments(target);
+            this.toggleComments(target); // Pass button directly
         } else if (target.classList.contains('share-btn')) {
             // Let ShareManager handle this
             return;
         } else if (target.classList.contains('comment-submit-btn')) {
-            await this.handleCommentSubmit(e);
+            this.handleCommentSubmit(target);
         }
     }
 
@@ -770,31 +780,42 @@ export class FeedManager {
         }
     }
 
-    // ✅ SỬA: Load và render comments với avatar service
+    // ✅ SỬA: Improved loadComments để đảm bảo có thể load lại comments mỗi khi cần
     async loadComments(postId) {
         try {
             const commentsSection = document.querySelector(`.comments-list[data-post-id="${postId}"]`);
-            if (!commentsSection) return;
+            if (!commentsSection) {
+                console.error('❌ Comments list not found for post:', postId);
+                return;
+            }
 
-            // Show loading
+            // Show loading state
             commentsSection.innerHTML = '<div class="comments-loading">Đang tải bình luận...</div>';
+
+            console.log('🔄 Loading comments for post:', postId);
+
+            // ✅ FIX: Thêm timeout nhỏ để đảm bảo UI updated trước khi bắt đầu request
+            await new Promise(resolve => setTimeout(resolve, 10));
 
             // Load comments from database
             const comments = await dbService.getComments(postId);
+            console.log('📝 Comments loaded:', comments?.length || 0);
 
-            // Render comments
-            this.renderComments(commentsSection, comments);
+            // ✅ FIX: Kiểm tra commentsSection tồn tại trước khi render
+            if (document.contains(commentsSection)) {
+                this.renderComments(commentsSection, comments);
+            }
 
         } catch (error) {
-            console.error('Error loading comments:', error);
+            console.error('❌ Error loading comments:', error);
             const commentsSection = document.querySelector(`.comments-list[data-post-id="${postId}"]`);
-            if (commentsSection) {
+            if (commentsSection && document.contains(commentsSection)) {
                 commentsSection.innerHTML = '<div class="comments-error">Không thể tải bình luận</div>';
             }
         }
     }
 
-    // ✅ THÊM: Render comments với avatar service
+    // ✅ RESTORE: Render comments từ commit 2919f63
     renderComments(container, comments) {
         if (!container) return;
 
@@ -807,15 +828,20 @@ export class FeedManager {
         container.innerHTML = commentsHTML;
     }
 
-    // ✅ SỬA: Update createCommentHTML để sử dụng AvatarService
+    // ✅ RESTORE: Create comment HTML với AvatarService từ commit 2919f63
     createCommentHTML(comment) {
         const timeAgo = this.getTimeAgo(comment.createdAt);
 
-        // ✅ SỬA: Sử dụng AvatarService giống như post author
-        const avatar = AvatarService.shouldUseAvataaars(comment.author) ?
-            `<img src="${AvatarService.getUserAvatar(comment.author, 32)}" alt="${comment.author.displayName}" class="comment-avatar-img">` :
-            `<span class="comment-avatar-text">${comment.author.displayName.charAt(0).toUpperCase()}</span>`;
-
+        // ✅ FIX: Đảm bảo avatar hiển thị kể cả khi AvatarService fail
+        let avatar;
+        try {
+            avatar = AvatarService.shouldUseAvataaars(comment.author) ?
+                `<img src="${AvatarService.getUserAvatar(comment.author, 32)}" alt="${comment.author.displayName}" class="comment-avatar-img">` :
+                `<span class="comment-avatar-text">${comment.author.displayName.charAt(0).toUpperCase()}</span>`;
+        } catch (error) {
+            console.error('Error generating avatar:', error);
+            avatar = `<span class="comment-avatar-text">${comment.author?.displayName?.charAt(0).toUpperCase() || 'A'}</span>`;
+        }
         return `
             <div class="comment-item" data-comment-id="${comment.id}">
                 <div class="comment-avatar">
@@ -849,6 +875,7 @@ export class FeedManager {
         `;
     }
 
+
     // ✅ THÊM: Create reply HTML với avatar service
     createReplyHTML(reply) {
         const timeAgo = this.getTimeAgo(reply.createdAt);
@@ -880,7 +907,7 @@ export class FeedManager {
         `;
     }
 
-    // ✅ THÊM: Format comment content
+    // ✅ RESTORE: Format comment content từ commit 2919f63
     formatCommentContent(content) {
         if (!content) return '';
 
@@ -898,23 +925,37 @@ export class FeedManager {
         return formatted;
     }
 
-    toggleComments(button) { // Nhận button trực tiếp
+    // ✅ SỬA: Fix toggle comments để đảm bảo comments load đúng
+    toggleComments(button) {
         const postId = button.dataset.postId;
         const commentsSection = document.querySelector(`.comments-section[data-post-id="${postId}"]`);
 
-        if (!commentsSection) return;
+        if (!commentsSection) {
+            console.error('❌ Comments section not found for post:', postId);
+            return;
+        }
 
-        if (commentsSection.classList.contains('hidden')) {
+        const isHidden = commentsSection.style.display === 'none' ||
+            commentsSection.classList.contains('hidden');
+
+        if (isHidden) {
+            // Show comments
+            commentsSection.style.display = 'block';
             commentsSection.classList.remove('hidden');
+            button.classList.add('active');
+
+            // ✅ FIX: Luôn load comments mỗi lần toggle
             this.loadComments(postId);
         } else {
+            // Hide comments
+            commentsSection.style.display = 'none';
             commentsSection.classList.add('hidden');
+            button.classList.remove('active');
         }
     }
 
-    // ✅ SỬA: Update handleCommentSubmit để reload comments với avatar
-    async handleCommentSubmit(e) {
-        const button = e.currentTarget;
+    // ✅ RESTORE: Handle comment submit từ commit e9c744a + 2919f63
+    async handleCommentSubmit(button) {
         const postId = button.dataset.postId;
         const textarea = document.querySelector(`.comment-input[data-post-id="${postId}"]`);
         const content = textarea?.value.trim();
@@ -941,7 +982,6 @@ export class FeedManager {
 
             textarea.value = '';
 
-            // ✅ SỬA: Reload comments để hiển thị comment mới với avatar
             await this.loadComments(postId);
 
             // Update comment count
@@ -953,7 +993,7 @@ export class FeedManager {
             }
 
         } catch (error) {
-            console.error('Error submitting comment:', error);
+            console.error('❌ Error submitting comment:', error);
             this.showToast('Không thể gửi bình luận', 'error');
         } finally {
             button.disabled = false;

@@ -153,9 +153,7 @@ export class DatabaseService {
 
     // ==================== COMMENTS ====================
 
-    /**
-     * Tạo comment mới (cần auth)
-     */
+    // ✅ RESTORE: createComment method từ commit e9c744a
     async createComment(commentData, user) {
         if (!user) {
             throw new Error('Cần đăng nhập để bình luận');
@@ -209,16 +207,14 @@ export class DatabaseService {
         }
     }
 
-    /**
-     * Lấy comments của post (không cần auth)
-     */
+    // ✅ RESTORE: getComments method từ commit e9c744a
     async getComments(postId, limitCount = 50) {
         try {
             const q = query(
                 collection(db, this.commentsCollection),
                 where('postId', '==', postId),
                 where('status', '==', 'published'),
-                orderBy('createdAt', 'desc'),
+                orderBy('createdAt', 'desc'), // Từ commit e9c744a
                 limit(limitCount)
             );
 
@@ -241,29 +237,28 @@ export class DatabaseService {
         }
     }
 
-    /**
-     * Organize flat comments into threaded structure
-     */
+    // ✅ RESTORE: organizeComments từ commit e9c744a
     organizeComments(comments) {
         const commentMap = new Map();
-        const topLevel = [];
+        const topLevelComments = [];
 
-        // First pass: create map of all comments
+        // First pass: create comment map
         comments.forEach(comment => {
-            comment.replies = [];
-            commentMap.set(comment.id, comment);
+            commentMap.set(comment.id, { ...comment, replies: [] });
         });
 
         // Second pass: organize hierarchy
         comments.forEach(comment => {
             if (comment.parentId && commentMap.has(comment.parentId)) {
-                commentMap.get(comment.parentId).replies.push(comment);
+                // This is a reply
+                commentMap.get(comment.parentId).replies.push(commentMap.get(comment.id));
             } else {
-                topLevel.push(comment);
+                // This is a top-level comment
+                topLevelComments.push(commentMap.get(comment.id));
             }
         });
 
-        return topLevel;
+        return topLevelComments;
     }
 
     // ==================== LIKES ====================
