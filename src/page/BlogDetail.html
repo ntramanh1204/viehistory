@@ -1,0 +1,27 @@
+<div class="blog-detail-page">
+    <header class="blog-detail-header">
+        <button class="back-button" id="back-to-blog-btn">
+            <span>←</span> Quay lại Blog
+        </button>
+    </header>
+    
+    <main class="blog-detail-main">
+        <article class="blog-detail-content" id="blog-detail-content">
+            <!-- Loading state -->
+            <div class="loading-state" id="blog-loading">
+                <div class="loading-spinner"></div>
+                <p>Đang tải bài viết...</p>
+            </div>
+            
+            <!-- Error state -->
+            <div class="error-state hidden" id="blog-error">
+                <div class="error-icon">❌</div>
+                <h2>Không thể tải bài viết</h2>
+                <p>Bài viết không tồn tại hoặc đã bị xóa.</p>
+                <button class="btn-primary" onclick="navigate('/blog')">Về trang Blog</button>
+            </div>
+            
+            <!-- Blog content sẽ được render động ở đây -->
+        </article>
+    </main>
+</div>

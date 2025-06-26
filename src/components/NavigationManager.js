@@ -158,25 +158,46 @@ export class NavigationManager {
         }
 
         const currentPath = window.location.pathname;
+
+        console.log('🔄 Updating nav state for path:', currentPath);
+
         let activePage = 'home';
 
+        // Determine active page from path (không dùng hash)
         if (currentPath === '/' || currentPath === '') {
             activePage = 'home';
         } else if (currentPath.startsWith('/blog')) {
             activePage = 'blog';
-        } else if (currentPath.startsWith('/store')) {
-            activePage = 'store';
-        } else if (currentPath.startsWith('/cart')) {
-            activePage = 'cart';
         } else if (currentPath.startsWith('/profile')) {
             activePage = 'profile';
+        } else if (currentPath.startsWith('/post')) {
+            activePage = 'home'; // Post detail vẫn highlight home
         }
 
         console.log('🎯 Current path:', currentPath);
         console.log('🎯 Determined active page:', activePage);
         console.log('🎯 Nav items found:', this.navItems?.length);
 
-        this.setActivePage(activePage);
+        // this.setActivePage(activePage);
+        // Update sidebar navigation
+    document.querySelectorAll('.nav-item').forEach(item => {
+        const itemPage = item.dataset.page;
+        if (itemPage === activePage) {
+            item.classList.add('active');
+        } else {
+            item.classList.remove('active');
+        }
+    });
+
+    // Update mobile navigation
+    document.querySelectorAll('.mobile-nav-item').forEach(item => {
+        const itemPage = item.dataset.page;
+        if (itemPage === activePage) {
+            item.classList.add('active');
+        } else {
+            item.classList.remove('active');
+        }
+    });
     }
 
     getPageTitle(page) {

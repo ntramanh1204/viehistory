@@ -842,7 +842,21 @@ export class DatabaseService {
         }
     }
 
-    // ...existing code...
+    /**
+     * Tăng view count cho blog
+     */
+    async incrementBlogViews(blogId) {
+        try {
+            const blogRef = doc(db, 'blogs', blogId);
+            await updateDoc(blogRef, {
+                'stats.views': increment(1)
+            });
+            console.log('✅ Blog view count incremented:', blogId);
+        } catch (error) {
+            console.error('❌ Error incrementing blog views:', error);
+            throw new Error('Không thể cập nhật lượt xem');
+        }
+    }
 
 }
 

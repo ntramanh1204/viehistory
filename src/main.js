@@ -73,23 +73,30 @@ async function handleRouting() {
     if (path === '/blog/create' || path === '/blog/editor') {
         await showBlogEditor();
     }
-    else if (path.startsWith('/blog/') && path !== '/blog') {
-        const blogId = path.split('/')[2];
+    else if (path.startsWith('/blog/') && path !== '/blog/') {
+        // ✅ SỬA: Lấy phần sau '/blog/'
+        const blogId = path.substring(6); // Bỏ '/blog/' = 6 ký tự
         if (blogId && blogId !== 'create' && blogId !== 'editor') {
             await showBlogDetail(blogId);
+        } else {
+            await showBlogPage(); // Fallback nếu blogId không hợp lệ
         }
     }
     else if (path === '/blog') {
         await showBlogPage();
     }
     else if (path.startsWith('/post/')) {
-        const postId = path.split('/')[2];
+        // ✅ SỬA: Lấy phần sau '/post/'
+        const postId = path.substring(6); // Bỏ '/post/' = 6 ký tự  
         if (postId) {
             await showPostDetail(postId);
+        } else {
+            showHomePage(); // Fallback
         }
     }
     else if (path === '/profile' || path.startsWith('/profile/')) {
-        const userId = path.split('/')[2] || null;
+        // ✅ SỬA: Lấy phần sau '/profile/'
+        const userId = path.startsWith('/profile/') ? path.substring(9) : null;
         await showProfile(userId);
     }
     else if (path === '/' || path === '') {
@@ -99,7 +106,7 @@ async function handleRouting() {
         show404();
     }
 
-    // ✅ SỬA: Kiểm tra navigation có tồn tại và có method không
+    // Update navigation state
     setTimeout(() => {
         if (window.navigation && typeof window.navigation.updateActiveStateFromURL === 'function') {
             console.log('📍 Updating navigation active state');
@@ -107,7 +114,7 @@ async function handleRouting() {
         } else {
             console.warn('⚠️ Navigation not ready or method missing');
 
-            // ✅ FALLBACK: Cập nhật trực tiếp
+            // Fallback: Cập nhật trực tiếp
             const currentPath = window.location.pathname;
             let activePage = 'home';
 
@@ -115,10 +122,6 @@ async function handleRouting() {
                 activePage = 'home';
             } else if (currentPath.startsWith('/blog')) {
                 activePage = 'blog';
-            } else if (currentPath.startsWith('/store')) {
-                activePage = 'store';
-            } else if (currentPath.startsWith('/cart')) {
-                activePage = 'cart';
             } else if (currentPath.startsWith('/profile')) {
                 activePage = 'profile';
             }
@@ -177,8 +180,10 @@ async function showProfile(userId = null) {
     }
 }
 
-// ✅ Helper function để navigate
 function navigate(path) {
+    console.log('🔗 Navigating to:', path);
+    
+    // ✅ Chỉ dùng pushState, không hash
     window.history.pushState({}, '', path);
     handleRouting();
 }
@@ -228,39 +233,50 @@ async function showBlogPage() {
 // Thêm hàm showBlogDetail
 async function showBlogDetail(blogId) {
     try {
-        // Ẩn các phần khác
-        document.querySelector('.app-container').style.display = 'none';
+        console.log('🔍 Showing blog detail:', blogId);
+        
+        // Ẩn TẤT CẢ các container khác
+        hideAllContainers();
 
-        // Ẩn post detail nếu đang hiển thị
-        const postDetailContainer = document.getElementById('post-detail-container');
-        if (postDetailContainer) {
-            postDetailContainer.style.display = 'none';
-        }
-
-        // Ẩn trang blog nếu đang hiển thị
-        const blogPageContainer = document.getElementById('blog-page-container');
-        if (blogPageContainer) {
-            blogPageContainer.style.display = 'none';
-        }
-
-        // Hiển thị blog detail
+        // Tạo hoặc hiển thị blog detail container
         let blogDetailContainer = document.getElementById('blog-detail-container');
 
         if (!blogDetailContainer) {
             blogDetailContainer = document.createElement('div');
             blogDetailContainer.id = 'blog-detail-container';
-            document.body.appendChild(blogDetailContainer);
+            
+            // Load template
+            try {
+                const response = await fetch('/src/page/BlogDetail.html');
+                const template = await response.text();
+                blogDetailContainer.innerHTML = template;
+                document.body.appendChild(blogDetailContainer);
+            } catch (error) {
+                console.error('Error loading blog detail template:', error);
+                blogDetailContainer.innerHTML = '<div class="error">Không thể tải trang chi tiết</div>';
+            }
         }
 
-        // Nạp bài viết
+        blogDetailContainer.style.display = 'block';
+
+        // Initialize BlogDetailManager
         const { default: BlogDetailManager } = await import('./components/BlogDetailManager.js');
         const blogDetailManager = new BlogDetailManager();
-        blogDetailContainer.style.display = 'block';
-        await blogDetailManager.loadBlog(blogId);
+        await blogDetailManager.init(blogId);
+
+        // Update navigation state
+        document.querySelectorAll('.nav-item, .mobile-nav-item').forEach(item => {
+            if (item.dataset.page === 'blog') {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
 
     } catch (error) {
-        console.error('Error showing blog detail:', error);
-        window.location.hash = '#/blog'; // Quay lại trang blog khi có lỗi
+        console.error('❌ Error showing blog detail:', error);
+        // Fallback về trang blog
+        window.navigate('/blog');
     }
 }
 
@@ -378,6 +394,7 @@ async function createPostDetailContainer() {
 }
 
 function show404() {
-    console.error('Post not found');
-    window.location.hash = '#/';
+    console.error('Page not found');
+    // ✅ SỬA: Chuyển về trang chủ bằng path
+    window.navigate('/');
 }
