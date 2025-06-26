@@ -389,7 +389,7 @@ export class FeedManager {
         } else if (target.classList.contains('comment-btn')) {
             this.toggleComments(target); // Pass button directly
         } else if (target.classList.contains('share-btn')) {
-            // Let ShareManager handle this
+            this.handleShare(target, postId);
             return;
         } else if (target.classList.contains('comment-submit-btn')) {
             this.handleCommentSubmit(target);
@@ -592,19 +592,48 @@ export class FeedManager {
     }
 
     // ✅ THÊM: Share handler
-    async handleShare(e) {
-        const button = e.target.closest('.share-btn');
-        const postId = button.dataset.postId;
+    // async handleShare(button, postId) {
+    //     if (!button || !postId) return;
 
-        // Use ShareManager if available
+    //     // Use ShareManager if available
+    //     if (window.shareManager) {
+    //         await window.shareManager.handleShare(postId, button);
+    //     } else {
+    //         // Fallback
+    //         const postUrl = `${window.location.origin}/post/${postId}`;
+    //         await navigator.clipboard.writeText(postUrl);
+    //         this.showToast('Đã sao chép link!');
+    //     }
+    // }
+
+    async handleShare(button, postId) {
+        if (!button || !postId) return;
+
         if (window.shareManager) {
-            await window.shareManager.handleShare(e);
+            const shared = await window.shareManager.handleShare(postId, button);
+            if (shared) {
+                // Chỉ tăng số share khi thực sự đã chia sẻ
+                this.incrementShareCountUI(button);
+                await dbService.incrementPostShares(postId);
+            }
         } else {
-            // Fallback
+            // Fallback: copy link
             const postUrl = `${window.location.origin}/post/${postId}`;
             await navigator.clipboard.writeText(postUrl);
             this.showToast('Đã sao chép link!');
+            this.incrementShareCountUI(button);
+            await dbService.incrementPostShares(postId);
         }
+    }
+
+    incrementShareCountUI(button) {
+        const countSpan = button.querySelector('.action-count');
+        if (countSpan) {
+            const currentCount = parseInt(countSpan.textContent) || 0;
+            countSpan.textContent = currentCount + 1;
+        }
+        button.classList.add('shared');
+        setTimeout(() => button.classList.remove('shared'), 2000);
     }
 
     // ✅ THÊM: Bookmark handler

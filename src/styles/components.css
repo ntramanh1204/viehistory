@@ -4682,3 +4682,13 @@
     width: 100%;
     padding-right: 30px; /* Đảm bảo text không bị che bởi button */
 }
+
+.share-btn.shared, .share-btn:active {
+    color: var(--accent-success, #43a047);
+    transform: scale(1.1);
+    transition: all 0.2s;
+}
+.share-btn.sharing {
+    pointer-events: none;
+    opacity: 0.7;
+}

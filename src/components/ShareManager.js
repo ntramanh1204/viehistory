@@ -18,33 +18,53 @@ export class ShareManager {
         });
     }
 
-async handleShare(e) {
-        e.preventDefault();
-        e.stopPropagation();
+async handleShare(button, postId) {
+    // Ngăn spam
+    if (button.classList.contains('sharing')) return;
 
-        const shareButton = e.target.closest('.share-btn');
-        if (!shareButton) return;
+    button.classList.add('sharing');
+    const countSpan = button.querySelector('.action-count');
+    const originalCount = parseInt(countSpan.textContent) || 0;
 
-        const postId = shareButton.dataset.postId;
-        if (!postId) return;
+    // Optimistic UI: tăng số share ngay
+    countSpan.textContent = originalCount + 1;
+    button.classList.add('shared');
 
-        try {
-            // ✅ SỬA: Tạo URL không có hash
+    try {
+        // Gọi ShareManager để xử lý modal/native share
+        if (window.shareManager) {
+            await window.shareManager.handleShareWithButton(postId, button);
+        } else {
+            // Fallback: chỉ copy link
             const postUrl = `${window.location.origin}/post/${postId}`;
-            
+            await navigator.clipboard.writeText(postUrl);
+            this.showToast('Đã sao chép link!');
+        }
+    } catch (error) {
+        // Nếu lỗi, rollback UI
+        countSpan.textContent = originalCount;
+        button.classList.remove('shared');
+        this.showToast('Không thể chia sẻ bài viết', 'error');
+    } finally {
+        button.classList.remove('sharing');
+        setTimeout(() => button.classList.remove('shared'), 2000);
+    }
+}
+
+ async handleShareWithButton(postId, button) {
+        const postUrl = `${window.location.origin}/post/${postId}`;
+        try {
             if (navigator.share) {
                 await this.nativeShare(postUrl, postId);
             } else {
                 await this.fallbackShare(postUrl, postId);
             }
         } catch (error) {
-            console.error('Error sharing:', error);
-            // ✅ SỬA: Fallback URL không có hash
-            await this.copyToClipboard(`${window.location.origin}/post/${postId}`);
+            await this.copyToClipboard(postUrl);
             this.showToast('Link đã được sao chép!', 'success');
         }
-
-        await this.incrementShareCount(postId, shareButton);
+        // Cập nhật DB (không rollback UI nếu lỗi)
+        await this.incrementShareCount(postId, button);
     }
 
     async nativeShare(postUrl, postId) {
