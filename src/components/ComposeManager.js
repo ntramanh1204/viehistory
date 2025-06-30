@@ -55,8 +55,12 @@ export class ComposeManager {
     setupAuthListener() {
         // Listen for auth state changes to update UI
         authService.onAuthStateChange((user) => {
-            this.updateUserAvatar();
+            // Do not update avatar here, wait for Firestore user loaded event
             this.updateSubmitButtonState();
+        });
+        // Listen for Firestore user loaded event
+        document.addEventListener('firestoreUserLoaded', () => {
+            this.updateUserAvatar();
         });
     }
 
@@ -589,7 +593,21 @@ async handleMediaSelect(event) {
             // Extract content without hashtags for main content
             const plainContent = content.replace(/#[\w\u00C0-\u024F\u1E00-\u1EFF]+/g, '').trim();
 
-            // Prepare enhanced post data
+            // Use Firestore user data for author info
+            const firestoreUser = window.currentUserData;
+            const authorInfo = firestoreUser ? {
+                uid: firestoreUser.uid,
+                displayName: firestoreUser.displayName,
+                avatar: firestoreUser.avatar,
+                photoURL: firestoreUser.photoURL
+            } : {
+                uid: user.uid,
+                displayName: userInfo.displayName,
+                avatar: userInfo.avatar,
+                photoURL: userInfo.photoURL
+            };
+
+            // Prepare enhanced post data (INCLUDE author)
             const postData = {
                 content: content,
                 plainContent: plainContent,
@@ -600,7 +618,8 @@ async handleMediaSelect(event) {
                     wordCount: content.split(/\s+/).filter(word => word.length > 0).length,
                     hashtagCount: this.extractedHashtags.length,
                     mediaCount: mediaUrls.length // ✅ THÊM: Media count
-                }
+                },
+                author: authorInfo // <-- Ensure author is included
             };
 
             console.log('📝 Enhanced post data:', postData);
@@ -611,9 +630,6 @@ async handleMediaSelect(event) {
 
             this.showSuccess('Đã đăng bài thành công!');
 
-            // Get user display info
-            const userInfo = authService.getUserDisplayInfo();
-
             // Dispatch event for FeedManager
             const newPostEvent = new CustomEvent('newPost', {
                 detail: {
@@ -622,12 +638,7 @@ async handleMediaSelect(event) {
                     plainContent: plainContent,
                     hashtags: this.extractedHashtags,
                     media: mediaUrls, // ✅ THÊM: Media URLs
-                    author: {
-                        uid: user.uid,
-                        displayName: userInfo.displayName,
-                        avatar: userInfo.avatar,
-                        photoURL: userInfo.photoURL
-                    },
+                    author: authorInfo,
                     createdAt: new Date(),
                     stats: {
                         likes: 0,
@@ -732,27 +743,36 @@ async handleMediaSelect(event) {
     }
 
     updateUserAvatar() {
-        const user = authService.currentUser;
+        const user = window.currentUserData;
         const userAvatar = document.querySelector('.compose-area .user-avatar');
-
-        if (!userAvatar) return;
-
-        // Xóa nội dung cũ
+        console.log('[DEBUG] updateUserAvatar called with Firestore user:', user);
+        if (!userAvatar) {
+            console.warn('[DEBUG] .compose-area .user-avatar element not found');
+            return;
+        }
         userAvatar.innerHTML = '';
 
-        if (AvatarService.shouldUseAvataaars(user)) {
-            // ✅ User đã đăng nhập - sử dụng Avataaars
+        if (user && (user.photoURL || user.avatar)) {
+            console.log('[DEBUG] Using Firestore user photoURL/avatar:', user.photoURL || user.avatar);
+            const img = document.createElement('img');
+            img.src = user.photoURL || user.avatar;
+            img.alt = 'Avatar';
+            img.className = 'user-avatar-img';
+            userAvatar.appendChild(img);
+        } else if (AvatarService.shouldUseAvataaars(user)) {
             const avatarUrl = AvatarService.getUserAvatar(user, 50);
+            console.log('[DEBUG] Using Avataaars avatar:', avatarUrl);
             const img = document.createElement('img');
             img.src = avatarUrl;
             img.alt = 'Avatar';
             img.className = 'user-avatar-img';
             userAvatar.appendChild(img);
         } else {
-            // ✅ User chưa đăng nhập - giữ chữ "A"
+            const initials = AvatarService.getInitials(user?.displayName);
+            console.log('[DEBUG] Using initials avatar:', initials);
             const span = document.createElement('span');
             span.className = 'user-avatar-text';
-            span.textContent = 'A'; // Luôn hiển thị "A" cho anonymous
+            span.textContent = initials;
             userAvatar.appendChild(span);
         }
     }

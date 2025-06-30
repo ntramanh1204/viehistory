@@ -36,32 +36,42 @@ export class DatabaseService {
         }
 
         try {
-            const post = {
-                content: postData.content,
-                topic: postData.topic || null,
-                media: postData.media || [], // ✅ THÊM: Media array
-                author: {
+            // Use author from postData if present, else fallback to user
+            let author = postData.author;
+            if (!author) {
+                author = {
                     uid: user.uid,
                     displayName: user.displayName || 'User',
                     photoURL: user.photoURL || null,
                     isAnonymous: user.isAnonymous || false
-                },
+                };
+            }
+            if (user.isAnonymous !== undefined && author.isAnonymous === undefined) {
+                author.isAnonymous = user.isAnonymous;
+            }
+
+            // Build post object explicitly
+            const post = {
+                content: postData.content,
+                plainContent: postData.plainContent || '',
+                hashtags: postData.hashtags || [],
+                media: postData.media || [],
+                author: author,
+                metadata: postData.metadata || {},
+                topic: postData.topic || null,
+                status: 'published',
                 stats: {
                     likes: 0,
                     comments: 0,
                     views: 0,
                     shares: 0
                 },
-                metadata: {
-                    hashtags: this.extractHashtags(postData.content),
-                    mentions: this.extractMentions(postData.content),
-                    wordCount: postData.content.split(' ').length,
-                    mediaCount: postData.media ? postData.media.length : 0 // ✅ THÊM: Media count
-                },
-                status: 'published',
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp()
             };
+
+            // Debug log final post object
+            console.log('[DEBUG] Final post object to be saved:', post);
 
             const docRef = await addDoc(collection(db, this.postsCollection), post);
 
@@ -527,8 +537,6 @@ export class DatabaseService {
             throw new Error('Không thể tải bài blog.');
         }
     }
-
-    // ...existing code...
 
     /**
      * Lấy blogs nổi bật

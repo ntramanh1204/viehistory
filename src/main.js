@@ -398,3 +398,17 @@ function show404() {
     // ✅ SỬA: Chuyển về trang chủ bằng path
     window.navigate('/');
 }
+
+// Listen for Firestore user loaded event to update avatars everywhere
+// This ensures avatars only update after Firestore user data is ready
+
+document.addEventListener('firestoreUserLoaded', (e) => {
+    console.log('[DEBUG] firestoreUserLoaded event received:', e.detail.userData);
+    if (window.authManager) {
+        window.authManager.updateHeaderAvatar(window.currentUserData);
+        window.authManager.updateSidebarAvatar(window.currentUserData);
+    }
+    if (window.composeManager) {
+        window.composeManager.updateUserAvatar();
+    }
+});

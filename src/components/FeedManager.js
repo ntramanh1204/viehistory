@@ -168,9 +168,18 @@ export class FeedManager {
 
     createPostHTML(post) {
         const timeAgo = this.getTimeAgo(post.createdAt);
-        const avatar = AvatarService.shouldUseAvataaars(post.author) ?
-            `<img src="${AvatarService.getUserAvatar(post.author, 40)}" alt="${post.author.displayName}" class="author-avatar-img">` :
-            `<span class="author-avatar-text">${post.author.displayName.charAt(0).toUpperCase()}</span>`;
+        // Use author.photoURL/avatar if available (from Firestore), else Avataaars, else initials
+        let avatar;
+        if (post.author && (post.author.photoURL || post.author.avatar)) {
+            avatar = `<img src="${post.author.photoURL || post.author.avatar}" alt="${post.author.displayName}" class="author-avatar-img">`;
+            console.log('[DEBUG] Using author Firestore avatar for post:', post.author.photoURL || post.author.avatar);
+        } else if (AvatarService.shouldUseAvataaars(post.author)) {
+            avatar = `<img src="${AvatarService.getUserAvatar(post.author, 40)}" alt="${post.author.displayName}" class="author-avatar-img">`;
+            console.log('[DEBUG] Using Avataaars for post:', post.author.uid);
+        } else {
+            avatar = `<span class="author-avatar-text">${post.author.displayName.charAt(0).toUpperCase()}</span>`;
+            console.log('[DEBUG] Using initials for post:', post.author.displayName);
+        }
 
         // ✅ FIX: Đảm bảo xuất hiện nội dung ngay cả khi formatPostContent fail
         let formattedContent;
@@ -180,7 +189,6 @@ export class FeedManager {
             console.error('Error formatting post content:', error);
             formattedContent = post.content || '<p>Không thể hiển thị nội dung</p>';
         }
-
         const mediaHTML = this.createEnhancedMediaHTML(post.media || []);
         const hashtagsHTML = this.createHashtagsHTML(post.hashtags || []);
 
@@ -189,6 +197,10 @@ export class FeedManager {
         const isLiked = user ? this.likeCache.get(post.id) || false : false;
         const likedClass = isLiked ? 'liked' : '';
         const heartIcon = isLiked ? 'fas fa-heart' : 'far fa-heart';
+
+        // Lấy số lượng comment/share nếu có
+        const commentCount = post.stats?.comments || 0;
+        const shareCount = post.stats?.shares || 0;
 
         return `
             <article class="post-item" data-post-id="${post.id}">
@@ -207,33 +219,37 @@ export class FeedManager {
                     ${mediaHTML}
                     ${hashtagsHTML}
                 </div>
-                
-                <div class="post-actions">
+                <footer class="post-actions">
                     <button class="action-btn like-btn ${likedClass}" data-post-id="${post.id}">
-                        <i class="${heartIcon}"></i>
+                        <span class="action-icon"><i class="${heartIcon}"></i></span>
                         <span class="action-count">${post.stats?.likes || 0}</span>
                     </button>
-                    
                     <button class="action-btn comment-btn" data-post-id="${post.id}">
-                        <i class="far fa-comment"></i>
-                        <span class="action-count">${post.stats?.comments || 0}</span>
+                        <span class="action-icon"><i class="far fa-comment"></i></span>
+                        <span class="action-count">${commentCount}</span>
                     </button>
-                    
                     <button class="action-btn share-btn" data-post-id="${post.id}">
-                        <i class="fas fa-share"></i>
-                        <span class="action-count">${post.stats?.shares || 0}</span>
+                        <span class="action-icon"><i class="fas fa-share"></i></span>
+                        <span class="action-count">${shareCount}</span>
                     </button>
-                </div>
-
-                <!-- ✅ QUAN TRỌNG: Comments section structure từ commit e9c744a -->
+                </footer>
+                <!-- Comments section -->
                 <div class="comments-section hidden" data-post-id="${post.id}" style="display: none;">
                     <div class="comment-form">
                         <div class="comment-avatar">
-                            <span class="comment-avatar-text">A</span>
+                            ${(() => {
+            const user = window.currentUserData || authService.getCurrentUser();
+            if (user && (user.photoURL || user.avatar)) {
+                return `<img src="${user.photoURL || user.avatar}" alt="${user.displayName || ''}" class="comment-avatar-img">`;
+            } else if (user && user.displayName) {
+                return `<span class="comment-avatar-text">${user.displayName.charAt(0).toUpperCase()}</span>`;
+            } else {
+                return `<span class="comment-avatar-text">A</span>`;
+            }
+        })()}
                         </div>
                         <div class="comment-input-container">
-                            <textarea class="comment-input" data-post-id="${post.id}" 
-                                    placeholder="Viết bình luận..."></textarea>
+                            <textarea class="comment-input" data-post-id="${post.id}" placeholder="Viết bình luận..."></textarea>
                             <button class="comment-submit-btn" data-post-id="${post.id}">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
@@ -861,12 +877,21 @@ export class FeedManager {
     createCommentHTML(comment) {
         const timeAgo = this.getTimeAgo(comment.createdAt);
 
-        // ✅ FIX: Đảm bảo avatar hiển thị kể cả khi AvatarService fail
+        // Debug: log the author object for troubleshooting
+        console.log('[DEBUG] Rendering comment author:', comment.author);
+
+        // Prefer photoURL, then avatar, then Avataaars, then initials
         let avatar;
         try {
-            avatar = AvatarService.shouldUseAvataaars(comment.author) ?
-                `<img src="${AvatarService.getUserAvatar(comment.author, 32)}" alt="${comment.author.displayName}" class="comment-avatar-img">` :
-                `<span class="comment-avatar-text">${comment.author.displayName.charAt(0).toUpperCase()}</span>`;
+            if (comment.author && comment.author.photoURL) {
+                avatar = `<img src="${comment.author.photoURL}" alt="${comment.author.displayName}" class="comment-avatar-img">`;
+            } else if (comment.author && comment.author.avatar) {
+                avatar = `<img src="${comment.author.avatar}" alt="${comment.author.displayName}" class="comment-avatar-img">`;
+            } else if (AvatarService.shouldUseAvataaars(comment.author)) {
+                avatar = `<img src="${AvatarService.getUserAvatar(comment.author, 32)}" alt="${comment.author.displayName}" class="comment-avatar-img">`;
+            } else {
+                avatar = `<span class="comment-avatar-text">${comment.author.displayName?.charAt(0).toUpperCase() || 'A'}</span>`;
+            }
         } catch (error) {
             console.error('Error generating avatar:', error);
             avatar = `<span class="comment-avatar-text">${comment.author?.displayName?.charAt(0).toUpperCase() || 'A'}</span>`;
@@ -991,7 +1016,9 @@ export class FeedManager {
 
         if (!content) return;
 
-        const user = authService.getCurrentUser();
+        // Use Firestore user data for author
+        const firestoreUser = window.currentUserData;
+        const user = firestoreUser || authService.getCurrentUser();
         if (!user) {
             const event = new CustomEvent('showAuthModal', {
                 detail: { message: 'Đăng nhập để bình luận' }
@@ -1004,9 +1031,18 @@ export class FeedManager {
             button.disabled = true;
             button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
+            // Build author info from Firestore user
+            const authorInfo = {
+                uid: user.uid,
+                displayName: user.displayName,
+                avatar: user.avatar,
+                photoURL: user.photoURL
+            };
+
             await dbService.createComment({
                 postId: postId,
-                content: content
+                content: content,
+                author: authorInfo
             }, user);
 
             textarea.value = '';

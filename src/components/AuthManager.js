@@ -1,5 +1,6 @@
 import { authService } from '../services/AuthService.js';
 import { AvatarService } from '../services/AvatarService.js';
+import { dbService } from '../services/DatabaseService.js';
 
 export class AuthManager {
     constructor() {
@@ -19,6 +20,12 @@ export class AuthManager {
 
         this.isLoading = false;
         this.currentAuthMode = 'signin';
+
+        // Listen for Firestore user loaded event to update header/sidebar avatars
+        document.addEventListener('firestoreUserLoaded', () => {
+            this.updateHeaderAvatar(window.currentUserData);
+            this.updateSidebarAvatar(window.currentUserData);
+        });
     }
 
     init() {
@@ -92,9 +99,30 @@ export class AuthManager {
     }
 
     setupAuthStateListener() {
-        authService.onAuthStateChange((user) => {
+        authService.onAuthStateChanged(async (user) => {
             this.updateUIForAuthState(user);
+            await this.fetchAndSetFirestoreUser(user);
         });
+    }
+
+    /**
+     * Fetch Firestore user data after auth state changes
+     */
+    async fetchAndSetFirestoreUser(user) {
+        if (!user || !user.uid) {
+            window.currentUserData = null;
+            return;
+        }
+        try {
+            const userData = await dbService.getUserProfile(user.uid);
+            window.currentUserData = userData;
+            console.log('[DEBUG] Firestore user loaded:', userData);
+            // Optionally, trigger a custom event for other components
+            document.dispatchEvent(new CustomEvent('firestoreUserLoaded', { detail: { userData } }));
+        } catch (error) {
+            console.error('[DEBUG] Failed to load Firestore user:', error);
+            window.currentUserData = null;
+        }
     }
 
     updateUIForAuthState(user) {
@@ -127,10 +155,7 @@ export class AuthManager {
 
             if (composeArea) composeArea.classList.remove('hidden');
 
-            // ✅ SỬA: Update header avatar giống như compose-area
-            this.updateHeaderAvatar(user);
-            this.updateSidebarAvatar(user);
-
+            // Remove avatar update here, will be handled by firestoreUserLoaded event
             const userDisplayName = document.getElementById('user-display-name');
             const sidebarUserName = document.getElementById('user-name');
             const sidebarUserStatus = document.getElementById('user-status');
@@ -228,25 +253,34 @@ export class AuthManager {
     // ✅ THÊM: Method riêng để update header avatar
     updateHeaderAvatar(user) {
         const userAvatarHeader = document.getElementById('user-avatar-header');
-
-        if (!userAvatarHeader) return;
-
-        // Xóa nội dung cũ
+        console.log('[DEBUG] updateHeaderAvatar called with user:', user);
+        if (!userAvatarHeader) {
+            console.warn('[DEBUG] userAvatarHeader element not found');
+            return;
+        }
         userAvatarHeader.innerHTML = '';
 
-        if (AvatarService.shouldUseAvataaars(user)) {
-            // ✅ User đã đăng nhập - sử dụng Avataaars
+        if (user && (user.photoURL || user.avatar)) {
+            console.log('[DEBUG] Using user photoURL/avatar:', user.photoURL || user.avatar);
+            const img = document.createElement('img');
+            img.src = user.photoURL || user.avatar;
+            img.alt = 'Avatar';
+            img.className = 'user-avatar-img';
+            userAvatarHeader.appendChild(img);
+        } else if (AvatarService.shouldUseAvataaars(user)) {
             const avatarUrl = AvatarService.getUserAvatar(user, 40);
+            console.log('[DEBUG] Using Avataaars avatar:', avatarUrl);
             const img = document.createElement('img');
             img.src = avatarUrl;
             img.alt = 'Avatar';
             img.className = 'user-avatar-img';
             userAvatarHeader.appendChild(img);
         } else {
-            // ✅ User chưa đăng nhập - hiển thị chữ "A"
+            const initials = AvatarService.getInitials(user?.displayName);
+            console.log('[DEBUG] Using initials avatar:', initials);
             const span = document.createElement('span');
             span.className = 'user-avatar-text';
-            span.textContent = 'A';
+            span.textContent = initials;
             userAvatarHeader.appendChild(span);
         }
     }
@@ -254,25 +288,34 @@ export class AuthManager {
     // ✅ THÊM: Method riêng để update sidebar avatar
     updateSidebarAvatar(user) {
         const sidebarAvatarContainer = document.querySelector('.user-avatar-sidebar');
-
-        if (!sidebarAvatarContainer) return;
-
-        // Xóa nội dung cũ
+        console.log('[DEBUG] updateSidebarAvatar called with user:', user);
+        if (!sidebarAvatarContainer) {
+            console.warn('[DEBUG] sidebarAvatarContainer element not found');
+            return;
+        }
         sidebarAvatarContainer.innerHTML = '';
 
-        if (AvatarService.shouldUseAvataaars(user)) {
-            // ✅ User đã đăng nhập - sử dụng Avataaars
+        if (user && (user.photoURL || user.avatar)) {
+            console.log('[DEBUG] Using user photoURL/avatar:', user.photoURL || user.avatar);
+            const img = document.createElement('img');
+            img.src = user.photoURL || user.avatar;
+            img.alt = 'Avatar';
+            img.className = 'user-avatar-img';
+            sidebarAvatarContainer.appendChild(img);
+        } else if (AvatarService.shouldUseAvataaars(user)) {
             const avatarUrl = AvatarService.getUserAvatar(user, 50);
+            console.log('[DEBUG] Using Avataaars avatar:', avatarUrl);
             const img = document.createElement('img');
             img.src = avatarUrl;
             img.alt = 'Avatar';
             img.className = 'user-avatar-img';
             sidebarAvatarContainer.appendChild(img);
         } else {
-            // ✅ User chưa đăng nhập - hiển thị chữ "A"
+            const initials = AvatarService.getInitials(user?.displayName);
+            console.log('[DEBUG] Using initials avatar:', initials);
             const span = document.createElement('span');
             span.className = 'user-avatar-text';
-            span.textContent = 'A';
+            span.textContent = initials;
             sidebarAvatarContainer.appendChild(span);
         }
     }
