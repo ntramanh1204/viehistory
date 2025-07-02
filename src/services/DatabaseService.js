@@ -13,7 +13,8 @@ import {
     limit,
     startAfter,
     serverTimestamp,
-    increment
+    increment,
+    writeBatch
 } from 'firebase/firestore';
 import { db } from '../config/firebase.js';
 import { authService } from './AuthService.js';
@@ -23,6 +24,7 @@ export class DatabaseService {
         this.postsCollection = 'posts';
         this.commentsCollection = 'comments';
         this.usersCollection = 'users';
+        this.likesCollection = 'likes';
     }
 
     // ==================== POSTS ====================
@@ -168,6 +170,73 @@ export class DatabaseService {
         } catch (error) {
             console.error('❌ Error getting posts:', error);
             throw new Error('Không thể tải bài viết.');
+        }
+    }
+
+    /**
+     * Delete post (requires auth and ownership)
+     */
+    async deletePost(postId, user) {
+        if (!user) {
+            throw new Error('Cần đăng nhập để xóa bài viết');
+        }
+
+        try {
+            // Get the existing post to check ownership
+            const postRef = doc(db, this.postsCollection, postId);
+            const postDoc = await getDoc(postRef);
+
+            if (!postDoc.exists()) {
+                throw new Error('Bài viết không tồn tại');
+            }
+
+            const existingPost = postDoc.data();
+            
+            // Check if user owns this post
+            if (existingPost.author.uid !== user.uid) {
+                throw new Error('Bạn không có quyền xóa bài viết này');
+            }
+
+            // Delete all comments for this post first
+            const commentsQuery = query(
+                collection(db, this.commentsCollection),
+                where('postId', '==', postId)
+            );
+            const commentsSnapshot = await getDocs(commentsQuery);
+
+            // Delete comments in batch
+            const batch = writeBatch(db);
+            commentsSnapshot.docs.forEach(commentDoc => {
+                batch.delete(commentDoc.ref);
+            });
+
+            // Delete all likes for this post
+            const likesQuery = query(
+                collection(db, this.likesCollection),
+                where('itemId', '==', postId),
+                where('itemType', '==', 'post')
+            );
+            const likesSnapshot = await getDocs(likesQuery);
+
+            likesSnapshot.docs.forEach(likeDoc => {
+                batch.delete(likeDoc.ref);
+            });
+
+            // Delete the post itself
+            batch.delete(postRef);
+
+            // Execute all deletions
+            await batch.commit();
+
+            // Update user stats (decrease post count)
+            await this.updateUserStats(user.uid, 'postsCount', -1);
+
+            console.log('✅ Post deleted successfully:', postId);
+            return true;
+
+        } catch (error) {
+            console.error('❌ Error deleting post:', error);
+            throw error;
         }
     }
 
