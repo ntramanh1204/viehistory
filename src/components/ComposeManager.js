@@ -598,13 +598,13 @@ async handleMediaSelect(event) {
             const authorInfo = firestoreUser ? {
                 uid: firestoreUser.uid,
                 displayName: firestoreUser.displayName,
-                avatar: firestoreUser.avatar,
-                photoURL: firestoreUser.photoURL
+                avatar: firestoreUser.avatar || null,
+                photoURL: firestoreUser.photoURL || null
             } : {
                 uid: user.uid,
                 displayName: userInfo.displayName,
-                avatar: userInfo.avatar,
-                photoURL: userInfo.photoURL
+                avatar: userInfo.avatar || null,
+                photoURL: userInfo.photoURL || null
             };
 
             // Prepare enhanced post data (INCLUDE author)
