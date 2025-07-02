@@ -555,8 +555,8 @@ async handleMediaSelect(event) {
             return;
         }
 
-        if (content.length > 2000) {
-            this.showError('Nội dung không được vượt quá 2000 ký tự');
+        if (content.length > 20000) {
+            this.showError('Nội dung không được vượt quá 20000 ký tự');
             this.focusTextarea();
             return;
         }
@@ -712,16 +712,16 @@ async handleMediaSelect(event) {
             const length = this.textarea.value.length;
 
             this.characterCounter.innerHTML = `
-            <span class="char-count">${length}/2000</span>
+            <span class="char-count">${length}/20000</span>
             ${this.extractedHashtags.length > 0 ? `<span class="hashtag-count">${this.extractedHashtags.length} hashtag</span>` : ''}
         `;
 
             // Reset color to default when empty
             if (length === 0) {
                 this.characterCounter.style.color = 'var(--text-secondary)';
-            } else if (length > 1900) {
+            } else if (length > 19000) {
                 this.characterCounter.style.color = 'var(--accent-warning, #f59e0b)';
-            } else if (length > 2000) {
+            } else if (length > 20000) {
                 this.characterCounter.style.color = 'var(--accent-error, #ef4444)';
             } else {
                 this.characterCounter.style.color = 'var(--text-secondary)';
