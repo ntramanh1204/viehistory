@@ -87,6 +87,53 @@ export class DatabaseService {
     }
 
     /**
+     * Cập nhật post (cần auth)
+     */
+    async updatePost(postId, postData, user) {
+        if (!user) {
+            throw new Error('Cần đăng nhập để chỉnh sửa bài viết');
+        }
+
+        try {
+            // Get the existing post to check ownership
+            const postRef = doc(db, this.postsCollection, postId);
+            const postDoc = await getDoc(postRef);
+
+            if (!postDoc.exists()) {
+                throw new Error('Bài viết không tồn tại');
+            }
+
+            const existingPost = postDoc.data();
+            
+            // Check if user owns this post
+            if (existingPost.author.uid !== user.uid) {
+                throw new Error('Bạn không có quyền chỉnh sửa bài viết này');
+            }
+
+            // Prepare update data
+            const updateData = {
+                content: postData.content,
+                plainContent: postData.plainContent || '',
+                hashtags: postData.hashtags || [],
+                updatedAt: serverTimestamp()
+            };
+
+            // Only update media if provided
+            if (postData.media !== undefined) {
+                updateData.media = postData.media;
+            }
+
+            await updateDoc(postRef, updateData);
+
+            console.log('✅ Post updated:', postId);
+            return postId;
+        } catch (error) {
+            console.error('❌ Error updating post:', error);
+            throw error;
+        }
+    }
+
+    /**
      * Lấy posts (không cần auth)
      */
     async getPosts(limitCount = 20, lastDoc = null) {
@@ -681,8 +728,6 @@ export class DatabaseService {
             return [];
         }
     }
-
-    // ...existing code...
 
     // ==================== USER PROFILE ====================
 

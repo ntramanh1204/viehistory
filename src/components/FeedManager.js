@@ -702,6 +702,11 @@ export class FeedManager {
         const post = this.posts.find(p => p.id === postId);
         const isOwner = user && post && post.author && user.uid === post.author.uid;
 
+        console.log('🔧 Post menu - postId:', postId);
+        console.log('🔧 Post menu - user:', user ? user.uid : 'null');
+        console.log('🔧 Post menu - post author:', post?.author?.uid);
+        console.log('🔧 Post menu - isOwner:', isOwner);
+
         // Remove any existing menu if open
         const existingMenu = document.querySelector('.post-context-menu');
         if (existingMenu) {
@@ -748,13 +753,19 @@ export class FeedManager {
 
         // Handle menu actions
         menu.addEventListener('click', async (e) => {
-            const action = e.target.dataset.action;
+            const menuItem = e.target.closest('.menu-item');
+            if (!menuItem) return;
+            
+            const action = menuItem.dataset.action;
+            console.log('🔧 Menu action clicked:', action, 'for post:', postId);
+            
             switch (action) {
                 case 'copy-link':
                     await navigator.clipboard.writeText(`${window.location.origin}/post/${postId}`);
                     this.showToast('Đã sao chép link!');
                     break;
                 case 'edit':
+                    console.log('🔧 Calling handleEditPost for:', postId);
                     this.handleEditPost(postId);
                     break;
                 case 'delete':
@@ -783,10 +794,20 @@ export class FeedManager {
         window.addEventListener('scroll', closeOnScroll);
     }
 
-    // Handle edit post (to be implemented)
+    // Handle edit post
     handleEditPost(postId) {
-        // You can implement navigation to the editor or open a modal here
-        this.showToast('Chức năng chỉnh sửa bài viết chưa được triển khai.', 'info');
+        console.log('🔧 handleEditPost called with postId:', postId);
+        console.log('🔧 Available posts:', this.posts.map(p => p.id));
+        
+        const post = this.posts.find(p => p.id === postId);
+        if (!post) {
+            console.error('🔧 Post not found for ID:', postId);
+            this.showToast('Không tìm thấy bài viết', 'error');
+            return;
+        }
+
+        console.log('🔧 Found post:', post);
+        this.showEditPostModal(post);
     }
 
     // Handle delete post (to be implemented)
@@ -1230,5 +1251,240 @@ export class FeedManager {
             clearTimeout(timeout);
             timeout = setTimeout(later, wait);
         };
+    }
+
+    // ✅ THÊM: Show edit post modal
+    showEditPostModal(post) {
+        console.log('🔧 showEditPostModal called with post:', post);
+        
+        // Remove any existing edit modal
+        const existingModal = document.querySelector('.edit-post-modal');
+        if (existingModal) {
+            console.log('🔧 Removing existing modal');
+            existingModal.remove();
+        }
+
+        // Create edit modal
+        const modal = document.createElement('div');
+        modal.className = 'modal edit-post-modal';
+        modal.innerHTML = `
+            <div class="modal-content edit-post-content">
+                <div class="modal-header">
+                    <h3>Chỉnh sửa bài viết</h3>
+                    <button class="modal-close edit-post-close">&times;</button>
+                </div>
+                
+                <div class="modal-body">
+                    <form id="edit-post-form" class="edit-post-form">
+                        <div class="form-group">
+                            <label for="edit-post-content">Nội dung bài viết</label>
+                            <textarea 
+                                id="edit-post-content" 
+                                name="content" 
+                                placeholder="Bạn đang nghĩ gì?" 
+                                maxlength="20000"
+                                required
+                            ></textarea>
+                            <div class="char-count">
+                                <span id="edit-post-char-count">0</span>/20000
+                            </div>
+                        </div>
+                        
+                        <div class="form-group hashtags-preview" style="display: ${post.hashtags && post.hashtags.length > 0 ? 'block' : 'none'}">
+                            <label>Hashtags</label>
+                            <div class="hashtags-list" id="edit-hashtags-list">
+                                ${(post.hashtags || []).map(tag => 
+                                    `<span class="hashtag-pill">#${tag}</span>`
+                                ).join('')}
+                            </div>
+                        </div>
+
+                        ${post.media && post.media.length > 0 ? `
+                        <div class="form-group">
+                            <label>Media hiện tại</label>
+                            <div class="current-media">
+                                ${post.media.map(item => `
+                                    <div class="media-item">
+                                        <img src="${item.url}" alt="Media" class="media-thumb">
+                                        <span class="media-name">${item.originalName || 'Untitled'}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <small class="media-note">Lưu ý: Hiện tại chưa hỗ trợ thay đổi media, chỉ có thể chỉnh sửa nội dung văn bản.</small>
+                        </div>
+                        ` : ''}
+                    </form>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancel-edit-post">Hủy</button>
+                    <button type="submit" class="btn-primary" form="edit-post-form" id="save-edit-post">
+                        <span class="btn-text">Lưu thay đổi</span>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        // Setup modal event listeners
+        this.setupEditPostModalListeners(modal, post);
+
+        // Show modal
+        requestAnimationFrame(() => {
+            modal.classList.add('show');
+            document.getElementById('edit-post-content').focus();
+        });
+    }
+
+    // ✅ THÊM: Setup edit post modal event listeners
+    setupEditPostModalListeners(modal, post) {
+        const contentTextarea = document.getElementById('edit-post-content');
+        const charCountSpan = document.getElementById('edit-post-char-count');
+        const hashtagsList = document.getElementById('edit-hashtags-list');
+        const form = document.getElementById('edit-post-form');
+        const closeBtn = modal.querySelector('.edit-post-close');
+        const cancelBtn = document.getElementById('cancel-edit-post');
+
+        // Set textarea value safely
+        if (contentTextarea) {
+            contentTextarea.value = post.content || '';
+            charCountSpan.textContent = (post.content || '').length;
+        }
+
+        // Character counter
+        contentTextarea.addEventListener('input', (e) => {
+            const length = e.target.value.length;
+            charCountSpan.textContent = length;
+            
+            // Update hashtags
+            this.updateEditPostHashtags(e.target.value, hashtagsList);
+        });
+
+        // Close modal events
+        const closeModal = () => {
+            modal.classList.remove('show');
+            setTimeout(() => modal.remove(), 300);
+        };
+
+        closeBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+        
+        // Close on backdrop click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        // Escape key to close
+        const escapeHandler = (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+                document.removeEventListener('keydown', escapeHandler);
+            }
+        };
+        document.addEventListener('keydown', escapeHandler);
+
+        // Form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await this.handleEditPostSubmit(post.id, form, modal);
+        });
+    }
+
+    // ✅ THÊM: Update hashtags in edit modal
+    updateEditPostHashtags(content, hashtagsList) {
+        const hashtagRegex = /#[\w\u00C0-\u017F\u1EA0-\u1EF9]+/g;
+        const hashtags = [...new Set((content.match(hashtagRegex) || []).map(tag => tag.slice(1)))];
+        
+        if (hashtags.length > 0) {
+            hashtagsList.parentElement.style.display = 'block';
+            hashtagsList.innerHTML = hashtags.map(tag => 
+                `<span class="hashtag-pill">#${tag}</span>`
+            ).join('');
+        } else {
+            hashtagsList.parentElement.style.display = 'none';
+        }
+    }
+
+    // ✅ THÊM: Handle edit post form submission
+    async handleEditPostSubmit(postId, form, modal) {
+        const submitBtn = document.getElementById('save-edit-post');
+        const btnText = submitBtn.querySelector('.btn-text');
+        const originalText = btnText.textContent;
+
+        try {
+            // Set loading state
+            submitBtn.disabled = true;
+            btnText.textContent = 'Đang lưu...';
+
+            const formData = new FormData(form);
+            const content = formData.get('content').trim();
+
+            if (!content) {
+                this.showToast('Nội dung không được để trống', 'error');
+                return;
+            }
+
+            // Extract hashtags from content
+            const hashtagRegex = /#[\w\u00C0-\u017F\u1EA0-\u1EF9]+/g;
+            const hashtags = [...new Set((content.match(hashtagRegex) || []).map(tag => tag.slice(1)))];
+            
+            // Create plain content (remove HTML and hashtags for search)
+            const plainContent = content.replace(hashtagRegex, '').trim();
+
+            const updateData = {
+                content: content,
+                plainContent: plainContent,
+                hashtags: hashtags
+                // Note: Not updating media for now
+            };
+
+            // Update in database
+            const user = authService.getCurrentUser();
+            await dbService.updatePost(postId, updateData, user);
+
+            // Update local post data
+            const postIndex = this.posts.findIndex(p => p.id === postId);
+            if (postIndex !== -1) {
+                this.posts[postIndex] = {
+                    ...this.posts[postIndex],
+                    ...updateData,
+                    updatedAt: new Date()
+                };
+
+                // Re-render the updated post
+                this.renderSinglePost(this.posts[postIndex]);
+            }
+
+            this.showToast('Đã cập nhật bài viết thành công!');
+            
+            // Close modal
+            modal.classList.remove('show');
+            setTimeout(() => modal.remove(), 300);
+
+        } catch (error) {
+            console.error('Error updating post:', error);
+            this.showToast(error.message || 'Có lỗi xảy ra khi cập nhật bài viết', 'error');
+        } finally {
+            // Reset button state
+            submitBtn.disabled = false;
+            btnText.textContent = originalText;
+        }
+    }
+
+    // ✅ THÊM: Re-render a single post after update
+    renderSinglePost(post) {
+        const postElement = document.querySelector(`[data-post-id="${post.id}"]`);
+        if (postElement) {
+            const newPostHTML = this.createPostHTML(post);
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = newPostHTML;
+            const newPostElement = tempDiv.firstElementChild;
+            
+            postElement.parentNode.replaceChild(newPostElement, postElement);
+            
+            // Re-attach event listeners for this post
+            this.attachPostEventListeners();
+        }
     }
 }

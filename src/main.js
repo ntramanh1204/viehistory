@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // ✅ THÊM: Export navigation to global scope TRƯỚC KHI init
     window.navigation = navigation;
+    window.feedManager = feed;
 
     // ✅ Đảm bảo auth được init trước
     await auth.init();
