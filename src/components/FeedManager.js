@@ -812,8 +812,169 @@ export class FeedManager {
 
     // Handle delete post (to be implemented)
     handleDeletePost(postId) {
-        // You can implement a confirmation and delete logic here
-        this.showToast('Chức năng xóa bài viết chưa được triển khai.', 'info');
+        const post = this.posts.find(p => p.id === postId);
+        if (!post) {
+            console.error('Post not found for ID:', postId);
+            this.showToast('Không tìm thấy bài viết', 'error');
+            return;
+        }
+
+        this.showDeleteConfirmModal(post);
+    }
+
+    // ✅ NEW: Show delete confirmation modal
+    showDeleteConfirmModal(post) {
+        // Remove any existing delete modal
+        const existingModal = document.querySelector('.delete-post-modal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+
+        // Create confirmation modal
+        const modal = document.createElement('div');
+        modal.className = 'modal delete-post-modal';
+        modal.innerHTML = `
+            <div class="modal-content delete-post-content">
+                <div class="modal-header">
+                    <h3>Xác nhận xóa bài viết</h3>
+                    <button class="modal-close delete-post-close">&times;</button>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="delete-warning">
+                        <div class="warning-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="warning-content">
+                            <p>Bạn có chắc chắn muốn xóa bài viết này không?</p>
+                            <div class="post-preview">
+                                <div class="post-preview-content">
+                                    ${post.content.length > 100 ? 
+                                        post.content.substring(0, 100) + '...' : 
+                                        post.content}
+                                </div>
+                                ${post.media && post.media.length > 0 ? 
+                                    `<div class="post-preview-media">
+                                        <i class="fas fa-image"></i> ${post.media.length} media file(s)
+                                    </div>` : ''}
+                            </div>
+                            <p class="warning-text">
+                                <strong>Hành động này không thể hoàn tác.</strong> 
+                                Bài viết và tất cả bình luận sẽ bị xóa vĩnh viễn.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancel-delete-post">Hủy</button>
+                    <button type="button" class="btn-danger" id="confirm-delete-post" data-post-id="${post.id}">
+                        <span class="btn-text">Xóa bài viết</span>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        // Setup modal event listeners
+        this.setupDeleteModalListeners(modal, post);
+
+        // Show modal
+        requestAnimationFrame(() => {
+            modal.classList.add('show');
+            document.getElementById('cancel-delete-post').focus();
+        });
+    }
+
+    // ✅ NEW: Setup delete modal event listeners
+    setupDeleteModalListeners(modal, post) {
+        const closeBtn = modal.querySelector('.delete-post-close');
+        const cancelBtn = document.getElementById('cancel-delete-post');
+        const confirmBtn = document.getElementById('confirm-delete-post');
+
+        const closeModal = () => {
+            modal.classList.remove('show');
+            setTimeout(() => modal.remove(), 300);
+        };
+
+        closeBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+        
+        // Close on backdrop click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        // Escape key to close
+        const escapeHandler = (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+                document.removeEventListener('keydown', escapeHandler);
+            }
+        };
+        document.addEventListener('keydown', escapeHandler);
+
+        // Confirm delete
+        confirmBtn.addEventListener('click', async () => {
+            await this.handleDeletePostConfirmed(post.id, modal);
+        });
+    }
+
+    // ✅ NEW: Handle confirmed post deletion
+    async handleDeletePostConfirmed(postId, modal) {
+        const confirmBtn = document.getElementById('confirm-delete-post');
+        const btnText = confirmBtn.querySelector('.btn-text');
+        const originalText = btnText.textContent;
+
+        try {
+            // Set loading state
+            confirmBtn.disabled = true;
+            btnText.textContent = 'Đang xóa...';
+
+            const user = authService.getCurrentUser();
+            if (!user) {
+                throw new Error('Bạn cần đăng nhập để xóa bài viết');
+            }
+
+            // Delete from database
+            await dbService.deletePost(postId, user);
+
+            // Remove from local posts array
+            this.posts = this.posts.filter(p => p.id !== postId);
+
+            // Remove from DOM
+            const postElement = document.querySelector(`[data-post-id="${postId}"]`);
+            if (postElement) {
+                postElement.style.transition = 'all 0.3s ease';
+                postElement.style.transform = 'translateX(-100%)';
+                postElement.style.opacity = '0';
+                
+                setTimeout(() => {
+                    postElement.remove();
+                }, 300);
+            }
+
+            this.showToast('Đã xóa bài viết thành công!');
+            
+            // Close modal
+            modal.classList.remove('show');
+            setTimeout(() => modal.remove(), 300);
+
+            // Dispatch event for other components
+            const deleteEvent = new CustomEvent('postDeleted', {
+                detail: { postId }
+            });
+            document.dispatchEvent(deleteEvent);
+
+        } catch (error) {
+            console.error('Error deleting post:', error);
+            this.showToast(error.message || 'Có lỗi xảy ra khi xóa bài viết', 'error');
+        } finally {
+            // Reset button state
+            confirmBtn.disabled = false;
+            btnText.textContent = originalText;
+        }
     }
 
     // ✅ THÊM: Toast notification
