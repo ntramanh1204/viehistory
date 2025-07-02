@@ -475,6 +475,15 @@ export class FeedManager {
             // Make API call
             const result = await dbService.toggleLike('post', postId, user);
 
+            // Create notification if liked
+            if (result.liked && result.postAuthor) {
+                await dbService.createLikeNotification(
+                    postId, 
+                    result.postAuthor.uid, 
+                    user
+                );
+            }
+
             // ✅ Verify and update cache with server result
             this.likeCache.set(postId, result.liked);
 
@@ -1294,6 +1303,17 @@ export class FeedManager {
             if (countSpan) {
                 const currentCount = parseInt(countSpan.textContent) || 0;
                 countSpan.textContent = currentCount + 1;
+            }
+
+            // Create notification for comment
+            const post = this.posts.find(p => p.id === postId);
+            if (post && post.author) {
+                await dbService.createCommentNotification(
+                    postId,
+                    post.author.uid,
+                    authorInfo,
+                    content
+                );
             }
 
         } catch (error) {

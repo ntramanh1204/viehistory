@@ -533,6 +533,14 @@ export class ProfileManager {
             const result = await dbService.toggleFollow(currentUser.uid, this.currentUserId);
             this.userData.isFollowing = result.isFollowing;
 
+            // Create notification if followed
+            if (result.isFollowing) {
+                await dbService.createFollowNotification(
+                    this.currentUserId,
+                    currentUser
+                );
+            }
+
             // Update UI
             this.updateFollowButton();
 

@@ -5,6 +5,7 @@ import './components/AppComponents.js'
 import { authService } from './services/AuthService.js';
 import { dbService } from './services/DatabaseService.js';
 import { cloudinaryService } from './services/CloudinaryService.js';
+import { notificationService } from './services/NotificationService.js';
 
 import { AuthManager } from './components/AuthManager.js';
 import { OnboardingManager } from './components/OnboardingManager.js';
@@ -14,6 +15,7 @@ import { ThemeManager } from './components/ThemeManager.js';
 import { NavigationManager } from './components/NavigationManager.js';
 import { PostDetailManager } from './components/PostDetailManager.js';
 import { ShareManager } from './components/ShareManager.js';
+import { NotificationManager } from './components/NotificationManager.js';
 
 let postDetailManager;
 
@@ -33,10 +35,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     const feed = new FeedManager();
     const theme = new ThemeManager();
     const shareManager = new ShareManager();
+    const notification = new NotificationManager();
 
     // ✅ THÊM: Export navigation to global scope TRƯỚC KHI init
+    // Store globally
+    // window.authManager = auth;
+    window.composeManager = compose;
     window.navigation = navigation;
     window.feedManager = feed;
+    window.shareManager = shareManager;
+    window.notificationManager = notification; 
+    window.notificationService = notificationService;
 
     // ✅ Đảm bảo auth được init trước
     await auth.init();
@@ -49,6 +58,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     feed.init();
     theme.init();
     shareManager.init();
+    await notification.init(); 
 
     // Initialize routing AFTER navigation is ready
     window.addEventListener('popstate', handleRouting);
