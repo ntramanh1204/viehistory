@@ -391,12 +391,14 @@ export class FeedManager {
     // ✅ SỬA: Fix event delegation từ commit 2919f63
     handlePostClick(e) {
         const target = e.target.closest('button');
+        console.log('[handlePostClick] target:', target, 'event:', e);
         if (!target) return;
 
         e.preventDefault();
         e.stopPropagation();
 
         const postId = target.dataset.postId;
+        console.log('[handlePostClick] postId:', postId);
         if (!postId) return;
 
         // Route to specific handlers
@@ -409,6 +411,10 @@ export class FeedManager {
             return;
         } else if (target.classList.contains('comment-submit-btn')) {
             this.handleCommentSubmit(target);
+        } else if (target.classList.contains('post-menu-btn')) {
+            console.log('[handlePostClick] post-menu-btn clicked');
+            this.showPostMenu(e);
+            return;
         }
     }
 
@@ -693,15 +699,43 @@ export class FeedManager {
         const button = e.target.closest('.post-menu-btn');
         const postId = button.dataset.postId;
         const user = authService.getCurrentUser();
+        const post = this.posts.find(p => p.id === postId);
+        const isOwner = user && post && post.author && user.uid === post.author.uid;
+
+        // Remove any existing menu if open
+        const existingMenu = document.querySelector('.post-context-menu');
+        if (existingMenu) {
+            // If clicking the same button, just close
+            if (existingMenu._button === button) {
+                existingMenu.remove();
+                return;
+            } else {
+                existingMenu.remove();
+            }
+        }
 
         // Create context menu
         const menu = document.createElement('div');
         menu.className = 'post-context-menu';
+        menu.setAttribute('role', 'menu');
+        menu.setAttribute('aria-label', 'Post actions');
         menu.innerHTML = `
-            <button class="menu-item" data-action="copy-link">📋 Sao chép link</button>
-            <button class="menu-item" data-action="report">🚩 Báo cáo</button>
-            ${user ? `<button class="menu-item" data-action="hide">👁️ Ẩn bài viết</button>` : ''}
+            <button class="menu-item" data-action="copy-link" role="menuitem" aria-label="Copy post link">
+                <span class="menu-icon"><i class="fas fa-link"></i></span>
+                <span class="menu-text">Sao chép link</span>
+            </button>
+            ${isOwner ? `
+            <button class="menu-item" data-action="edit" role="menuitem" aria-label="Edit post">
+                <span class="menu-icon"><i class="fas fa-edit"></i></span>
+                <span class="menu-text">Chỉnh sửa</span>
+            </button>` : ''}
+            ${isOwner ? `
+            <button class="menu-item menu-item-danger" data-action="delete" role="menuitem" aria-label="Delete post">
+                <span class="menu-icon"><i class="fas fa-trash"></i></span>
+                <span class="menu-text">Xóa</span>
+            </button>` : ''}
         `;
+        menu._button = button; // Track which button opened it
 
         // Position menu
         const rect = button.getBoundingClientRect();
@@ -715,27 +749,50 @@ export class FeedManager {
         // Handle menu actions
         menu.addEventListener('click', async (e) => {
             const action = e.target.dataset.action;
-
             switch (action) {
                 case 'copy-link':
                     await navigator.clipboard.writeText(`${window.location.origin}/post/${postId}`);
                     this.showToast('Đã sao chép link!');
                     break;
-                case 'report':
-                    this.showReportDialog(postId);
+                case 'edit':
+                    this.handleEditPost(postId);
                     break;
-                case 'hide':
-                    this.hidePost(postId);
+                case 'delete':
+                    this.handleDeletePost(postId);
                     break;
             }
-
             menu.remove();
         });
 
         // Close menu when clicking outside
         setTimeout(() => {
-            document.addEventListener('click', () => menu.remove(), { once: true });
+            const outsideClick = (ev) => {
+                if (!menu.contains(ev.target) && ev.target !== button) {
+                    menu.remove();
+                    document.removeEventListener('click', outsideClick);
+                }
+            };
+            document.addEventListener('click', outsideClick);
         }, 0);
+
+        // Close menu on scroll
+        const closeOnScroll = () => {
+            menu.remove();
+            window.removeEventListener('scroll', closeOnScroll);
+        };
+        window.addEventListener('scroll', closeOnScroll);
+    }
+
+    // Handle edit post (to be implemented)
+    handleEditPost(postId) {
+        // You can implement navigation to the editor or open a modal here
+        this.showToast('Chức năng chỉnh sửa bài viết chưa được triển khai.', 'info');
+    }
+
+    // Handle delete post (to be implemented)
+    handleDeletePost(postId) {
+        // You can implement a confirmation and delete logic here
+        this.showToast('Chức năng xóa bài viết chưa được triển khai.', 'info');
     }
 
     // ✅ THÊM: Toast notification
