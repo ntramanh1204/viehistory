@@ -288,6 +288,14 @@ export class DatabaseService {
         }
 
         try {
+            // Debug: Log user and comment data
+            console.log('🔍 CreateComment Debug:', {
+                user: user,
+                commentData: commentData,
+                userUid: user.uid,
+                userDisplayName: user.displayName
+            });
+
             const comment = {
                 postId: commentData.postId,
                 parentId: commentData.parentId || null, // null = top-level comment
@@ -306,6 +314,8 @@ export class DatabaseService {
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp()
             };
+
+            console.log('🔍 Comment to be created:', comment);
 
             const docRef = await addDoc(collection(db, this.commentsCollection), comment);
 
@@ -400,6 +410,14 @@ export class DatabaseService {
         }
 
         try {
+            // Debug: Log user and like data
+            console.log('🔍 ToggleLike Debug:', {
+                user: user,
+                itemType: itemType,
+                itemId: itemId,
+                userUid: user.uid
+            });
+
             // ✅ THÊM: Lấy thông tin post/item để có author
         const itemRef = doc(db, itemType === 'post' ? 'posts' : 'comments', itemId);
         const itemDoc = await getDoc(itemRef);

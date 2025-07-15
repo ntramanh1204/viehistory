@@ -1,0 +1,64 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+  
+    match /users/{userId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null;
+      allow delete: if request.auth != null && 
+        request.auth.uid == resource.data.author.uid;
+    }
+    
+    match /likes/{likeId} {
+      allow read: if true;
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.userId;
+      allow delete: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+    }
+    
+    match /comments/{commentId} {
+      allow read: if true;
+      // Fixed: Allow creation if user is authenticated and matches author uid
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.author.uid;
+      // Fixed: Allow update/delete if user matches author uid
+      allow update, delete: if request.auth != null && 
+        request.auth.uid == resource.data.author.uid;
+    }
+    
+    match /blogs/{blogId} {
+      allow read: if true;
+      allow create: if request.auth != null 
+        && request.auth.uid == request.resource.data.author.uid;
+      allow update: if request.auth != null 
+        && request.auth.uid == resource.data.author.uid;
+      allow delete: if request.auth != null 
+        && request.auth.uid == resource.data.author.uid;
+    }
+    
+    match /notifications/{notificationId} {
+      allow read: if request.auth != null && 
+        request.auth.uid == resource.data.recipientId;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && 
+        request.auth.uid == resource.data.recipientId;
+      allow delete: if request.auth != null && 
+        request.auth.uid == resource.data.recipientId;
+    }
+    
+    match /follows/{followId} {
+      allow read: if true;
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.followerId;
+      allow delete: if request.auth != null && 
+        request.auth.uid == resource.data.followerId;
+    }
+  }
+}

@@ -388,7 +388,7 @@ export class FeedManager {
         this.feedContainer.addEventListener('click', this.handlePostClick);
     }
 
-    // ✅ SỬA: Fix event delegation từ commit 2919f63
+    // ✅ SỬA: Fix event delegation từ commit 2919f63 + ADD comment handlers
     handlePostClick(e) {
         const target = e.target.closest('button');
         console.log('[handlePostClick] target:', target, 'event:', e);
@@ -397,24 +397,40 @@ export class FeedManager {
         e.preventDefault();
         e.stopPropagation();
 
+        // Handle post actions (require postId)
         const postId = target.dataset.postId;
-        console.log('[handlePostClick] postId:', postId);
-        if (!postId) return;
+        if (postId) {
+            console.log('[handlePostClick] postId:', postId);
+            
+            // Route to specific post handlers
+            if (target.classList.contains('like-btn')) {
+                this.handleLikeOptimistic(target, postId);
+            } else if (target.classList.contains('comment-btn')) {
+                this.toggleComments(target); // Pass button directly
+            } else if (target.classList.contains('share-btn')) {
+                this.handleShare(target, postId);
+                return;
+            } else if (target.classList.contains('comment-submit-btn')) {
+                this.handleCommentSubmit(target);
+            } else if (target.classList.contains('post-menu-btn')) {
+                console.log('[handlePostClick] post-menu-btn clicked');
+                this.showPostMenu(e);
+                return;
+            }
+            return;
+        }
 
-        // Route to specific handlers
-        if (target.classList.contains('like-btn')) {
-            this.handleLikeOptimistic(target, postId);
-        } else if (target.classList.contains('comment-btn')) {
-            this.toggleComments(target); // Pass button directly
-        } else if (target.classList.contains('share-btn')) {
-            this.handleShare(target, postId);
-            return;
-        } else if (target.classList.contains('comment-submit-btn')) {
-            this.handleCommentSubmit(target);
-        } else if (target.classList.contains('post-menu-btn')) {
-            console.log('[handlePostClick] post-menu-btn clicked');
-            this.showPostMenu(e);
-            return;
+        // Handle comment actions (require commentId)
+        const commentId = target.dataset.commentId;
+        if (commentId) {
+            console.log('[handlePostClick] commentId:', commentId);
+            
+            // Route to specific comment handlers
+            if (target.classList.contains('comment-like-btn')) {
+                this.handleCommentLike(target, commentId);
+            } else if (target.classList.contains('comment-reply-btn')) {
+                this.handleCommentReply(target, commentId);
+            }
         }
     }
 
@@ -1183,10 +1199,22 @@ export class FeedManager {
         const timeAgo = this.getTimeAgo(reply.createdAt);
 
         // ✅ SỬA: Sử dụng AvatarService cho replies
-        const avatar = AvatarService.shouldUseAvataaars(reply.author) ?
-            `<img src="${AvatarService.getUserAvatar(reply.author, 28)}" alt="${reply.author.displayName}" class="reply-avatar-img">` :
-            `<span class="reply-avatar-text">${reply.author.displayName.charAt(0).toUpperCase()}</span>`;
-
+        // Ưu tiên dùng ảnh thật, fallback Avataaars, cuối cùng là chữ cái đầu
+    let avatar;
+    try {
+        if (reply.author && reply.author.photoURL) {
+            avatar = `<img src="${reply.author.photoURL}" alt="${reply.author.displayName}" class="reply-avatar-img">`;
+        } else if (reply.author && reply.author.avatar) {
+            avatar = `<img src="${reply.author.avatar}" alt="${reply.author.displayName}" class="reply-avatar-img">`;
+        } else if (AvatarService.shouldUseAvataaars(reply.author)) {
+            avatar = `<img src="${AvatarService.getUserAvatar(reply.author, 28)}" alt="${reply.author.displayName}" class="reply-avatar-img">`;
+        } else {
+            avatar = `<span class="reply-avatar-text">${reply.author.displayName.charAt(0).toUpperCase()}</span>`;
+        }
+    } catch (error) {
+        console.error('Error generating avatar for reply:', error);
+        avatar = `<span class="reply-avatar-text">${reply.author?.displayName?.charAt(0).toUpperCase() || 'A'}</span>`;
+    }
         return `
             <div class="comment-reply" data-comment-id="${reply.id}">
                 <div class="reply-avatar">
@@ -1203,7 +1231,18 @@ export class FeedManager {
                             <i class="far fa-heart"></i>
                             <span class="like-count">${reply.stats?.likes || 0}</span>
                         </button>
+                        <button class="comment-reply-btn" data-comment-id="${reply.id}">
+                            <i class="far fa-comment"></i>
+                            Trả lời
+                        </button>
                     </div>
+
+                    ${reply.replies && reply.replies.length > 0 ? `
+                    <div class="comment-replies">
+                        ${reply.replies.map(nestedReply => this.createReplyHTML(nestedReply)).join('')}
+                    </div>
+                ` : ''}
+
                 </div>
             </div>
         `;
@@ -1325,21 +1364,207 @@ export class FeedManager {
         }
     }
 
-    formatContent(content) {
-        return content
-            .replace(/\n/g, '<br>')
-            .replace(/#(\w+)/g, '<span class="hashtag">#$1</span>')
-            .replace(/@(\w+)/g, '<span class="mention">@$1</span>');
+    // ✅ NEW: Handle comment like
+    async handleCommentLike(button, commentId) {
+        const user = authService.getCurrentUser();
+        if (!user) {
+            const event = new CustomEvent('showAuthModal', {
+                detail: { message: 'Đăng nhập để thích bình luận' }
+            });
+            document.dispatchEvent(event);
+            return;
+        }
+
+        try {
+            const countSpan = button.querySelector('.like-count');
+            const currentCount = parseInt(countSpan.textContent) || 0;
+            const isLiked = button.classList.contains('liked');
+            const icon = button.querySelector('i');
+
+            // Optimistic update
+            button.disabled = true;
+            if (isLiked) {
+                button.classList.remove('liked');
+                icon.className = 'far fa-heart';
+                countSpan.textContent = Math.max(0, currentCount - 1);
+            } else {
+                button.classList.add('liked');
+                icon.className = 'fas fa-heart';
+                countSpan.textContent = currentCount + 1;
+                
+                // Add animation
+                button.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    button.style.transform = 'scale(1)';
+                }, 150);
+            }
+
+            // API call
+            const result = await dbService.toggleLike('comment', commentId, user);
+            
+            // Verify optimistic update was correct
+            if (result.liked !== !isLiked) {
+                // Rollback if different
+                if (result.liked) {
+                    button.classList.add('liked');
+                    icon.className = 'fas fa-heart';
+                    countSpan.textContent = currentCount + 1;
+                } else {
+                    button.classList.remove('liked');
+                    icon.className = 'far fa-heart';
+                    countSpan.textContent = Math.max(0, currentCount - 1);
+                }
+            }
+
+        } catch (error) {
+            console.error('❌ Error liking comment:', error);
+            this.showToast('Không thể thích bình luận', 'error');
+            
+            // Rollback on error
+            const countSpan = button.querySelector('.like-count');
+            const currentCount = parseInt(countSpan.textContent) || 0;
+            const isLiked = button.classList.contains('liked');
+            const icon = button.querySelector('i');
+            
+            if (isLiked) {
+                button.classList.remove('liked');
+                icon.className = 'far fa-heart';
+                countSpan.textContent = Math.max(0, currentCount - 1);
+            } else {
+                button.classList.add('liked');
+                icon.className = 'fas fa-heart';
+                countSpan.textContent = currentCount + 1;
+            }
+        } finally {
+            button.disabled = false;
+        }
     }
 
-    getTopicIcon(topic) {
-        const icons = {
-            'vietnam': '🇻🇳',
-            'culture': '🏛️',
-            'war': '⚔️',
-            'ancient': '🏺'
+    // ✅ NEW: Handle comment reply
+    async handleCommentReply(button, commentId) {
+        // const user = authService.getCurrentUser();
+        const user = window.currentUserData || authService.getCurrentUser();
+        if (!user) {
+            const event = new CustomEvent('showAuthModal', {
+                detail: { message: 'Đăng nhập để trả lời bình luận' }
+            });
+            document.dispatchEvent(event);
+            return;
+        }
+
+        // Find the comment element
+        const commentElement = button.closest('.comment-item');
+        if (!commentElement) return;
+
+        // Check if reply form already exists
+        let replyForm = commentElement.querySelector('.reply-form');
+        if (replyForm) {
+            // Toggle visibility
+            replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
+            if (replyForm.style.display !== 'none') {
+                replyForm.querySelector('textarea').focus();
+            }
+            return;
+        }
+
+        // Create reply form
+        replyForm = document.createElement('div');
+        replyForm.className = 'reply-form';
+        replyForm.innerHTML = `
+            <div class="reply-input-container">
+                <textarea class="reply-input" placeholder="Viết trả lời..." data-comment-id="${commentId}"></textarea>
+                <div class="reply-actions">
+                    <button class="reply-submit-btn" data-comment-id="${commentId}">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                    <button class="reply-cancel-btn">
+                        Hủy
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // Insert after comment content
+        const commentContent = commentElement.querySelector('.comment-content');
+        commentContent.appendChild(replyForm);
+
+        // Focus on textarea
+        const textarea = replyForm.querySelector('.reply-input');
+        textarea.focus();
+
+        // Handle submit
+        const submitBtn = replyForm.querySelector('.reply-submit-btn');
+        submitBtn.onclick = async () => {
+            const content = textarea.value.trim();
+            if (!content) return;
+
+            try {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+                // Get post ID from comments section
+                const commentsSection = commentElement.closest('.comments-section');
+                const postId = commentsSection.dataset.postId;
+
+                const authorInfo = {
+                    uid: user.uid,
+                    displayName: user.displayName,
+                    avatar: user.avatar,
+                    photoURL: user.photoURL
+                };
+
+                await dbService.createComment({
+                    postId: postId,
+                    content: content,
+                    parentId: commentId,
+                    author: authorInfo
+                }, user);
+
+                console.log('[DEBUG] hehehehhehe User object khi submit comment/reply: ', user);
+
+                // Remove reply form
+                replyForm.remove();
+
+                // Reload comments to show new reply
+                await this.loadComments(postId);
+
+                this.showToast('Trả lời đã được gửi!', 'success');
+
+            } catch (error) {
+                console.error('❌ Error submitting reply:', error);
+                this.showToast('Không thể gửi trả lời', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Gửi';
+            }
         };
-        return icons[topic] || '📖';
+
+        // Handle cancel
+        const cancelBtn = replyForm.querySelector('.reply-cancel-btn');
+        cancelBtn.onclick = () => {
+            replyForm.remove();
+        };
+
+        // Handle Enter key (Ctrl+Enter to submit)
+        textarea.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                e.preventDefault();
+                submitBtn.click();
+            }
+        });
+    }
+
+    // ✅ ADD: Missing utility methods
+    throttle(func, delay) {
+        let lastCall = 0;
+        return function (...args) {
+            const now = new Date().getTime();
+            if (now - lastCall < delay) {
+                return;
+            }
+            lastCall = now;
+            return func(...args);
+        }
     }
 
     getTimeAgo(date) {
@@ -1357,315 +1582,31 @@ export class FeedManager {
         return date.toLocaleDateString('vi-VN');
     }
 
-    getEmptyState() {
-        return `
-            <div class="empty-state">
-                <div class="empty-icon">📚</div>
-                <h3>Chưa có bài viết nào</h3>
-                <p>Hãy là người đầu tiên chia sẻ câu chuyện lịch sử!</p>
-            </div>
-        `;
-    }
-
-    showError(message) {
-        // Reuse toast from ComposeManager style
-        const toast = document.createElement('div');
-        toast.className = 'toast toast-error';
-        toast.textContent = message;
-
-        Object.assign(toast.style, {
-            position: 'fixed',
-            top: '20px',
-            right: '20px',
-            padding: '12px 20px',
-            borderRadius: '8px',
-            backgroundColor: '#ef4444',
-            color: 'white',
-            zIndex: '9999',
-            fontSize: '14px',
-            transform: 'translateX(300px)',
-            transition: 'transform 0.3s ease'
-        });
-
-        document.body.appendChild(toast);
-
-        setTimeout(() => {
-            toast.style.transform = 'translateX(0)';
-        }, 100);
-
-        setTimeout(() => {
-            toast.style.transform = 'translateX(300px)';
-            setTimeout(() => {
-                if (document.body.contains(toast)) {
-                    document.body.removeChild(toast);
-                }
-            }, 300);
-        }, 3000);
+    shouldLoadMore() {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const windowHeight = window.innerHeight;
+        const documentHeight = document.documentElement.scrollHeight;
+        
+        return scrollTop + windowHeight >= documentHeight - 1000; // Load when 1000px from bottom
     }
 
     setLoading(loading) {
         this.isLoading = loading;
-
-        if (loading && this.posts.length === 0) {
-            this.feedContainer.innerHTML = `
-                <div class="loading-state">
-                    <div class="loading-spinner"></div>
-                    <p>Đang tải bài viết...</p>
-                </div>
-            `;
+        // You can add loading UI here if needed
+        if (loading) {
+            console.log('🔄 Loading posts...');
         }
     }
 
-    shouldLoadMore() {
-        const scrollPosition = window.innerHeight + window.scrollY;
-        const documentHeight = document.documentElement.offsetHeight;
-        return scrollPosition >= documentHeight - 1000;
-    }
-
-    throttle(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
-
-    // ✅ THÊM: Show edit post modal
-    showEditPostModal(post) {
-        console.log('🔧 showEditPostModal called with post:', post);
-        
-        // Remove any existing edit modal
-        const existingModal = document.querySelector('.edit-post-modal');
-        if (existingModal) {
-            console.log('🔧 Removing existing modal');
-            existingModal.remove();
-        }
-
-        // Create edit modal
-        const modal = document.createElement('div');
-        modal.className = 'modal edit-post-modal';
-        modal.innerHTML = `
-            <div class="modal-content edit-post-content">
-                <div class="modal-header">
-                    <h3>Chỉnh sửa bài viết</h3>
-                    <button class="modal-close edit-post-close">&times;</button>
-                </div>
-                
-                <div class="modal-body">
-                    <form id="edit-post-form" class="edit-post-form">
-                        <div class="form-group">
-                            <label for="edit-post-content">Nội dung bài viết</label>
-                            <textarea 
-                                id="edit-post-content" 
-                                name="content" 
-                                placeholder="Bạn đang nghĩ gì?" 
-                                maxlength="20000"
-                                required
-                            ></textarea>
-                            <div class="char-count">
-                                <span id="edit-post-char-count">0</span>/20000
-                            </div>
-                        </div>
-                        
-                        <div class="form-group hashtags-preview" style="display: ${post.hashtags && post.hashtags.length > 0 ? 'block' : 'none'}">
-                            <label>Hashtags</label>
-                            <div class="hashtags-list" id="edit-hashtags-list">
-                                ${(post.hashtags || []).map(tag => 
-                                    `<span class="hashtag-pill">#${tag}</span>`
-                                ).join('')}
-                            </div>
-                        </div>
-
-                        ${post.media && post.media.length > 0 ? `
-                        <div class="form-group">
-                            <label>Media hiện tại</label>
-                            <div class="current-media">
-                                ${post.media.map(item => `
-                                    <div class="media-item">
-                                        <img src="${item.url}" alt="Media" class="media-thumb">
-                                        <span class="media-name">${item.originalName || 'Untitled'}</span>
-                                    </div>
-                                `).join('')}
-                            </div>
-                            <small class="media-note">Lưu ý: Hiện tại chưa hỗ trợ thay đổi media, chỉ có thể chỉnh sửa nội dung văn bản.</small>
-                        </div>
-                        ` : ''}
-                    </form>
-                </div>
-                
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" id="cancel-edit-post">Hủy</button>
-                    <button type="submit" class="btn-primary" form="edit-post-form" id="save-edit-post">
-                        <span class="btn-text">Lưu thay đổi</span>
-                    </button>
-                </div>
-            </div>
-        `;
-
-        document.body.appendChild(modal);
-
-        // Setup modal event listeners
-        this.setupEditPostModalListeners(modal, post);
-
-        // Show modal
-        requestAnimationFrame(() => {
-            modal.classList.add('show');
-            document.getElementById('edit-post-content').focus();
+    showAuthRequired(message) {
+        const event = new CustomEvent('showAuthModal', {
+            detail: { message }
         });
+        document.dispatchEvent(event);
     }
 
-    // ✅ THÊM: Setup edit post modal event listeners
-    setupEditPostModalListeners(modal, post) {
-        const contentTextarea = document.getElementById('edit-post-content');
-        const charCountSpan = document.getElementById('edit-post-char-count');
-        const hashtagsList = document.getElementById('edit-hashtags-list');
-        const form = document.getElementById('edit-post-form');
-        const closeBtn = modal.querySelector('.edit-post-close');
-        const cancelBtn = document.getElementById('cancel-edit-post');
-
-        // Set textarea value safely
-        if (contentTextarea) {
-            contentTextarea.value = post.content || '';
-            charCountSpan.textContent = (post.content || '').length;
-        }
-
-        // Character counter
-        contentTextarea.addEventListener('input', (e) => {
-            const length = e.target.value.length;
-            charCountSpan.textContent = length;
-            
-            // Update hashtags
-            this.updateEditPostHashtags(e.target.value, hashtagsList);
-        });
-
-        // Close modal events
-        const closeModal = () => {
-            modal.classList.remove('show');
-            setTimeout(() => modal.remove(), 300);
-        };
-
-        closeBtn.addEventListener('click', closeModal);
-        cancelBtn.addEventListener('click', closeModal);
-        
-        // Close on backdrop click
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeModal();
-        });
-
-        // Escape key to close
-        const escapeHandler = (e) => {
-            if (e.key === 'Escape') {
-                closeModal();
-                document.removeEventListener('keydown', escapeHandler);
-            }
-        };
-        document.addEventListener('keydown', escapeHandler);
-
-        // Form submission
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            await this.handleEditPostSubmit(post.id, form, modal);
-        });
-    }
-
-    // ✅ THÊM: Update hashtags in edit modal
-    updateEditPostHashtags(content, hashtagsList) {
-        const hashtagRegex = /#[\w\u00C0-\u017F\u1EA0-\u1EF9]+/g;
-        const hashtags = [...new Set((content.match(hashtagRegex) || []).map(tag => tag.slice(1)))];
-        
-        if (hashtags.length > 0) {
-            hashtagsList.parentElement.style.display = 'block';
-            hashtagsList.innerHTML = hashtags.map(tag => 
-                `<span class="hashtag-pill">#${tag}</span>`
-            ).join('');
-        } else {
-            hashtagsList.parentElement.style.display = 'none';
-        }
-    }
-
-    // ✅ THÊM: Handle edit post form submission
-    async handleEditPostSubmit(postId, form, modal) {
-        const submitBtn = document.getElementById('save-edit-post');
-        const btnText = submitBtn.querySelector('.btn-text');
-        const originalText = btnText.textContent;
-
-        try {
-            // Set loading state
-            submitBtn.disabled = true;
-            btnText.textContent = 'Đang lưu...';
-
-            const formData = new FormData(form);
-            const content = formData.get('content').trim();
-
-            if (!content) {
-                this.showToast('Nội dung không được để trống', 'error');
-                return;
-            }
-
-            // Extract hashtags from content
-            const hashtagRegex = /#[\w\u00C0-\u017F\u1EA0-\u1EF9]+/g;
-            const hashtags = [...new Set((content.match(hashtagRegex) || []).map(tag => tag.slice(1)))];
-            
-            // Create plain content (remove HTML and hashtags for search)
-            const plainContent = content.replace(hashtagRegex, '').trim();
-
-            const updateData = {
-                content: content,
-                plainContent: plainContent,
-                hashtags: hashtags
-                // Note: Not updating media for now
-            };
-
-            // Update in database
-            const user = authService.getCurrentUser();
-            await dbService.updatePost(postId, updateData, user);
-
-            // Update local post data
-            const postIndex = this.posts.findIndex(p => p.id === postId);
-            if (postIndex !== -1) {
-                this.posts[postIndex] = {
-                    ...this.posts[postIndex],
-                    ...updateData,
-                    updatedAt: new Date()
-                };
-
-                // Re-render the updated post
-                this.renderSinglePost(this.posts[postIndex]);
-            }
-
-            this.showToast('Đã cập nhật bài viết thành công!');
-            
-            // Close modal
-            modal.classList.remove('show');
-            setTimeout(() => modal.remove(), 300);
-
-        } catch (error) {
-            console.error('Error updating post:', error);
-            this.showToast(error.message || 'Có lỗi xảy ra khi cập nhật bài viết', 'error');
-        } finally {
-            // Reset button state
-            submitBtn.disabled = false;
-            btnText.textContent = originalText;
-        }
-    }
-
-    // ✅ THÊM: Re-render a single post after update
-    renderSinglePost(post) {
-        const postElement = document.querySelector(`[data-post-id="${post.id}"]`);
-        if (postElement) {
-            const newPostHTML = this.createPostHTML(post);
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = newPostHTML;
-            const newPostElement = tempDiv.firstElementChild;
-            
-            postElement.parentNode.replaceChild(newPostElement, postElement);
-            
-            // Re-attach event listeners for this post
-            this.attachPostEventListeners();
-        }
+    showError(message) {
+        // Reuse toast for error display
+        this.showToast(message, 'error');
     }
 }
