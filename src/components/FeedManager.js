@@ -10,6 +10,7 @@ export class FeedManager {
         this.lastDoc = null;
         this.hasMore = true;
         this.likeCache = new Map();
+        this.commentLikeCache = new Map();
         this.pendingLikes = new Set();
         this.currentUserId = null;
 
@@ -238,15 +239,15 @@ export class FeedManager {
                     <div class="comment-form">
                         <div class="comment-avatar">
                             ${(() => {
-            const user = window.currentUserData || authService.getCurrentUser();
-            if (user && (user.photoURL || user.avatar)) {
-                return `<img src="${user.photoURL || user.avatar}" alt="${user.displayName || ''}" class="comment-avatar-img">`;
-            } else if (user && user.displayName) {
-                return `<span class="comment-avatar-text">${user.displayName.charAt(0).toUpperCase()}</span>`;
-            } else {
-                return `<span class="comment-avatar-text">A</span>`;
-            }
-        })()}
+                const user = window.currentUserData || authService.getCurrentUser();
+                if (user && (user.photoURL || user.avatar)) {
+                    return `<img src="${user.photoURL || user.avatar}" alt="${user.displayName || ''}" class="comment-avatar-img">`;
+                } else if (user && user.displayName) {
+                    return `<span class="comment-avatar-text">${user.displayName.charAt(0).toUpperCase()}</span>`;
+                } else {
+                    return `<span class="comment-avatar-text">A</span>`;
+                }
+            })()}
                         </div>
                         <div class="comment-input-container">
                             <textarea class="comment-input" data-post-id="${post.id}" placeholder="Viết bình luận..."></textarea>
@@ -401,11 +402,12 @@ export class FeedManager {
         const postId = target.dataset.postId;
         if (postId) {
             console.log('[handlePostClick] postId:', postId);
-            
+
             // Route to specific post handlers
             if (target.classList.contains('like-btn')) {
                 this.handleLikeOptimistic(target, postId);
             } else if (target.classList.contains('comment-btn')) {
+                const commentId = target.dataset.commentId;
                 this.toggleComments(target); // Pass button directly
             } else if (target.classList.contains('share-btn')) {
                 this.handleShare(target, postId);
@@ -424,7 +426,7 @@ export class FeedManager {
         const commentId = target.dataset.commentId;
         if (commentId) {
             console.log('[handlePostClick] commentId:', commentId);
-            
+
             // Route to specific comment handlers
             if (target.classList.contains('comment-like-btn')) {
                 this.handleCommentLike(target, commentId);
@@ -433,6 +435,76 @@ export class FeedManager {
             }
         }
     }
+
+    // ...existing code...
+    async handleCommentLikeOptimistic(button, commentId) {
+        // Ngăn spam
+        if (button.classList.contains('pending')) return;
+
+        const user = authService.getCurrentUser();
+        if (!user) {
+            const event = new CustomEvent('showAuthModal', {
+                detail: { message: 'Đăng nhập để thích bình luận' }
+            });
+            document.dispatchEvent(event);
+            return;
+        }
+
+        const countSpan = button.querySelector('.like-count');
+        const icon = button.querySelector('i');
+        const isLiked = button.classList.contains('liked');
+        let currentCount = parseInt(countSpan.textContent) || 0;
+
+        // Optimistic UI
+        button.classList.add('pending');
+        if (isLiked) {
+            button.classList.remove('liked');
+            icon.className = 'far fa-heart';
+            countSpan.textContent = Math.max(0, currentCount - 1);
+        } else {
+            button.classList.add('liked');
+            icon.className = 'fas fa-heart';
+            countSpan.textContent = currentCount + 1;
+        }
+
+        try {
+            const result = await dbService.toggleLike('comment', commentId, user);
+
+            // Nếu server trả về khác optimistic thì rollback
+            if (result.liked !== !isLiked) {
+                if (result.liked) {
+                    button.classList.add('liked');
+                    icon.className = 'fas fa-heart';
+                    countSpan.textContent = currentCount + 1;
+                } else {
+                    button.classList.remove('liked');
+                    icon.className = 'far fa-heart';
+                    countSpan.textContent = Math.max(0, currentCount - 1);
+                }
+            }
+
+            this.commentLikeCache.set(commentId, result.liked);
+
+            // (Tùy chọn) Gửi notification cho chủ comment nếu cần
+            // await dbService.createLikeNotificationForComment(commentId, ...);
+
+        } catch (error) {
+            // Rollback nếu lỗi
+            if (isLiked) {
+                button.classList.add('liked');
+                icon.className = 'fas fa-heart';
+                countSpan.textContent = currentCount;
+            } else {
+                button.classList.remove('liked');
+                icon.className = 'far fa-heart';
+                countSpan.textContent = currentCount;
+            }
+            this.showToast('Không thể thích bình luận', 'error');
+        } finally {
+            button.classList.remove('pending');
+        }
+    }
+    // ...existing code...
 
     // ✅ SỬA: Update optimistic like để sync cache
     async handleLikeOptimistic(button, postId) {
@@ -494,8 +566,8 @@ export class FeedManager {
             // Create notification if liked
             if (result.liked && result.postAuthor) {
                 await dbService.createLikeNotification(
-                    postId, 
-                    result.postAuthor.uid, 
+                    postId,
+                    result.postAuthor.uid,
                     user
                 );
             }
@@ -780,10 +852,10 @@ export class FeedManager {
         menu.addEventListener('click', async (e) => {
             const menuItem = e.target.closest('.menu-item');
             if (!menuItem) return;
-            
+
             const action = menuItem.dataset.action;
             console.log('🔧 Menu action clicked:', action, 'for post:', postId);
-            
+
             switch (action) {
                 case 'copy-link':
                     await navigator.clipboard.writeText(`${window.location.origin}/post/${postId}`);
@@ -823,7 +895,7 @@ export class FeedManager {
     handleEditPost(postId) {
         console.log('🔧 handleEditPost called with postId:', postId);
         console.log('🔧 Available posts:', this.posts.map(p => p.id));
-        
+
         const post = this.posts.find(p => p.id === postId);
         if (!post) {
             console.error('🔧 Post not found for ID:', postId);
@@ -874,12 +946,12 @@ export class FeedManager {
                             <p>Bạn có chắc chắn muốn xóa bài viết này không?</p>
                             <div class="post-preview">
                                 <div class="post-preview-content">
-                                    ${post.content.length > 100 ? 
-                                        post.content.substring(0, 100) + '...' : 
-                                        post.content}
+                                    ${post.content.length > 100 ?
+                post.content.substring(0, 100) + '...' :
+                post.content}
                                 </div>
-                                ${post.media && post.media.length > 0 ? 
-                                    `<div class="post-preview-media">
+                                ${post.media && post.media.length > 0 ?
+                `<div class="post-preview-media">
                                         <i class="fas fa-image"></i> ${post.media.length} media file(s)
                                     </div>` : ''}
                             </div>
@@ -925,7 +997,7 @@ export class FeedManager {
 
         closeBtn.addEventListener('click', closeModal);
         cancelBtn.addEventListener('click', closeModal);
-        
+
         // Close on backdrop click
         modal.addEventListener('click', (e) => {
             if (e.target === modal) closeModal();
@@ -974,14 +1046,14 @@ export class FeedManager {
                 postElement.style.transition = 'all 0.3s ease';
                 postElement.style.transform = 'translateX(-100%)';
                 postElement.style.opacity = '0';
-                
+
                 setTimeout(() => {
                     postElement.remove();
                 }, 300);
             }
 
             this.showToast('Đã xóa bài viết thành công!');
-            
+
             // Close modal
             modal.classList.remove('show');
             setTimeout(() => modal.remove(), 300);
@@ -1093,22 +1165,32 @@ export class FeedManager {
     async loadComments(postId) {
         try {
             const commentsSection = document.querySelector(`.comments-list[data-post-id="${postId}"]`);
-            if (!commentsSection) {
-                console.error('❌ Comments list not found for post:', postId);
-                return;
+            if (!commentsSection) return;
+
+            commentsSection.innerHTML = '<div class="comments-loading">Đang tải bình luận...</div>';
+            await new Promise(resolve => setTimeout(resolve, 10));
+            const comments = await dbService.getComments(postId);
+
+            // NEW: Lấy tất cả id của comment và reply (đệ quy)
+            function collectAllCommentIds(comments) {
+                let ids = [];
+                for (const c of comments) {
+                    ids.push(c.id);
+                    if (c.replies && c.replies.length > 0) {
+                        ids = ids.concat(collectAllCommentIds(c.replies));
+                    }
+                }
+                return ids;
             }
 
-            // Show loading state
-            commentsSection.innerHTML = '<div class="comments-loading">Đang tải bình luận...</div>';
-
-            console.log('🔄 Loading comments for post:', postId);
-
-            // ✅ FIX: Thêm timeout nhỏ để đảm bảo UI updated trước khi bắt đầu request
-            await new Promise(resolve => setTimeout(resolve, 10));
-
-            // Load comments from database
-            const comments = await dbService.getComments(postId);
-            console.log('📝 Comments loaded:', comments?.length || 0);
+            const user = authService.getCurrentUser();
+            if (user && comments.length > 0) {
+                const allCommentIds = collectAllCommentIds(comments);
+                const likeStatuses = await dbService.checkMultipleLikes('comment', allCommentIds, user.uid);
+                allCommentIds.forEach(id => {
+                    this.commentLikeCache.set(id, !!likeStatuses[id]);
+                });
+            }
 
             // ✅ FIX: Kiểm tra commentsSection tồn tại trước khi render
             if (document.contains(commentsSection)) {
@@ -1140,6 +1222,10 @@ export class FeedManager {
     // ✅ RESTORE: Create comment HTML với AvatarService từ commit 2919f63
     createCommentHTML(comment) {
         const timeAgo = this.getTimeAgo(comment.createdAt);
+        const isLiked = this.commentLikeCache?.get(comment.id) || false;
+        const likedClass = isLiked ? 'liked' : '';
+        const heartIcon = isLiked ? 'fas fa-heart' : 'far fa-heart';
+
 
         // Debug: log the author object for troubleshooting
         console.log('[DEBUG] Rendering comment author:', comment.author);
@@ -1173,8 +1259,8 @@ export class FeedManager {
                     </div>
                     <div class="comment-text">${this.formatCommentContent(comment.content)}</div>
                     <div class="comment-actions">
-                        <button class="comment-like-btn" data-comment-id="${comment.id}">
-                            <i class="far fa-heart"></i>
+                        <button class="comment-like-btn ${likedClass}" data-comment-id="${comment.id}">
+                            <i class="${heartIcon}"></i>
                             <span class="like-count">${comment.stats?.likes || 0}</span>
                         </button>
                         <button class="comment-reply-btn" data-comment-id="${comment.id}">
@@ -1197,24 +1283,27 @@ export class FeedManager {
     // ✅ THÊM: Create reply HTML với avatar service
     createReplyHTML(reply) {
         const timeAgo = this.getTimeAgo(reply.createdAt);
+        const isLiked = this.commentLikeCache?.get(reply.id) || false;
+        const likedClass = isLiked ? 'liked' : '';
+        const heartIcon = isLiked ? 'fas fa-heart' : 'far fa-heart';
 
         // ✅ SỬA: Sử dụng AvatarService cho replies
         // Ưu tiên dùng ảnh thật, fallback Avataaars, cuối cùng là chữ cái đầu
-    let avatar;
-    try {
-        if (reply.author && reply.author.photoURL) {
-            avatar = `<img src="${reply.author.photoURL}" alt="${reply.author.displayName}" class="reply-avatar-img">`;
-        } else if (reply.author && reply.author.avatar) {
-            avatar = `<img src="${reply.author.avatar}" alt="${reply.author.displayName}" class="reply-avatar-img">`;
-        } else if (AvatarService.shouldUseAvataaars(reply.author)) {
-            avatar = `<img src="${AvatarService.getUserAvatar(reply.author, 28)}" alt="${reply.author.displayName}" class="reply-avatar-img">`;
-        } else {
-            avatar = `<span class="reply-avatar-text">${reply.author.displayName.charAt(0).toUpperCase()}</span>`;
+        let avatar;
+        try {
+            if (reply.author && reply.author.photoURL) {
+                avatar = `<img src="${reply.author.photoURL}" alt="${reply.author.displayName}" class="reply-avatar-img">`;
+            } else if (reply.author && reply.author.avatar) {
+                avatar = `<img src="${reply.author.avatar}" alt="${reply.author.displayName}" class="reply-avatar-img">`;
+            } else if (AvatarService.shouldUseAvataaars(reply.author)) {
+                avatar = `<img src="${AvatarService.getUserAvatar(reply.author, 28)}" alt="${reply.author.displayName}" class="reply-avatar-img">`;
+            } else {
+                avatar = `<span class="reply-avatar-text">${reply.author.displayName.charAt(0).toUpperCase()}</span>`;
+            }
+        } catch (error) {
+            console.error('Error generating avatar for reply:', error);
+            avatar = `<span class="reply-avatar-text">${reply.author?.displayName?.charAt(0).toUpperCase() || 'A'}</span>`;
         }
-    } catch (error) {
-        console.error('Error generating avatar for reply:', error);
-        avatar = `<span class="reply-avatar-text">${reply.author?.displayName?.charAt(0).toUpperCase() || 'A'}</span>`;
-    }
         return `
             <div class="comment-reply" data-comment-id="${reply.id}">
                 <div class="reply-avatar">
@@ -1227,8 +1316,8 @@ export class FeedManager {
                     </div>
                     <div class="reply-text">${this.formatCommentContent(reply.content)}</div>
                     <div class="reply-actions">
-                        <button class="comment-like-btn" data-comment-id="${reply.id}">
-                            <i class="far fa-heart"></i>
+                        <button class="comment-like-btn ${likedClass}" data-comment-id="${reply.id}">
+                            <i class="${heartIcon}"></i>
                             <span class="like-count">${reply.stats?.likes || 0}</span>
                         </button>
                         <button class="comment-reply-btn" data-comment-id="${reply.id}">
@@ -1391,7 +1480,7 @@ export class FeedManager {
                 button.classList.add('liked');
                 icon.className = 'fas fa-heart';
                 countSpan.textContent = currentCount + 1;
-                
+
                 // Add animation
                 button.style.transform = 'scale(1.2)';
                 setTimeout(() => {
@@ -1401,7 +1490,7 @@ export class FeedManager {
 
             // API call
             const result = await dbService.toggleLike('comment', commentId, user);
-            
+
             // Verify optimistic update was correct
             if (result.liked !== !isLiked) {
                 // Rollback if different
@@ -1416,16 +1505,18 @@ export class FeedManager {
                 }
             }
 
+            this.commentLikeCache.set(commentId, result.liked);
+
         } catch (error) {
             console.error('❌ Error liking comment:', error);
             this.showToast('Không thể thích bình luận', 'error');
-            
+
             // Rollback on error
             const countSpan = button.querySelector('.like-count');
             const currentCount = parseInt(countSpan.textContent) || 0;
             const isLiked = button.classList.contains('liked');
             const icon = button.querySelector('i');
-            
+
             if (isLiked) {
                 button.classList.remove('liked');
                 icon.className = 'far fa-heart';
@@ -1586,7 +1677,7 @@ export class FeedManager {
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         const windowHeight = window.innerHeight;
         const documentHeight = document.documentElement.scrollHeight;
-        
+
         return scrollTop + windowHeight >= documentHeight - 1000; // Load when 1000px from bottom
     }
 
