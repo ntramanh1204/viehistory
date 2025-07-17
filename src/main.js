@@ -1,5 +1,6 @@
 // Import Firebase config and services first
 import './config/firebase.js';
+import { initGoogleAnalytics, checkGAStatus } from './config/analytics.js';
 import './components/AppComponents.js'
 
 import { authService } from './services/AuthService.js';
@@ -16,6 +17,9 @@ import { NavigationManager } from './components/NavigationManager.js';
 import { PostDetailManager } from './components/PostDetailManager.js';
 import { ShareManager } from './components/ShareManager.js';
 import { NotificationManager } from './components/NotificationManager.js';
+
+initGoogleAnalytics();
+checkGAStatus();
 
 let postDetailManager;
 
