@@ -1,5 +1,6 @@
 import { authService } from '../services/AuthService.js';
 import { dbService } from '../services/DatabaseService.js';
+import { AvatarService } from '../services/AvatarService.js';
 
 export class PostDetailManager {
     constructor() {
@@ -35,45 +36,137 @@ export class PostDetailManager {
         }
     }
 
-    createDetailedPostHTML(post) {
-        const timeAgo = this.getTimeAgo(post.createdAt);
-        const avatar = post.author.photoURL ?
-            `<img src="${post.author.photoURL}" alt="${post.author.displayName}">` :
-            `<span class="avatar-text">${post.author.displayName.charAt(0).toUpperCase()}</span>`;
-
-        return `
-            <header class="post-header">
-                <div class="post-author-info">
-                    <div class="user-avatar">${avatar}</div>
-                    <div class="author-details">
-                        <h2 class="author-name">${post.author.displayName}</h2>
-                        <time class="post-time">${timeAgo}</time>
+createDetailedPostHTML(post) {
+    const timeAgo = this.getTimeAgo(post.createdAt);
+    
+    // Use same avatar logic as FeedManager
+    let avatar;
+    if (post.author && (post.author.photoURL || post.author.avatar)) {
+        avatar = `<img src="${post.author.photoURL || post.author.avatar}" alt="${post.author.displayName}" class="author-avatar-img">`;
+    } else if (AvatarService && AvatarService.shouldUseAvataaars && AvatarService.shouldUseAvataaars(post.author)) {
+        avatar = `<img src="${AvatarService.getUserAvatar(post.author, 40)}" alt="${post.author.displayName}" class="author-avatar-img">`;
+    } else {
+        avatar = `<span class="author-avatar-text">${post.author.displayName.charAt(0).toUpperCase()}</span>`;
+    }
+    
+    // Format content same way as FeedManager
+    let formattedContent = this.formatContent(post.content);
+    
+    // Generate media HTML if present
+    const mediaHTML = post.media && post.media.length > 0 ? 
+        this.createMediaHTML(post.media) : '';
+    
+    // Generate hashtags HTML if present
+    const hashtagsHTML = post.hashtags && post.hashtags.length > 0 ? 
+        this.createHashtagsHTML(post.hashtags) : '';
+    
+    // Check if post is liked
+    const user = authService.currentUser;
+    const isLiked = user && post.likedBy && post.likedBy.includes(user.uid);
+    const likedClass = isLiked ? 'liked' : '';
+    const heartIcon = isLiked ? 'fas fa-heart' : 'far fa-heart';
+    
+    return `
+        <article class="post-item" data-post-id="${post.id}">
+            <div class="post-header">
+                <div class="post-author">
+                    <div class="author-avatar">${avatar}</div>
+                    <div class="author-info">
+                        <span class="author-name">${post.author.displayName}</span>
+                        <span class="post-time">${timeAgo}</span>
                     </div>
                 </div>
-            </header>
-            
-            <div class="post-content-full">
-                <p>${this.formatContent(post.content)}</p>
+                <button class="post-menu-btn" data-post-id="${post.id}">⋯</button>
             </div>
-            
+            <div class="post-content">
+                <div class="post-text">${formattedContent}</div>
+                ${mediaHTML}
+                ${hashtagsHTML}
+            </div>
             <footer class="post-actions">
-                <button class="action-btn like-btn" data-post-id="${post.id}">
-                    <span class="action-icon">❤️</span>
-                    <span class="action-count">${post.stats.likes || 0}</span>
+                <button class="action-btn like-btn ${likedClass}" data-post-id="${post.id}">
+                    <span class="action-icon"><i class="${heartIcon}"></i></span>
+                    <span class="action-count">${post.stats?.likes || 0}</span>
                 </button>
-                
-                <button class="action-btn comment-btn">
-                    <span class="action-icon">💬</span>
-                    <span class="action-count">${post.stats.comments || 0}</span>
+                <button class="action-btn comment-btn" data-post-id="${post.id}">
+                    <span class="action-icon"><i class="far fa-comment"></i></span>
+                    <span class="action-count">${post.stats?.comments || 0}</span>
                 </button>
-                
-                <button class="action-btn share-btn">
-                    <span class="action-icon">🔗</span>
-                    <span class="action-text">Chia sẻ</span>
+                <button class="action-btn share-btn" data-post-id="${post.id}">
+                    <span class="action-icon"><i class="fas fa-share"></i></span>
+                    <span class="action-count">${post.stats?.shares || 0}</span>
                 </button>
             </footer>
-        `;
-    }
+        </article>
+    `;
+}
+
+// Add these methods to PostDetailManager class
+createMediaHTML(media) {
+    if (!media || media.length === 0) return '';
+
+    const mediaItems = media.map(item => {
+        if (item.type === 'image') {
+            return `
+                <div class="post-media-item">
+                    <img src="${item.url}" alt="${item.originalName || 'Ảnh'}" 
+                         class="post-media-image" loading="lazy">
+                </div>
+            `;
+        } else if (item.type === 'video') {
+            return `
+                <div class="post-media-item">
+                    <video controls class="post-media-video" preload="metadata">
+                        <source src="${item.url}" type="video/mp4">
+                        Trình duyệt không hỗ trợ video.
+                    </video>
+                </div>
+            `;
+        }
+        return '';
+    }).join('');
+
+    const gridClass = media.length === 1 ? 'single' :
+        media.length === 2 ? 'double' :
+        media.length === 3 ? 'triple' : 'quad';
+
+    return `
+        <div class="post-media ${gridClass}">
+            ${mediaItems}
+        </div>
+    `;
+}
+
+createHashtagsHTML(hashtags) {
+    if (!hashtags || hashtags.length === 0) return '';
+
+    const hashtagItems = hashtags.map(tag =>
+        `<a href="/?hashtag=${encodeURIComponent(tag)}" class="hashtag">#${tag}</a>`
+    ).join(' ');
+
+    return `<div class="post-hashtags">${hashtagItems}</div>`;
+}
+
+// Also update the formatContent method to match FeedManager's formatPostContent
+formatContent(content) {
+    if (!content) return '<p>Nội dung trống</p>';
+
+    // Ensure content is a string
+    const safeContent = String(content || '');
+
+    // Convert URLs to links
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    let formatted = safeContent.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+
+    // Convert mentions to links
+    const mentionRegex = /@(\w+)/g;
+    formatted = formatted.replace(mentionRegex, '<span class="mention">@$1</span>');
+
+    // Convert line breaks
+    formatted = formatted.replace(/\n/g, '<br>');
+
+    return formatted;
+}
 
     async loadComments() {
         try {

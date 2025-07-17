@@ -10,9 +10,12 @@
     </header>
 
     <main class="post-detail-content">
-        <article class="post-detail-card">
-            <!-- Post content sẽ được render ở đây -->
-        </article>
+        <!-- ✅ SỬA: Container để chứa post-item style -->
+        <div class="post-detail-container">
+            <div class="post-detail-card" id="post-detail-card">
+                <!-- Post content will be rendered here -->
+            </div>
+        </div>
 
         <section class="comments-section-detail">
             <h2>Bình luận</h2>
@@ -20,8 +23,8 @@
                 <textarea class="comment-input-detail" placeholder="Viết bình luận..."></textarea>
                 <button class="comment-submit-detail">Gửi</button>
             </div>
-            <div class="comments-list-detail">
-                <!-- Comments list -->
+            <div class="comments-list-detail" id="comments-list-detail">
+                <!-- Comments sẽ được render ở đây -->
             </div>
         </section>
     </main>
