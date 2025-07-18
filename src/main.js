@@ -17,6 +17,7 @@ import { NavigationManager } from './components/NavigationManager.js';
 import { PostDetailManager } from './components/PostDetailManager.js';
 import { ShareManager } from './components/ShareManager.js';
 import { NotificationManager } from './components/NotificationManager.js';
+import { ProfileHoverCard } from './components/ProfileHoverCard.js';
 
 initGoogleAnalytics();
 checkGAStatus();
@@ -40,6 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const theme = new ThemeManager();
     const shareManager = new ShareManager();
     const notification = new NotificationManager();
+    const profileHoverCard = new ProfileHoverCard();
 
     // ✅ THÊM: Export navigation to global scope TRƯỚC KHI init
     // Store globally
@@ -48,6 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.navigation = navigation;
     window.feedManager = feed;
     window.shareManager = shareManager;
+    window.profileHoverCard = profileHoverCard;
     window.notificationManager = notification; 
     window.notificationService = notificationService;
 

@@ -204,12 +204,12 @@ export class FeedManager {
         const shareCount = post.stats?.shares || 0;
 
         return `
-            <article class="post-item" data-post-id="${post.id}">
+            <article class="post-item" data-post-id="${post.id}" data-author-id="${post.author.uid}">
                 <div class="post-header">
                     <div class="post-author">
                         <div class="author-avatar">${avatar}</div>
                         <div class="author-info">
-                            <span class="author-name">${post.author.displayName}</span>
+                            <span class="author-name" data-user-id="${post.author.uid}">${post.author.displayName}</span>
                             <span class="post-time">${timeAgo}</span>
                         </div>
                     </div>
@@ -377,7 +377,6 @@ export class FeedManager {
         `;
     }
 
-    // ✅ SỬA: Fix event delegation - chỉ dùng 1 listener
     attachPostEventListeners() {
         if (!this.feedContainer) return;
 
@@ -387,6 +386,24 @@ export class FeedManager {
         // Add single delegated listener
         this.handlePostClick = this.handlePostClick.bind(this);
         this.feedContainer.addEventListener('click', this.handlePostClick);
+
+        // ✅ Thêm event delegation cho author-name
+        this.feedContainer.removeEventListener('click', this.handleAuthorNameClick);
+        this.handleAuthorNameClick = (e) => {
+            const authorName = e.target.closest('.author-name');
+            if (authorName) {
+                const userId = authorName.dataset.userId;
+                if (userId) {
+                    // Hide hover card nếu có
+                    if (window.profileHoverCard) window.profileHoverCard.hideCard?.();
+
+                    // Chuyển hướng bằng History API
+                    window.history.pushState({}, '', `/profile/${userId}`);
+                    window.dispatchEvent(new PopStateEvent('popstate'));
+                }
+            }
+        };
+        this.feedContainer.addEventListener('click', this.handleAuthorNameClick);
     }
 
     // ✅ SỬA: Fix event delegation từ commit 2919f63 + ADD comment handlers
@@ -1247,13 +1264,13 @@ export class FeedManager {
             avatar = `<span class="comment-avatar-text">${comment.author?.displayName?.charAt(0).toUpperCase() || 'A'}</span>`;
         }
         return `
-            <div class="comment-item" data-comment-id="${comment.id}">
+            <div class="comment-item" data-comment-id="${comment.id}" data-author-id="${comment.author.uid}">
                 <div class="comment-avatar">
                     ${avatar}
                 </div>
                 <div class="comment-content">
                     <div class="comment-header">
-                        <span class="comment-author-name">${comment.author.displayName}</span>
+                        <span class="comment-author-name author-name" data-user-id="${comment.author.uid}">${comment.author.displayName}</span>
                         <span class="comment-time">${timeAgo}</span>
                         ${comment.author.isVerified ? '<span class="verified-badge">✓</span>' : ''}
                     </div>
@@ -1305,13 +1322,13 @@ export class FeedManager {
             avatar = `<span class="reply-avatar-text">${reply.author?.displayName?.charAt(0).toUpperCase() || 'A'}</span>`;
         }
         return `
-            <div class="comment-reply" data-comment-id="${reply.id}">
+            <div class="comment-reply" data-comment-id="${reply.id}" data-author-id="${reply.author.uid}">
                 <div class="reply-avatar">
                     ${avatar}
                 </div>
                 <div class="reply-content">
                     <div class="reply-header">
-                        <span class="reply-author-name">${reply.author.displayName}</span>
+                        <span class="reply-author-name author-name" data-user-id="${reply.author.uid}">${reply.author.displayName}</span>
                         <span class="reply-time">${timeAgo}</span>
                     </div>
                     <div class="reply-text">${this.formatCommentContent(reply.content)}</div>

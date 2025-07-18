@@ -296,6 +296,15 @@
     font-weight: 600;
     font-size: 15px;
     color: var(--text-primary);
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s ease;
+    text-decoration: none;
+}
+
+.author-name:hover {
+    color: var(--accent-primary);
+    text-decoration: underline;
 }
 
 .post-time {
@@ -5761,4 +5770,257 @@
         height: 28px;
         padding: 0 10px;
     }
+}
+
+
+/* #region Profile Hover Card */
+/* Profile Hover Card */
+.profile-hover-card {
+    position: fixed;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    width: 300px;
+    z-index: 1001;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+    transition: all 0.2s ease-out;
+    pointer-events: none;
+}
+
+.profile-hover-card.show {
+    opacity: 1;
+    visibility: visible;
+
+
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.profile-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.profile-card-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.profile-card-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-card-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.profile-card-name {
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.profile-card-username {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.profile-card-stats {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.profile-stat {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+}
+
+.profile-stat-number {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.profile-stat-label {
+    color: var(--text-secondary);
+}
+
+.profile-card-bio {
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    max-height: 60px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+.profile-card-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.profile-follow-btn {
+    flex: 1;
+    background: var(--accent-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.profile-follow-btn:hover {
+    background: var(--accent-primary-hover);
+    transform: translateY(-1px);
+}
+
+.profile-follow-btn.following {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-soft);
+}
+
+.profile-follow-btn.following:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-hover);
+}
+
+.profile-message-btn {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-message-btn:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-hover);
+}
+
+.verified-badge {
+    color: var(--accent-primary);
+    font-size: 16px;
+}
+
+/* Make author names clickable and hoverable */
+.author-name,
+.comment-author-name.author-name,
+.reply-author-name.author-name {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text-primary);
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s ease;
+    text-decoration: none;
+}
+
+.author-name:hover,
+.comment-author-name.author-name:hover,
+.reply-author-name.author-name:hover {
+    color: var(--accent-primary);
+    text-decoration: underline;
+}
+
+/* Loading state for profile card */
+.profile-hover-card.loading {
+    pointer-events: none;
+}
+
+.profile-card-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.profile-card-spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--border-soft);
+    border-top: 2px solid var(--accent-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+    .profile-hover-card {
+        background: color-mix(in srgb, var(--bg-card) 95%, transparent);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+}
+
+/* ...existing code... */
+
+/* ✅ THÊM: Profile avatar styles giống post item */
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-primary);
+    color: white;
+    font-weight: 700;
+    font-size: 48px;
+    overflow: hidden;
+    position: relative;
+}
+
+.profile-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.profile-avatar-text {
+    color: white;
+    font-weight: 700;
+    font-size: 48px;
+}
+
+/* ✅ XÓA/ẨN: Username styles */
+.profile-username {
+    display: none !important;
 }

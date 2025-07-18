@@ -5,6 +5,7 @@ import {
     getDocs,
     doc,
     getDoc,
+    setDoc,
     updateDoc,
     deleteDoc,
     query,
@@ -901,12 +902,26 @@ export class DatabaseService {
             const postsSnapshot = await getDocs(postsQuery);
             const postsCount = postsSnapshot.size;
 
-            // TODO: Implement followers/following count
+            // Count followers
+            const followersQuery = query(
+                collection(db, 'follows'),
+                where('followingId', '==', userId)
+            );
+            const followersSnapshot = await getDocs(followersQuery);
+            const followersCount = followersSnapshot.size;
+
+            // Count following
+            const followingQuery = query(
+                collection(db, 'follows'),
+                where('followerId', '==', userId)
+            );
+            const followingSnapshot = await getDocs(followingQuery);
+            const followingCount = followingSnapshot.size;
 
             return {
                 postsCount,
-                followersCount: 0,
-                followingCount: 0
+                followersCount,
+                followingCount
             };
         } catch (error) {
             console.error('Error getting user stats:', error);
