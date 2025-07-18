@@ -109,19 +109,48 @@ export class AuthManager {
      * Fetch Firestore user data after auth state changes
      */
     async fetchAndSetFirestoreUser(user) {
-        if (!user || !user.uid) {
+        if (!user || user.isAnonymous) {
+            console.log('[DEBUG] Firestore user loaded: null');
             window.currentUserData = null;
+            document.dispatchEvent(new CustomEvent('firestoreUserLoaded', {
+                detail: { userData: null }
+            }));
             return;
         }
+
         try {
-            const userData = await dbService.getUserProfile(user.uid);
-            window.currentUserData = userData;
+            // ✅ SỬA: Thêm retry logic cho user mới tạo
+            let userData = null;
+            let retryCount = 0;
+            const maxRetries = 3;
+
+            while (!userData && retryCount < maxRetries) {
+                try {
+                    userData = await dbService.getUserProfile(user.uid);
+                    if (userData) break;
+                } catch (error) {
+                    console.log(`[DEBUG] Retry ${retryCount + 1} fetching user data...`);
+                }
+
+                retryCount++;
+                if (retryCount < maxRetries) {
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
+                }
+            }
+
             console.log('[DEBUG] Firestore user loaded:', userData);
-            // Optionally, trigger a custom event for other components
-            document.dispatchEvent(new CustomEvent('firestoreUserLoaded', { detail: { userData } }));
+            window.currentUserData = userData;
+
+            document.dispatchEvent(new CustomEvent('firestoreUserLoaded', {
+                detail: { userData }
+            }));
+
         } catch (error) {
-            console.error('[DEBUG] Failed to load Firestore user:', error);
+            console.error('Error fetching Firestore user:', error);
             window.currentUserData = null;
+            document.dispatchEvent(new CustomEvent('firestoreUserLoaded', {
+                detail: { userData: null }
+            }));
         }
     }
 
@@ -399,6 +428,12 @@ export class AuthManager {
             this.setLoadingState(true);
             await authService.createAccount(email, password, displayName);
             this.showSuccess('Tạo tài khoản thành công!');
+
+            // ✅ THÊM: Reload Firestore user data và UI
+            const user = authService.getCurrentUser();
+            await this.fetchAndSetFirestoreUser(user);
+            this.updateUIForAuthState(user);
+
         } catch (error) {
             this.showError(error.message);
         } finally {
