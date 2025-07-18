@@ -6024,3 +6024,17 @@
 .profile-username {
     display: none !important;
 }
+
+.btn-secondary {
+    background: var(--accent-secondary);
+    color: #222;
+    border: 1px solid #dcdde1;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.btn-secondary:hover {
+    background: #e1e2e6;
+}
