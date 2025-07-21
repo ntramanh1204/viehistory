@@ -420,58 +420,58 @@ export class DatabaseService {
             });
 
             // ✅ THÊM: Lấy thông tin post/item để có author
-        const itemRef = doc(db, itemType === 'post' ? 'posts' : 'comments', itemId);
-        const itemDoc = await getDoc(itemRef);
-        const itemData = itemDoc.data();
-        
-        const likesRef = collection(db, 'likes');
-        const likeQuery = query(
-            likesRef,
-            where('userId', '==', user.uid),
-            where('itemId', '==', itemId),
-            where('itemType', '==', itemType)
-        );
+            const itemRef = doc(db, itemType === 'post' ? 'posts' : 'comments', itemId);
+            const itemDoc = await getDoc(itemRef);
+            const itemData = itemDoc.data();
 
-        const likeSnapshot = await getDocs(likeQuery);
+            const likesRef = collection(db, 'likes');
+            const likeQuery = query(
+                likesRef,
+                where('userId', '==', user.uid),
+                where('itemId', '==', itemId),
+                where('itemType', '==', itemType)
+            );
 
-        if (likeSnapshot.empty) {
-            // Add like
-            await addDoc(likesRef, {
-                userId: user.uid,
-                itemId: itemId,
-                itemType: itemType,
-                createdAt: serverTimestamp()
-            });
+            const likeSnapshot = await getDocs(likeQuery);
 
-            await updateDoc(itemRef, {
-                'stats.likes': increment(1)
-            });
+            if (likeSnapshot.empty) {
+                // Add like
+                await addDoc(likesRef, {
+                    userId: user.uid,
+                    itemId: itemId,
+                    itemType: itemType,
+                    createdAt: serverTimestamp()
+                });
 
-            // ✅ RETURN với postAuthor để tạo notification
-            return { 
-                liked: true, 
-                action: 'liked',
-                postAuthor: itemData?.author // ✅ Thêm author info
-            };
-        } else {
-            // Remove like
-            const likeDoc = likeSnapshot.docs[0];
-            await deleteDoc(doc(db, 'likes', likeDoc.id));
+                await updateDoc(itemRef, {
+                    'stats.likes': increment(1)
+                });
 
-            await updateDoc(itemRef, {
-                'stats.likes': increment(-1)
-            });
+                // ✅ RETURN với postAuthor để tạo notification
+                return {
+                    liked: true,
+                    action: 'liked',
+                    postAuthor: itemData?.author // ✅ Thêm author info
+                };
+            } else {
+                // Remove like
+                const likeDoc = likeSnapshot.docs[0];
+                await deleteDoc(doc(db, 'likes', likeDoc.id));
 
-            return { 
-                liked: false, 
-                action: 'unliked',
-                postAuthor: itemData?.author
-            };
+                await updateDoc(itemRef, {
+                    'stats.likes': increment(-1)
+                });
+
+                return {
+                    liked: false,
+                    action: 'unliked',
+                    postAuthor: itemData?.author
+                };
+            }
+        } catch (error) {
+            console.error('❌ Error toggling like:', error);
+            throw new Error('Không thể thực hiện hành động này.');
         }
-    } catch (error) {
-        console.error('❌ Error toggling like:', error);
-        throw new Error('Không thể thực hiện hành động này.');
-    }
     }
 
     /**
@@ -535,6 +535,75 @@ export class DatabaseService {
             return {};
         }
     }
+
+/**
+ * Share post to user's profile wall
+ */
+async sharePostToProfile(postId) {
+    const user = authService.getCurrentUser();
+    if (!user) throw new Error('Bạn cần đăng nhập để chia sẻ');
+
+    try {
+        // Get original post
+        const originalPost = await this.getPostById(postId);
+        if (!originalPost) {
+            throw new Error('Bài viết không tồn tại');
+        }
+
+        // Use current user data for author info
+        const firestoreUser = window.currentUserData;
+        const authorInfo = firestoreUser ? {
+            uid: firestoreUser.uid,
+            displayName: firestoreUser.displayName,
+            avatar: firestoreUser.avatar,
+            photoURL: firestoreUser.photoURL
+        } : {
+            uid: user.uid,
+            displayName: user.displayName || 'User',
+            photoURL: user.photoURL || null
+        };
+
+        // Create shared post
+        const sharedPost = {
+            content: '', // Empty content for shared posts
+            plainContent: '',
+            hashtags: [],
+            media: [],
+            author: authorInfo,
+            metadata: {
+                type: 'share',
+                sharedPostId: postId,
+                originalAuthorId: originalPost.author?.uid
+            },
+            topic: null,
+            status: 'published',
+            stats: {
+                likes: 0,
+                comments: 0,
+                views: 0,
+                shares: 0
+            },
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+        };
+
+        // Save shared post
+        const docRef = await addDoc(collection(db, this.postsCollection), sharedPost);
+
+        // Increment original post share count
+        await this.incrementPostShares(postId);
+
+        // Update user stats
+        await this.updateUserStats(user.uid, 'postsCount', 1);
+
+        console.log('✅ Post shared to profile:', docRef.id);
+        return docRef.id;
+
+    } catch (error) {
+        console.error('❌ Error sharing post to profile:', error);
+        throw error;
+    }
+}
 
     // ==================== UTILITIES ====================
 
@@ -1147,84 +1216,84 @@ export class DatabaseService {
         });
     }
 
-/**
- * Create notification for like
- */
-async createLikeNotification(postId, postAuthorId, likerData) {
-    try {
-        // Don't notify self
-        if (postAuthorId === likerData.uid) return;
+    /**
+     * Create notification for like
+     */
+    async createLikeNotification(postId, postAuthorId, likerData) {
+        try {
+            // Don't notify self
+            if (postAuthorId === likerData.uid) return;
 
-        // Check if authenticated
-        const currentUser = authService.getCurrentUser();
-        if (!currentUser || currentUser.isAnonymous) {
-            console.warn('User must be authenticated to create notifications');
-            return;
-        }
-
-        const cleanLikerData = {
-            type: 'like',
-            recipientId: postAuthorId,
-            actorId: likerData.uid,
-            actorName: likerData.displayName || likerData.name || 'Unknown User',
-            actorAvatar: likerData.photoURL || likerData.avatar || null, // Ensure null instead of undefined
-            postId: postId,
-            message: `${likerData.displayName || likerData.name || 'Ai đó'} đã thích bài viết của bạn`
-        };
-
-        // Remove any undefined values
-        Object.keys(cleanLikerData).forEach(key => {
-            if (cleanLikerData[key] === undefined) {
-                cleanLikerData[key] = null;
+            // Check if authenticated
+            const currentUser = authService.getCurrentUser();
+            if (!currentUser || currentUser.isAnonymous) {
+                console.warn('User must be authenticated to create notifications');
+                return;
             }
-        });
 
-        await this.createNotification(cleanLikerData);
-    } catch (error) {
-        console.error('Error creating like notification:', error);
-        // Don't throw error to prevent breaking the like functionality
-    }
-}
+            const cleanLikerData = {
+                type: 'like',
+                recipientId: postAuthorId,
+                actorId: likerData.uid,
+                actorName: likerData.displayName || likerData.name || 'Unknown User',
+                actorAvatar: likerData.photoURL || likerData.avatar || null, // Ensure null instead of undefined
+                postId: postId,
+                message: `${likerData.displayName || likerData.name || 'Ai đó'} đã thích bài viết của bạn`
+            };
 
-  /**
- * Create notification for comment
- */
-async createCommentNotification(postId, postAuthorId, commenterData, commentContent) {
-    try {
-        // Don't notify self
-        if (postAuthorId === commenterData.uid) return;
+            // Remove any undefined values
+            Object.keys(cleanLikerData).forEach(key => {
+                if (cleanLikerData[key] === undefined) {
+                    cleanLikerData[key] = null;
+                }
+            });
 
-        // Check if authenticated
-        const currentUser = authService.getCurrentUser();
-        if (!currentUser || currentUser.isAnonymous) {
-            console.warn('User must be authenticated to create notifications');
-            return;
+            await this.createNotification(cleanLikerData);
+        } catch (error) {
+            console.error('Error creating like notification:', error);
+            // Don't throw error to prevent breaking the like functionality
         }
-
-        const cleanCommenterData = {
-            type: 'comment',
-            recipientId: postAuthorId,
-            actorId: commenterData.uid,
-            actorName: commenterData.displayName || commenterData.name || 'Unknown User',
-            actorAvatar: commenterData.photoURL || commenterData.avatar || null, // Ensure null instead of undefined
-            postId: postId,
-            commentContent: commentContent.substring(0, 100),
-            message: `${commenterData.displayName || commenterData.name || 'Ai đó'} đã bình luận về bài viết của bạn`
-        };
-
-        // Remove any undefined values
-        Object.keys(cleanCommenterData).forEach(key => {
-            if (cleanCommenterData[key] === undefined) {
-                cleanCommenterData[key] = null;
-            }
-        });
-
-        await this.createNotification(cleanCommenterData);
-    } catch (error) {
-        console.error('Error creating comment notification:', error);
-        // Don't throw error to prevent breaking the comment functionality
     }
-}
+
+    /**
+   * Create notification for comment
+   */
+    async createCommentNotification(postId, postAuthorId, commenterData, commentContent) {
+        try {
+            // Don't notify self
+            if (postAuthorId === commenterData.uid) return;
+
+            // Check if authenticated
+            const currentUser = authService.getCurrentUser();
+            if (!currentUser || currentUser.isAnonymous) {
+                console.warn('User must be authenticated to create notifications');
+                return;
+            }
+
+            const cleanCommenterData = {
+                type: 'comment',
+                recipientId: postAuthorId,
+                actorId: commenterData.uid,
+                actorName: commenterData.displayName || commenterData.name || 'Unknown User',
+                actorAvatar: commenterData.photoURL || commenterData.avatar || null, // Ensure null instead of undefined
+                postId: postId,
+                commentContent: commentContent.substring(0, 100),
+                message: `${commenterData.displayName || commenterData.name || 'Ai đó'} đã bình luận về bài viết của bạn`
+            };
+
+            // Remove any undefined values
+            Object.keys(cleanCommenterData).forEach(key => {
+                if (cleanCommenterData[key] === undefined) {
+                    cleanCommenterData[key] = null;
+                }
+            });
+
+            await this.createNotification(cleanCommenterData);
+        } catch (error) {
+            console.error('Error creating comment notification:', error);
+            // Don't throw error to prevent breaking the comment functionality
+        }
+    }
     /**
      * Create notification for follow
      */

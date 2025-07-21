@@ -467,6 +467,18 @@ export class ProfileManager {
         try {
             const posts = await dbService.getUserPosts(this.currentUserId);
 
+            // Load original post data for shared posts
+            for (const post of posts) {
+                if (post.metadata?.type === 'share' && post.metadata?.sharedPostId) {
+                    try {
+                        post.originalPost = await dbService.getPostById(post.metadata.sharedPostId);
+                    } catch (error) {
+                        console.error('Error loading original post:', error);
+                        post.originalPost = null;
+                    }
+                }
+            }
+
             if (posts.length === 0) {
                 container.innerHTML = '<div class="empty-state">Chưa có bài viết nào</div>';
                 return;
@@ -474,6 +486,7 @@ export class ProfileManager {
 
             container.innerHTML = posts.map(post => this.createPostCard(post)).join('');
         } catch (error) {
+            console.error('Error loading user posts:', error);
             container.innerHTML = '<div class="error">Không thể tải bài viết</div>';
         }
     }
@@ -498,29 +511,237 @@ export class ProfileManager {
         container.innerHTML = '<div class="empty-state">Chức năng media đang phát triển</div>';
     }
 
+    // ...existing code...
+
     createPostCard(post) {
-        // Sử dụng FeedManager để render post giống trang chủ
-        if (!this.feedManager) {
-            this.feedManager = new FeedManager();
+        // Check if this is a shared post
+        if (post.metadata?.type === 'share' && post.metadata?.sharedPostId) {
+            const sharedPostId = post.metadata.sharedPostId;
+
+            // Try to get original post data (should be loaded in loadUserPosts)
+            const originalPost = post.originalPost;
+
+            if (!originalPost) {
+                return `
+                <div class="post-item shared-post" data-post-id="${post.id}">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <div class="author-avatar">
+                                <span class="author-avatar-text">${(post.author.displayName || 'User').charAt(0).toUpperCase()}</span>
+                            </div>
+                            <div class="author-info">
+                                <span class="author-name">${post.author.displayName || 'Bạn'}</span>
+                                <span class="post-time">${this.getTimeAgo(post.createdAt)}</span>
+                            </div>
+                        </div>
+                        <button class="post-menu-btn" data-post-id="${post.id}">⋯</button>
+                    </div>
+                    <div class="post-content">
+                        <div class="shared-by">
+                            <i class="fas fa-share"></i> đã chia sẻ một bài viết
+                        </div>
+                        <div class="original-post">
+                            <div class="original-content">
+                                <i>Bài viết gốc không khả dụng</i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            }
+
+            const content = originalPost.content || originalPost.plainContent || '<i>Nội dung trống</i>';
+            const timeAgo = this.getTimeAgo(post.createdAt);
+            const originalTimeAgo = this.getTimeAgo(originalPost.createdAt);
+
+            // Author avatar for the sharer
+            let sharerAvatar;
+            if (post.author && (post.author.photoURL || post.author.avatar)) {
+                sharerAvatar = `<img src="${post.author.photoURL || post.author.avatar}" alt="${post.author.displayName}" class="author-avatar-img">`;
+            } else {
+                sharerAvatar = `<span class="author-avatar-text">${(post.author.displayName || 'User').charAt(0).toUpperCase()}</span>`;
+            }
+
+            return `
+            <div class="post-item shared-post" data-post-id="${post.id}" data-author-id="${post.author.uid}">
+                <div class="post-header">
+                    <div class="post-author">
+                        <div class="author-avatar">${sharerAvatar}</div>
+                        <div class="author-info">
+                            <span class="author-name" data-user-id="${post.author.uid}">${post.author.displayName || 'Bạn'}</span>
+                            <span class="post-time">${timeAgo}</span>
+                        </div>
+                    </div>
+                    <button class="post-menu-btn" data-post-id="${post.id}">⋯</button>
+                </div>
+                <div class="post-content">
+                    <div class="shared-by">
+                        <i class="fas fa-share"></i> đã chia sẻ
+                    </div>
+                    <div class="original-post">
+                        <div class="original-author">
+                            <span class="original-author-name" data-user-id="${originalPost.author?.uid}">${originalPost.author?.displayName || 'Người dùng'}</span>
+                            <span class="original-time">${originalTimeAgo}</span>
+                        </div>
+                        <div class="original-content">
+                            ${content}
+                        </div>
+                        ${this.createMediaPreview(originalPost.media)}
+                    </div>
+                </div>
+                <footer class="post-actions">
+                    <button class="action-btn like-btn" data-post-id="${post.id}">
+                        <span class="action-icon"><i class="far fa-heart"></i></span>
+                        <span class="action-count">${post.stats?.likes || 0}</span>
+                    </button>
+                    <button class="action-btn comment-btn" data-post-id="${post.id}">
+                        <span class="action-icon"><i class="far fa-comment"></i></span>
+                        <span class="action-count">${post.stats?.comments || 0}</span>
+                    </button>
+                    <button class="action-btn share-btn" data-post-id="${post.id}">
+                        <span class="action-icon"><i class="fas fa-share"></i></span>
+                        <span class="action-count">${post.stats?.shares || 0}</span>
+                    </button>
+                </footer>
+            </div>
+        `;
         }
-        return this.feedManager.createPostHTML(post);
+
+        // Regular post - match home page format exactly
+        const timeAgo = this.getTimeAgo(post.createdAt);
+
+        // Author avatar
+        let avatar;
+        if (post.author && (post.author.photoURL || post.author.avatar)) {
+            avatar = `<img src="${post.author.photoURL || post.author.avatar}" alt="${post.author.displayName}" class="author-avatar-img">`;
+        } else {
+            avatar = `<span class="author-avatar-text">${(post.author?.displayName || 'User').charAt(0).toUpperCase()}</span>`;
+        }
+
+        // Format content
+        const formattedContent = this.formatPostContent(post.content || post.plainContent || '');
+
+        // Media and hashtags
+        const mediaHTML = this.createEnhancedMediaHTML(post.media || []);
+        const hashtagsHTML = this.createHashtagsHTML(post.hashtags || []);
+
+        return `
+        <article class="post-item" data-post-id="${post.id}" data-author-id="${post.author?.uid}">
+            <div class="post-header">
+                <div class="post-author">
+                    <div class="author-avatar">${avatar}</div>
+                    <div class="author-info">
+                        <span class="author-name" data-user-id="${post.author?.uid}">${post.author?.displayName || 'User'}</span>
+                        <span class="post-time">${timeAgo}</span>
+                    </div>
+                </div>
+                <button class="post-menu-btn" data-post-id="${post.id}">⋯</button>
+            </div>
+            <div class="post-content">
+                <div class="post-text">${formattedContent}</div>
+                ${mediaHTML}
+                ${hashtagsHTML}
+            </div>
+            <footer class="post-actions">
+                <button class="action-btn like-btn" data-post-id="${post.id}">
+                    <span class="action-icon"><i class="far fa-heart"></i></span>
+                    <span class="action-count">${post.stats?.likes || 0}</span>
+                </button>
+                <button class="action-btn comment-btn" data-post-id="${post.id}">
+                    <span class="action-icon"><i class="far fa-comment"></i></span>
+                    <span class="action-count">${post.stats?.comments || 0}</span>
+                </button>
+                <button class="action-btn share-btn" data-post-id="${post.id}">
+                    <span class="action-icon"><i class="fas fa-share"></i></span>
+                    <span class="action-count">${post.stats?.shares || 0}</span>
+                </button>
+            </footer>
+        </article>
+    `;
     }
 
+    // Add missing helper methods to match FeedManager functionality
+    formatPostContent(content) {
+        if (!content) return '<p>Nội dung trống</p>';
 
+        const safeContent = String(content || '');
+
+        // Convert URLs to links
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        let formatted = safeContent.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+
+        // Convert mentions to links
+        const mentionRegex = /@(\w+)/g;
+        formatted = formatted.replace(mentionRegex, '<span class="mention">@$1</span>');
+
+        // Convert line breaks
+        formatted = formatted.replace(/\n/g, '<br>');
+
+        return formatted;
+    }
+
+    createEnhancedMediaHTML(media) {
+        if (!media || media.length === 0) return '';
+
+        const mediaItems = media.map(item => {
+            if (item.type === 'image') {
+                return `
+                <div class="post-media-item">
+                    <img src="${item.url}" alt="${item.originalName || 'Ảnh'}" 
+                         class="post-media-image" loading="lazy">
+                </div>
+            `;
+            } else if (item.type === 'video') {
+                return `
+                <div class="post-media-item">
+                    <video controls class="post-media-video" preload="metadata">
+                        <source src="${item.url}" type="video/mp4">
+                        Trình duyệt không hỗ trợ video.
+                    </video>
+                </div>
+            `;
+            }
+            return '';
+        }).join('');
+
+        const gridClass = media.length === 1 ? 'single' :
+            media.length === 2 ? 'double' :
+                media.length === 3 ? 'triple' : 'quad';
+
+        return `
+        <div class="post-media ${gridClass}">
+            ${mediaItems}
+        </div>
+    `;
+    }
+
+    createHashtagsHTML(hashtags) {
+        if (!hashtags || hashtags.length === 0) return '';
+
+        const hashtagItems = hashtags.map(tag =>
+            `<a href="/?hashtag=${encodeURIComponent(tag)}" class="hashtag">#${tag}</a>`
+        ).join(' ');
+
+        return `<div class="post-hashtags">${hashtagItems}</div>`;
+    }
+
+    // Update the existing createMediaPreview to be more consistent
     createMediaPreview(media) {
         if (!media || media.length === 0) return '';
 
         const firstItem = media[0];
         return `
-            <div class="post-media-preview">
-                ${firstItem.type === 'image' ?
+        <div class="post-media-preview">
+            ${firstItem.type === 'image' ?
                 `<img src="${firstItem.url}" alt="Media" loading="lazy">` :
                 `<video src="${firstItem.url}" controls></video>`
             }
-                ${media.length > 1 ? `<div class="media-count">+${media.length - 1}</div>` : ''}
-            </div>
-        `;
+            ${media.length > 1 ? `<div class="media-count">+${media.length - 1}</div>` : ''}
+        </div>
+    `;
     }
+
+    // ...existing code...
 
     async toggleFollow() {
         const currentUser = authService.getCurrentUser();

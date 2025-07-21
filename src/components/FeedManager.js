@@ -742,25 +742,127 @@ export class FeedManager {
     //     }
     // }
 
-    async handleShare(button, postId) {
-        if (!button || !postId) return;
+   async handleShare(button, postId) {
+    if (!button || !postId) return;
+    this.showCustomShareModal(postId);
+}
 
-        if (window.shareManager) {
-            const shared = await window.shareManager.handleShare(postId, button);
-            if (shared) {
-                // Chỉ tăng số share khi thực sự đã chia sẻ
-                this.incrementShareCountUI(button);
-                await dbService.incrementPostShares(postId);
+// ...existing code...
+
+showCustomShareModal(postId) {
+    // Xóa modal cũ nếu có
+    document.querySelector('.custom-share-modal')?.remove();
+
+    const postUrl = `${window.location.origin}/post/${postId}`;
+    const modal = document.createElement('div');
+    modal.className = 'custom-share-modal modal';
+    modal.innerHTML = `
+        <div class="modal-content share-modal-content">
+            <button class="modal-close share-modal-close">&times;</button>
+            <h3>Chia sẻ bài viết</h3>
+            <div class="share-options">
+                <button class="share-option" data-action="profile">
+                    <i class="fas fa-share-square"></i> Chia sẻ về tường nhà
+                </button>
+                <button class="share-option" data-action="app">
+                    <i class="fas fa-paper-plane"></i> Chia sẻ qua ứng dụng
+                </button>
+                <button class="share-option" data-action="copy">
+                    <i class="fas fa-link"></i> Sao chép link
+                </button>
+            </div>
+            <div class="share-url">
+                <input type="text" class="share-url-input" value="${postUrl}" readonly>
+                <button class="share-url-copy">Sao chép</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    // Sự kiện đóng modal
+    modal.querySelector('.share-modal-close').onclick = () => modal.remove();
+    modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+
+    // Sự kiện các nút chia sẻ
+    modal.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.share-option');
+        if (!btn) return;
+        
+        const action = btn.dataset.action;
+        
+        if (action === 'profile') {
+            try {
+                // Add loading state
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang chia sẻ...';
+                
+                // Call the database service method
+                await dbService.sharePostToProfile(postId);
+                
+                // Update share count in UI
+                this.incrementShareCountUI(document.querySelector(`.share-btn[data-post-id="${postId}"]`));
+                
+                this.showToast('Đã chia sẻ về tường nhà!');
+                modal.remove();
+                
+            } catch (error) {
+                console.error('Error sharing to profile:', error);
+                this.showToast('Không thể chia sẻ bài viết', 'error');
+                
+                // Reset button
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-share-square"></i> Chia sẻ về tường nhà';
             }
-        } else {
-            // Fallback: copy link
-            const postUrl = `${window.location.origin}/post/${postId}`;
+        } else if (action === 'app') {
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'VieHistory - Dòng chảy Lịch sử',
+                        text: 'Xem bài viết thú vị này trên VieHistory',
+                        url: postUrl
+                    });
+                } catch (error) {
+                    if (error.name !== 'AbortError') {
+                        console.error('Error sharing:', error);
+                    }
+                }
+            } else {
+                window.open(`https://zalo.me/share?url=${encodeURIComponent(postUrl)}`, '_blank');
+            }
+            modal.remove();
+        } else if (action === 'copy') {
+            try {
+                await navigator.clipboard.writeText(postUrl);
+                this.showToast('Đã sao chép link!');
+            } catch (error) {
+                console.error('Error copying to clipboard:', error);
+                this.showToast('Không thể sao chép link', 'error');
+            }
+        }
+    });
+
+    // Sự kiện copy link ở dưới
+    modal.querySelector('.share-url-copy').onclick = async () => {
+        try {
             await navigator.clipboard.writeText(postUrl);
             this.showToast('Đã sao chép link!');
-            this.incrementShareCountUI(button);
-            await dbService.incrementPostShares(postId);
+        } catch (error) {
+            console.error('Error copying to clipboard:', error);
+            this.showToast('Không thể sao chép link', 'error');
         }
-    }
+    };
+
+    // Escape key để đóng modal
+    const esc = (e) => { 
+        if (e.key === 'Escape') { 
+            modal.remove(); 
+            document.removeEventListener('keydown', esc); 
+        } 
+    };
+    document.addEventListener('keydown', esc);
+}
+
+// ...existing code...
 
     incrementShareCountUI(button) {
         const countSpan = button.querySelector('.action-count');

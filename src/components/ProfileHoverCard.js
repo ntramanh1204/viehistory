@@ -59,7 +59,9 @@ class ProfileHoverCard {
 
     handleMouseEnter(e) {
         if (!(e.target instanceof Element)) return;
-        const authorName = e.target.closest('.author-name');
+
+        // ✅ SỬA: Tìm tất cả các class author name
+        const authorName = e.target.closest('.author-name, .original-author-name, .comment-author-name, .reply-author-name');
         if (!authorName) return;
 
         const userId = this.getUserIdFromElement(authorName);
@@ -74,7 +76,9 @@ class ProfileHoverCard {
 
     handleMouseLeave(e) {
         if (!(e.target instanceof Element)) return;
-        const authorName = e.target.closest('.author-name');
+
+        // ✅ SỬA: Tìm tất cả các class author name
+        const authorName = e.target.closest('.author-name, .original-author-name, .comment-author-name, .reply-author-name');
         if (!authorName) return;
 
         this.clearShowTimeout();
@@ -84,17 +88,19 @@ class ProfileHoverCard {
     }
 
     getUserIdFromElement(element) {
+        // ✅ SỬA: Thêm kiểm tra data-user-id trực tiếp từ element
+        const userId = element.dataset.userId || element.dataset.authorId;
+        if (userId) return userId;
+
         // Try to get user ID from various possible sources
         const postItem = element.closest('.post-item, .comment-item');
         if (!postItem) return null;
 
         // Try to get from data attributes
-        const userId = postItem.dataset.userId ||
-            postItem.dataset.authorId ||
-            element.dataset.userId ||
-            element.dataset.authorId;
+        const containerUserId = postItem.dataset.userId ||
+            postItem.dataset.authorId;
 
-        if (userId) return userId;
+        if (containerUserId) return containerUserId;
 
         // Try to extract from post/comment data
         const postId = postItem.dataset.postId;
