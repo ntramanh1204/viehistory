@@ -37,3 +37,20 @@ body {
 .skip-link:focus {
     top: 0;
 }
+
+/* Fix FontAwesome pseudo-elements bị ảnh hưởng bởi reset */
+.fa::before, 
+.fas::before, 
+.far::before, 
+.fal::before, 
+.fat::before, 
+.fad::before, 
+.fab::before {
+  box-sizing: content-box !important; /* Override box-sizing cho FA */
+  display: inline-block !important;
+  font-family: "Font Awesome 6 Free" !important;
+  font-style: normal !important;
+  font-variant: normal !important;
+  text-rendering: auto !important;
+  -webkit-font-smoothing: antialiased !important;
+}
