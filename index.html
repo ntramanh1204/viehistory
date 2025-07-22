@@ -44,6 +44,7 @@
                 </div>
 
                 <button type="submit" class="auth-submit-btn">Đăng nhập</button>
+                <a href="#" id="forgot-password-link" class="forgot-password-link">Quên mật khẩu?</a>
             </form>
 
             <!-- Sign Up Form -->
@@ -76,6 +77,18 @@
                 <span id="signup-switch" class="hidden">Đã có tài khoản? <a href="#" id="show-signin">Đăng
                         nhập</a></span>
             </div>
+        </div>
+    </div>
+
+    <!-- Forgot Pwd Modal -->
+    <div id="forgot-password-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Đặt lại mật khẩu</h3>
+            <form id="forgot-password-form">
+                <input type="email" id="forgot-password-email" placeholder="Nhập email của bạn" required>
+                <button type="submit">Gửi email đặt lại mật khẩu</button>
+            </form>
+            <button class="modal-close" id="close-forgot-password-modal">Đóng</button>
         </div>
     </div>
 

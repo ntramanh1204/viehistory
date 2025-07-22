@@ -4,7 +4,8 @@ import {
     createUserWithEmailAndPassword,
     signOut,
     onAuthStateChanged,
-    updateProfile
+    updateProfile,
+    sendPasswordResetEmail 
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../config/firebase.js';
@@ -195,6 +196,29 @@ export class AuthService {
             await setDoc(userRef, {
                 lastLoginAt: serverTimestamp()
             }, { merge: true });
+        }
+    }
+
+    /**
+     * Gửi email đặt lại mật khẩu
+     */
+    async sendPasswordReset(email) {
+        try {
+            await sendPasswordResetEmail(auth, email);
+            console.log('✅ Password reset email sent successfully');
+        } catch (error) {
+            console.error('❌ Password reset failed:', error);
+            
+            switch (error.code) {
+                case 'auth/user-not-found':
+                    throw new Error('Email này chưa được đăng ký tài khoản.');
+                case 'auth/invalid-email':
+                    throw new Error('Email không hợp lệ.');
+                case 'auth/too-many-requests':
+                    throw new Error('Quá nhiều yêu cầu. Vui lòng thử lại sau.');
+                default:
+                    throw new Error('Không thể gửi email đặt lại mật khẩu. Vui lòng thử lại.');
+            }
         }
     }
 

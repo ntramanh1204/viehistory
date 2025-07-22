@@ -96,6 +96,34 @@ export class AuthManager {
         document.addEventListener('showAuthModal', (e) => {
             this.showAuthModal(e.detail?.message);
         });
+
+        // Sự kiện mở modal quên mật khẩu
+        document.getElementById('forgot-password-link')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('forgot-password-modal').classList.remove('hidden');
+        });
+
+        // Đóng modal
+        document.getElementById('close-forgot-password-modal')?.addEventListener('click', () => {
+            document.getElementById('forgot-password-modal').classList.add('hidden');
+        });
+
+        // Xử lý submit form quên mật khẩu
+        document.getElementById('forgot-password-form')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('forgot-password-email').value.trim();
+            if (!email) {
+                this.showError('Vui lòng nhập email');
+                return;
+            }
+            try {
+                await authService.sendPasswordReset(email);
+                this.showSuccess('Đã gửi email đặt lại mật khẩu. Vui lòng kiểm tra hộp thư.');
+                document.getElementById('forgot-password-modal').classList.add('hidden');
+            } catch (error) {
+                this.showError(error.message);
+            }
+        });
     }
 
     setupAuthStateListener() {
